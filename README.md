@@ -24,23 +24,29 @@ Readers can:
 - easily connect their wallet with NWC to pay for their selections throughout the story
 - clearly understand the cost associated with the book
 
-## Getting Started
+
 
 ### Prerequisites
 
 
-### Installation
+## Getting Started
+First, run the development server:
 
-[Step-by-step installation guide, include actual commands like:
 ```bash
-git clone [repository-url]
-cd [project-directory]
-npm install  # or equivalent
-```]
+npm run dev
+# or
+yarn dev
+# or
+pnpm dev
+# or
+bun dev
+```
+
+Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
 ### Quick Start
 
-Visit satstheway.com to start your own adventure!
+Visit satstheway.com (not yet) to start your own adventure!
 
 ## Documentation
 
