@@ -1,0 +1,7 @@
+---
+description: Tell Cursor to consult PLANNING to understand the plan
+globs: 
+---
+
+# Your rule content
+- Always read [PLANNING.md](mdc:PLANNING.md) at the start of a new conversation to understand the project's architecture, goals, style, and constraints.

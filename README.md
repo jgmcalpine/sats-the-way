@@ -63,13 +63,6 @@ Visit satstheway.com (not yet) to start your own adventure!
 - Configuration files
 - Important settings]
 
-## Deployment
-
-[Instructions for:
-- How to deploy
-- Where it can be deployed
-- Any deployment requirements]
-
 ## Contributing
 
 [Information about:
@@ -77,8 +70,6 @@ Visit satstheway.com (not yet) to start your own adventure!
 - Development process
 - Pull request process
 - Issue reporting]
-
-## License
 
 ## Team
 [Information about:
