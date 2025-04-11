@@ -3,7 +3,7 @@
 Build your own adventure - digital choose-your-own-adventure books that are free to start and cost small amounts to make choices at forks in the road.
 
 ## Overview
-Built during the Bitcoin 2025 Official Hackathon, Sats the Way allows authors to distribute their writing and interact with their readers in novel ways. With digital-first content, books can be interactive in ways never before possible while ensuring creators are rewarded for their work.
+Built during the Bitcoin 2025 Official Hackathon, the goal of this project is to build something fun. Sats the Way allows authors to distribute their writing and interact with their readers in novel ways. With digital-first content, books can be interactive in ways never before possible while ensuring creators are rewarded for their work.
 
 Sats the Way is a platform for creating and enjoying choose-your-own-adventure style digital books. Authors are able to upload their writing, including images or other media, and set paywalls to charge small amounts for users to choose their path in the story. Readers are able to search for books, start them for free, and decide to pay if they wish to continue reading. The funds go directly from reader to author.
 
@@ -24,10 +24,14 @@ Readers can:
 - easily connect their wallet with NWC to pay for their selections throughout the story
 - clearly understand the cost associated with the book
 
+## Technical Outline
+We will create a number of new event kinds, likely all replaceable events between 30000 - 39999
 
-
-### Prerequisites
-
+EVENT 1: Book Table of Contents (includes additional metadata about the book)
+EVENT 2: Encrypted Chapter (requires payment)
+EVENT 3: Unencrypted Chapter (freely accessible)
+EVENT 4: We will need a private event that reveals the preimage to a user after paying but I think this event kind already exists.
+EVENT 5 (?): A way to track a reader's progress through the book
 
 ## Getting Started
 First, run the development server:
