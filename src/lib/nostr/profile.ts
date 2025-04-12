@@ -2,17 +2,18 @@ import ndkInstance from '@/lib/nostr/ndk';
 import type { NDKUserProfile } from '@nostr-dev-kit/ndk';
 
 export type ProfileMetadata = {
-  name?: string;
-  about?: string;
-  picture?: string;
-  nip05?: string;
-  lud06?: string; // lnurl pay string
-  lud16?: string; // lightning address
-  displayName?: string; // Often used alongside or instead of name
-  banner?: string;
-  website?: string;
-  // Allow any other properties that might be in the kind 0 content
-  [key: string]: any;
+    name?: string;
+    about?: string;
+    picture?: string;
+    nip05?: string;
+    lud06?: string; // lnurl pay string
+    lud16?: string; // lightning address
+    displayName?: string; // Often used alongside or instead of name
+    banner?: string;
+    website?: string;
+    // Allow any other properties that might be in the kind 0 content
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    [key: string]: any;
 };
 
 /**

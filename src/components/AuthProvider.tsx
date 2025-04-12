@@ -54,8 +54,10 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const connect = async () => {
     setLoading(true)
     try {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       if (!(window as any).nostr) throw new Error('Nostr extension not found')
 
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const pubkey = await (window as any).nostr.getPublicKey()
       localStorage.setItem(LOCAL_STORAGE_KEY, pubkey)
 
