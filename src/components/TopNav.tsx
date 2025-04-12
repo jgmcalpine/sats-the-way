@@ -1,6 +1,8 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import {
   AppBar,
   Toolbar,
@@ -22,29 +24,30 @@ interface User {
 
 interface TopNavProps {
   currentUser?: User | null;
-  activePage?: 'read' | 'write';
   onConnect?: () => void;
   onDisconnect?: () => void;
   loading?: boolean;
-  onNavigate?: (page: 'read' | 'write') => void;
 }
 
 const TopNav: React.FC<TopNavProps> = ({
   currentUser,
-  activePage,
   onConnect,
   onDisconnect,
-  onNavigate,
   loading
 }) => {
   const [hasMounted, setHasMounted] = useState(false);
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
-
+  const pathname = usePathname(); // Get current path for active styling
+  
   useEffect(() => {
     setHasMounted(true)
   }, [])
-
+  
   if (!hasMounted) return null;
+  
+  const linkStyle = "px-3 py-2 rounded-md text-sm font-medium";
+  const activeStyle = "bg-gray-900 text-white";
+  const inactiveStyle = "text-gray-300 hover:bg-gray-700 hover:text-white";
 
   const onProfileClick = (event: React.MouseEvent<HTMLElement>) => {
 		setAnchorEl(anchorEl ? null : event.currentTarget);
@@ -52,6 +55,10 @@ const TopNav: React.FC<TopNavProps> = ({
 
   const isProfileOpen = Boolean(anchorEl);
 	const id = isProfileOpen ? 'profile-popover' : undefined;
+
+  const getLinkClassName = (href: string): string => {
+    return `${linkStyle} ${pathname === href ? activeStyle : inactiveStyle}`;
+  };
 
   return (
     <AppBar position="static" color="transparent" elevation={0}>
@@ -66,18 +73,12 @@ const TopNav: React.FC<TopNavProps> = ({
             SatsTheWay
           </Typography>
           
-          <Button
-            variant={activePage === 'read' ? 'contained' : 'text'}
-            onClick={() => onNavigate?.('read')}
-          >
-            Read
-          </Button>
-          <Button
-            variant={activePage === 'read' ? 'contained' : 'text'}
-            onClick={() => onNavigate?.('write')}
-          >
+          <Link href="/" className={getLinkClassName('/')}>
+            Home
+          </Link>
+          <Link href="/write" className={getLinkClassName('/write')}>
             Write
-          </Button>
+          </Link>
         </Box>
         {/* Right side - Connect/Profile */}
         <Box>
