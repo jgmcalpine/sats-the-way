@@ -9,6 +9,7 @@ import {
   Typography,
   Box,
   Avatar,
+  Popover
 } from '@mui/material';
 import { AccountCircle } from '@mui/icons-material';
 
@@ -23,8 +24,8 @@ interface TopNavProps {
   currentUser?: User | null;
   activePage?: 'read' | 'write';
   onConnect?: () => void;
+  onDisconnect?: () => void;
   loading?: boolean;
-  onProfileClick?: () => void;
   onNavigate?: (page: 'read' | 'write') => void;
 }
 
@@ -32,17 +33,25 @@ const TopNav: React.FC<TopNavProps> = ({
   currentUser,
   activePage,
   onConnect,
-  onProfileClick,
+  onDisconnect,
   onNavigate,
   loading
 }) => {
   const [hasMounted, setHasMounted] = useState(false);
+  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
 
   useEffect(() => {
     setHasMounted(true)
   }, [])
 
   if (!hasMounted) return null;
+
+  const onProfileClick = (event: React.MouseEvent<HTMLElement>) => {
+		setAnchorEl(anchorEl ? null : event.currentTarget);
+  }
+
+  const isProfileOpen = Boolean(anchorEl);
+	const id = isProfileOpen ? 'profile-popover' : undefined;
 
   return (
     <AppBar position="static" color="transparent" elevation={0}>
@@ -73,20 +82,41 @@ const TopNav: React.FC<TopNavProps> = ({
         {/* Right side - Connect/Profile */}
         <Box>
           {currentUser ? (
-            <IconButton 
-              onClick={onProfileClick}
-              size="large"
-              sx={{ padding: 0.5 }}
-            >
-              {currentUser.picture ? (
-                <Avatar 
-                  src={currentUser.picture} 
-                  alt={currentUser.name || 'Profile'}
-                />
-              ) : (
-                <AccountCircle fontSize="large" />
-              )}
-            </IconButton>
+            <Box>
+              <IconButton 
+                onClick={onProfileClick}
+                color='primary'
+                size="large"
+                sx={{ padding: 0.5 }}
+              >
+                {currentUser.picture ? (
+                  <Avatar 
+                    src={currentUser.picture} 
+                    alt={currentUser.name || 'Profile'}
+                  />
+                ) : (
+                  <AccountCircle fontSize="large" />
+                )}
+              </IconButton>
+              <Popover
+                id={id}
+                open={isProfileOpen}
+                anchorEl={anchorEl}
+                onClose={() => setAnchorEl(null)}
+                anchorOrigin={{
+                  vertical: 'bottom',
+                  horizontal: 'right',
+                }}
+                transformOrigin={{
+                  vertical: 'top',
+                  horizontal: 'right',
+                }}
+              >
+                <Box sx={{ p: 2, minWidth: 200 }}>
+                  <Button fullWidth variant="text" onClick={onDisconnect}>Logout</Button>
+                </Box>
+              </Popover>
+            </Box>
           ) : (
             <Button
               variant="contained"
