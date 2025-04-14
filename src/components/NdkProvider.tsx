@@ -100,7 +100,7 @@ export function NDKProvider({ children }: { children: ReactNode }) {
     );
 }
 
-export function useNDKContext(): NDKContextProps {
+export function useNDK(): NDKContextProps {
     const context = useContext(NDKContext);
     if (context === undefined) {
         throw new Error('useNDKContext must be used within an NDKProvider');
