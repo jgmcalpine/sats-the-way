@@ -58,9 +58,6 @@ export function NDKProvider({ children }: { children: ReactNode }) {
                  }
             });
 
-            // ---- REMOVED INCORRECT POOL ERROR LISTENER ----
-            // ndkInstance.pool?.on('error', (relay, error) => { /* ... incorrect ... */ });
-
             await ndkInstance.connect();
             console.log("NDK connect() method finished.");
 

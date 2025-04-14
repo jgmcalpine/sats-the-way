@@ -40,3 +40,8 @@ export interface ChapterDraft extends DraftBase {
 }
 
 export type NostrDraftEvent = BookDraft | ChapterDraft
+
+export interface DraftFilter {
+    draft_type?: DraftType;
+    published?: boolean;
+}
