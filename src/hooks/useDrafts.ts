@@ -14,7 +14,7 @@ export function useDrafts() {
     const { ndk } = useNDK();
 
     const getSignerPubkey = useCallback(async (): Promise<string> => {
-        if (!ndk?.signer) return '';
+        if (!ndk?.signer) throw new Error("No signer connected");
         return await ndk.signer.user().then((u) => u.pubkey);
     }, [ndk]);
 

@@ -2,7 +2,8 @@
 
 import React, { createContext, useContext, useEffect, useState, ReactNode, useMemo } from 'react';
 import ndkInstance from '@/lib/nostr/ndk';
-import NDK, { NDKRelay } from '@nostr-dev-kit/ndk';
+import NDK, { NDKRelay, NDKNip07Signer } from '@nostr-dev-kit/ndk';
+
 
 interface NDKContextProps {
     ndk: NDK;
@@ -58,6 +59,12 @@ export function NDKProvider({ children }: { children: ReactNode }) {
                  }
             });
 
+            if (window.nostr) {
+                ndkInstance.signer = new NDKNip07Signer();
+            } else {
+                console.warn("No NIP-07 signer (e.g., Alby) detected in browser.");
+            }
+
             await ndkInstance.connect();
             console.log("NDK connect() method finished.");
 
@@ -102,5 +109,6 @@ export function useNDK(): NDKContextProps {
     if (context === undefined) {
         throw new Error('useNDKContext must be used within an NDKProvider');
     }
+    console.log("context: ", context);
     return context;
 }
