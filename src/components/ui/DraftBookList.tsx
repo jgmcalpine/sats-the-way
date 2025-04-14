@@ -2,7 +2,6 @@
 
 import React, { useEffect, useState } from "react";
 import { Grid, Box, Card, CardContent, Typography, CircularProgress, Button, Divider, Chip } from "@mui/material";
-// import { listDrafts } from "@/lib/nostr/drafts";
 import { NostrDraftEvent, BookDraft } from "@/types/drafts";
 import { useDrafts } from "@/hooks/useDrafts";
 
@@ -14,9 +13,9 @@ function isBookDraft(draft: NostrDraftEvent): draft is BookDraft {
 // Define an interface for our UI mapping (we're only handling book drafts here)
 interface DraftWithMetadata {
 	title: string;
-	slug: string;
-	language: string;
 	draft: BookDraft;
+	language?: string;
+	slug?: string;
 }
 
 const mockDrafts: DraftWithMetadata[] = [
@@ -70,7 +69,7 @@ const DraftBookList: React.FC = () => {
 	const [loading, setLoading] = useState(true);
 	const [selectedDraft, setSelectedDraft] = useState<DraftWithMetadata | null>(null);
     const { listDrafts } = useDrafts();
-    console.log("DRAFTS: ", drafts);
+
     useEffect(() => {
 		const loadDrafts = async () => {
 			try {
@@ -80,8 +79,6 @@ const DraftBookList: React.FC = () => {
 					.filter(({ draft }) => isBookDraft(draft))
 					.map(({ draft }) => ({
 						title: draft.title,
-						slug: 'TEST', // Update these two
-						language: 'english',
 						draft: draft as BookDraft,
 					}));
 				setDrafts(bookDrafts);
