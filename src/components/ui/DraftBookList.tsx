@@ -164,16 +164,6 @@ const DraftBookList: React.FC = () => {
 							Number of Chapters: {selectedDraft.draft.chapters.length}
 						</Typography>
 					)}
-					{/* For illustration we simulate total pages written if available */}  
-					<Typography variant="body1">
-						Total Pages Written:{" "}
-						{
-							// Use the body if available; otherwise show N/A.
-							(selectedDraft.draft as any).body
-								? (selectedDraft.draft as any).body.split("\n").length
-								: "N/A"
-						}
-					</Typography>
 					<Box mt={2} display="flex" gap={2}>
 						<Button variant="contained" color="primary" onClick={() => handleEditDraft(selectedDraft)}>
 							Edit Draft
