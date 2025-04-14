@@ -2,6 +2,7 @@
 
 import { useAuth } from "@/components/AuthProvider";
 import SimpleTextInput from '@/components/ui/SimpleTextInput';
+import DraftBookList from '@/components/ui/DraftBookList';
 
 export default function WritePage() {
     const { currentUser, loading } = useAuth();
@@ -14,6 +15,7 @@ export default function WritePage() {
 
     return (
         <div className="flex flex-col justify-center items-center h-full min-h-screen">
+            <DraftBookList />
             This is where we will write
 
             {currentUser && (
