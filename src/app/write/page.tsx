@@ -9,13 +9,17 @@ import BookEditor from "@/components/ui/BookEditor";
 
 export default function WritePage() {
     const { currentUser, loading } = useAuth();
-    const { createDraft } = useDrafts();
+    const { createDraft, deleteDraft } = useDrafts();
     const [draftToEdit, setDraftToEdit] = useState<string | null>(null)
 
     if (loading) return null;
 
-    const handleEditDraft = (draft: BookDraftWithMetadata) => {
-        setDraftToEdit(draft.draft?.id);
+    const onEditDraft = (book: BookDraftWithMetadata) => {
+        setDraftToEdit(book.draft.id);
+    }
+
+    const onDeleteDraft = (book: BookDraftWithMetadata) => {
+        deleteDraft(book.event);
     }
 
     const handleNewBook = async () => {
@@ -28,7 +32,6 @@ export default function WritePage() {
             language: 'english',
             author: currentUser?.pubkey || '',
             chapters: [],
-            published: false,
             last_modified: new Date().getTime()
         });
 
@@ -41,7 +44,7 @@ export default function WritePage() {
 
     return (
         <div className="flex flex-col justify-center items-center h-full min-h-screen">
-            <DraftBookList handleEditDraft={handleEditDraft} />
+            <DraftBookList handleDeleteDraft={onDeleteDraft} handleEditDraft={onEditDraft} />
             <BookEditor onCreateBook={handleNewBook} bookId={draftToEdit} />
         </div>
     )
