@@ -78,7 +78,7 @@ export function useDrafts() {
         pubkey: string, 
         encryptedContent: string,
         draftId: string,
-        originalEvent?: NDKEvent
+        originalEvent?: boolean
     ): Promise<NDKEvent> => {
         try {
             const tags: string[][] = [['p', pubkey]];
@@ -90,21 +90,36 @@ export function useDrafts() {
             
             if (originalEvent) {
                 // Reference the original event by its id
-                tags.push(['e', originalEvent.id]);
+                tags.push(['e', draftId]);
             }
-
+            
             const event = new NDKEvent(ndk, {
-                kind: DRAFT_PARAMETERIZED_KIND, // Use parameterized replaceable events
+                kind: DRAFT_PARAMETERIZED_KIND, // Use parameterized kind consistently
                 pubkey,
                 tags,
                 content: encryptedContent,
                 created_at: Math.floor(Date.now() / 1000),
             });
-
+            
             await event.sign();
-            await event.publish();
-
-            return event;
+            
+            // First, check relay connectivity
+            console.log("Connected relays:", ndk.pool?.relays.size);
+            
+            // Use the correct publish approach with timeout
+            try {
+                // Set a longer timeout for the publish operation
+                const publishPromise = event.publish();
+                const timeoutPromise = new Promise((_, reject) => 
+                    setTimeout(() => reject(new Error("Publish timeout")), 10000)
+                );
+                
+                await Promise.race([publishPromise, timeoutPromise]);
+                return event;
+            } catch (publishError) {
+                console.error("Publish failed:", publishError);
+                throw publishError;
+            }
         } catch (error) {
             throw new DraftError(
                 `Failed to publish draft event: ${error instanceof Error ? error.message : String(error)}`, 
@@ -165,23 +180,50 @@ export function useDrafts() {
             
             const pubkey = await getSignerPubkey();
             validateDraftEvent(originalEvent, pubkey);
-
-            const encryptedContent = await encryptDraft(pubkey, {
+            
+            // Get the 'd' tag value from the original event for proper replacement
+            const dTag = originalEvent.tags.find(tag => tag[0] === 'd')?.[1];
+            if (!dTag) {
+                throw new DraftError("Missing 'd' tag in original event", DraftErrorType.VALIDATION_ERROR);
+            }
+    
+            // Create an updated draft with the current timestamp
+            const draftWithTimestamp = {
                 ...updatedDraft,
                 last_modified: Date.now(),
+            };
+    
+            const encryptedContent = await encryptDraft(pubkey, draftWithTimestamp);
+    
+            // Create a new event that references the same 'd' tag to ensure proper replacement
+            const updatedEvent = new NDKEvent(ndk, {
+                kind: DRAFT_PARAMETERIZED_KIND, // Use parameterized kind consistently
+                pubkey,
+                tags: [
+                    ['p', pubkey],
+                    ['d', dTag], // Use the same 'd' tag value for replacement
+                ],
+                content: encryptedContent,
+                created_at: Math.floor(Date.now() / 1000),
             });
-
-            const updatedEvent = await publishDraftEvent(pubkey, encryptedContent, updatedDraft.id, originalEvent);
             
-            // Update cache
-            if (draftCache.current.has(eventId)) {
-                draftCache.current.delete(eventId);
-            }
+            await updatedEvent.sign();
             
+            // Log before publishing
+            console.log("Publishing updated draft with d tag:", dTag);
+            
+            await updatedEvent.publish();
+            
+            // Update cache with the newest version
             draftCache.current.set(updatedEvent.id, { 
                 event: updatedEvent, 
-                draft: updatedDraft 
+                draft: draftWithTimestamp 
             });
+            
+            // Remove old version from cache if ID changed
+            if (eventId !== updatedEvent.id) {
+                draftCache.current.delete(eventId);
+            }
             
             updateDraftStatus(updatedEvent.id, 'sent');
             return updatedEvent;
@@ -190,7 +232,7 @@ export function useDrafts() {
             updateDraftStatus(originalEvent.id, 'failed');
             throw error;
         }
-    }, [getSignerPubkey, validateDraftEvent, encryptDraft, publishDraftEvent, updateDraftStatus]);
+    }, [ndk, getSignerPubkey, validateDraftEvent, encryptDraft, updateDraftStatus]);
 
     const decryptDraft = useCallback(async (
         event: NDKEvent, 
@@ -218,7 +260,7 @@ export function useDrafts() {
                     || ((!filter.draft_type || draft.draft_type === filter.draft_type))
                 );
             }
-
+    
             const pubkey = await getSignerPubkey();
             
             // Get all deletion events first to filter them out
@@ -226,7 +268,7 @@ export function useDrafts() {
                 kinds: [DRAFT_DELETION_KIND],
                 authors: [pubkey],
             });
-
+    
             // Create a Set of deleted event IDs for quick lookup
             const deletedEventIds = new Set<string>();
             for (const deletionEvent of deletionEvents) {
@@ -235,38 +277,55 @@ export function useDrafts() {
                     if (eTag[1]) deletedEventIds.add(eTag[1]);
                 }
             }
-
-            // Get draft events
+    
+            // Get draft events - fetch both kinds for compatibility
             const events = await ndk.fetchEvents({
-                kinds: [DRAFT_KIND, DRAFT_PARAMETERIZED_KIND], // Support both traditional and parameterized
+                kinds: [DRAFT_KIND, DRAFT_PARAMETERIZED_KIND],
                 authors: [pubkey],
                 ...(filter?.draft_type ? { '#d': [filter.draft_type] } : {}),
             });
-
+    
+            // Group events by their 'd' tag to handle replaceable events
+            const eventsByDTag = new Map<string, NDKEvent>();
+            for (const event of events) {
+                // Skip deleted events
+                if (deletedEventIds.has(event.id)) continue;
+                
+                // Find the 'd' tag to use as identifier for parameterized replaceable events
+                const dTag = event.tags.find(tag => tag[0] === 'd')?.[1];
+                if (!dTag) continue; // Skip events without 'd' tag
+                
+                // Only keep the newest event for each 'd' tag
+                const existingEvent = eventsByDTag.get(dTag);
+                if (!existingEvent || existingEvent.created_at < event.created_at) {
+                    eventsByDTag.set(dTag, event);
+                }
+            }
+    
             // Clear cache if doing a full refresh
             if (forceRefresh) {
                 draftCache.current.clear();
             }
-
-            const decryptionPromises = Array.from(events)
-                .filter(event => !deletedEventIds.has(event.id)) // Filter out deleted events
+    
+            // Process all the unique latest events
+            const decryptionPromises = Array.from(eventsByDTag.values())
                 .map(async (event) => {
                     const draft = await decryptDraft(event, pubkey);
                     if (!draft) return null;
-
+    
                     const matchesFilter = !filter
                         || ((!filter.draft_type || draft.draft_type === filter.draft_type));
-
+    
                     if (draft) {
                         // Store in cache
                         draftCache.current.set(event.id, { event, draft });
                         // Set status as 'sent' for all loaded drafts
                         updateDraftStatus(event.id, 'sent');
                     }
-
+    
                     return matchesFilter ? { event, draft } : null;
                 });
-
+    
             const results = await Promise.all(decryptionPromises);
             return results.filter((result): result is { event: NDKEvent; draft: NostrDraftEvent } => 
                 result !== null
