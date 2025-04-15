@@ -213,7 +213,7 @@ const BookEditor: React.FC<BookEditorProps> = ({ bookId, onCreateBook }) => {
 								<li
 									key={chapter.position}
 									className={`cursor-pointer p-2 hover:bg-gray-100 ${
-										chapter.position === selectedChapterId ? 'bg-gray-200 font-bold' : ''
+										chapter.position === selectedChapterId ? 'bg-gray-200 font-bold text-black' : ''
 									}`}
 									onClick={() => handleChapterClick(chapter)}
 								>

@@ -15,7 +15,6 @@ export default function WritePage() {
     if (loading) return null;
 
     const handleEditDraft = (draft: BookDraftWithMetadata) => {
-        console.log("should be editing this draftL ", draft);
         setDraftToEdit(draft.draft?.id);
     }
 
@@ -43,7 +42,6 @@ export default function WritePage() {
     return (
         <div className="flex flex-col justify-center items-center h-full min-h-screen">
             <DraftBookList handleEditDraft={handleEditDraft} />
-            This is where we will write
             <BookEditor onCreateBook={handleNewBook} bookId={draftToEdit} />
         </div>
     )

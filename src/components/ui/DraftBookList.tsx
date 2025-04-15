@@ -96,7 +96,7 @@ const DraftBookList: React.FC<DraftBookListProps> = ({ handleEditDraft }: DraftB
 	};
 
 	const renderCard = (book: BookDraftWithMetadata) => (
-		<Grid size={{xs: 12, sm: 6, md: 4}} key={book.title}>
+		<Grid size={{xs: 12, sm: 6, md: 4}} key={book.draft.id}>
 			<Card variant="outlined" onClick={() => handleSelectDraft(book)} sx={{ cursor: "pointer", "&:hover": { boxShadow: 3 } }}>
 				<CardContent>
 					<Typography variant="h6" gutterBottom>
