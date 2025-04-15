@@ -27,8 +27,24 @@ export default function WritePage() {
 
     const handleNewBook = async (bookMetaData: CreateBookMetadata) => {
         const { title, description, dedication } = bookMetaData;
+        const bookId = uuidv4();
+        const firstChapterId = uuidv4();
+
+        // Create first chapter
+        await createDraft({
+            id: firstChapterId,
+            draft_type: 'chapter',
+            paid: false,
+            entry_type: "chapter",
+            media_type: "text",
+            body: '',
+            position: 0,
+            last_modified: new Date().getTime(),
+            book: bookId
+        })
+
         const newDraftBook = await createDraft({
-            id: uuidv4(),
+            id: bookId,
             draft_type: 'book',
             series_type: 'book',
             media_type: 'text',
@@ -37,7 +53,7 @@ export default function WritePage() {
             dedication,
             language: 'english',
             author: currentUser?.pubkey || '',
-            chapters: [],
+            chapters: [{ id: firstChapterId, title: '', paid: false, position: 0 }],
             last_modified: new Date().getTime()
         });
 

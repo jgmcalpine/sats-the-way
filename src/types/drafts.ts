@@ -22,7 +22,7 @@ export interface BookDraft extends DraftBase {
 	tags?: string[]
 	chapters: {
 		id: string
-		title: string
+		title?: string
 		paid: boolean
 		position: number
 	}[]
@@ -32,14 +32,14 @@ export interface ChapterDraft extends DraftBase {
 	draft_type: "chapter"
 	entry_type: "chapter" | "episode" | "track"
 	media_type: "text" | "audio" | "video"
-	title?: string
-	summary?: string
-	body?: string | null
-	encrypted_body?: string | null
-	encryption_scheme?: string | null
+	body: string
 	book: string | null // can be null until assigned to a published book
 	paid: boolean
 	position: number
+	title?: string
+	summary?: string
+	encrypted_body?: string | null
+	encryption_scheme?: string | null
 	published_at?: number
 }
 
