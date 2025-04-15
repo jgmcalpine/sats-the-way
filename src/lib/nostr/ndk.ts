@@ -6,6 +6,9 @@ const defaultRelays = [
     'wss://relay.damus.io',
     'wss://relay.primal.net',
     'wss://nos.lol',
+    'wss://relay.nostr.band',
+    'wss://relay.current.fyi',
+    'wss://nostr.fmt.wiz.biz',
     // Add more or load from configuration
 ];
 
