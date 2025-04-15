@@ -1,8 +1,10 @@
+import { NDKEvent } from '@nostr-dev-kit/ndk';
+
 export type DraftType = "book" | "chapter"
 
 export interface DraftBase {
+    id: string
 	draft_type: DraftType
-	published: boolean // true once converted to public kind 30077/30078
 	last_modified: number // timestamp for syncing and autosave
 }
 
@@ -44,13 +46,10 @@ export type NostrDraftEvent = BookDraft | ChapterDraft
 
 export interface DraftFilter {
     draft_type?: DraftType;
-    published?: boolean;
 }
 
 // Define an interface for our UI mapping (we're only handling book drafts here)
 export interface BookDraftWithMetadata {
-	title: string;
-	draft: BookDraft;
-	language?: string;
-	slug?: string;
+	event: NDKEvent; 
+    draft: BookDraft;
 }
