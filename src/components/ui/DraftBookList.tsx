@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import { Grid, Box, Card, CardContent, Typography, CircularProgress, Button, Divider, Chip } from "@mui/material";
-import { NostrDraftEvent, BookDraft } from "@/types/drafts";
+import { NostrDraftEvent, BookDraft, BookDraftWithMetadata } from "@/types/drafts";
 import { useDrafts } from "@/hooks/useDrafts";
 
 // Type guard: checks if the draft is a BookDraft (and not a ChapterDraft)
@@ -10,20 +10,13 @@ function isBookDraft(draft: NostrDraftEvent): draft is BookDraft {
 	return draft.draft_type === "book";
 }
 
-// Define an interface for our UI mapping (we're only handling book drafts here)
-interface DraftWithMetadata {
-	title: string;
-	draft: BookDraft;
-	language?: string;
-	slug?: string;
-}
-
-const mockDrafts: DraftWithMetadata[] = [
+const mockDrafts: BookDraftWithMetadata[] = [
 	{
 		title: "The Lightning Library",
 		slug: "lightning-library",
 		language: "en",
 		draft: {
+			id: '1234',
 			draft_type: "book",
 			published: false,
 			last_modified: Date.now() - 1000 * 60 * 10, // 10 minutes ago
@@ -46,6 +39,7 @@ const mockDrafts: DraftWithMetadata[] = [
 		slug: "zap-saga",
 		language: "en",
 		draft: {
+			id: '456',
 			draft_type: "book",
 			published: false,
 			last_modified: Date.now() - 1000 * 60 * 30, // 30 minutes ago
@@ -64,10 +58,14 @@ const mockDrafts: DraftWithMetadata[] = [
 	}
 ];
 
-const DraftBookList: React.FC = () => {
-	const [drafts, setDrafts] = useState<DraftWithMetadata[]>([]);
+interface DraftBookListProps {
+	handleEditDraft: (draft: BookDraftWithMetadata) => void;
+}
+
+const DraftBookList: React.FC<DraftBookListProps> = ({ handleEditDraft }: DraftBookListProps) => {
+	const [drafts, setDrafts] = useState<BookDraftWithMetadata[]>([]);
 	const [loading, setLoading] = useState(true);
-	const [selectedDraft, setSelectedDraft] = useState<DraftWithMetadata | null>(null);
+	const [selectedDraft, setSelectedDraft] = useState<BookDraftWithMetadata | null>(null);
     const { listDrafts } = useDrafts();
 
     useEffect(() => {
@@ -78,7 +76,7 @@ const DraftBookList: React.FC = () => {
 				const bookDrafts = events
 					.filter(({ draft }) => isBookDraft(draft))
 					.map(({ draft }) => ({
-						title: draft.title,
+						title: draft.title || '',
 						draft: draft as BookDraft,
 					}));
 				setDrafts(bookDrafts);
@@ -93,17 +91,11 @@ const DraftBookList: React.FC = () => {
 	}, []);
 
 	// Handler to select a draft for viewing its details
-	const handleSelectDraft = (draft: DraftWithMetadata) => {
+	const handleSelectDraft = (draft: BookDraftWithMetadata) => {
 		setSelectedDraft(draft);
 	};
 
-	// Handler for editing; here you might navigate to your editor or open an edit modal
-	const handleEditDraft = (draft: DraftWithMetadata) => {
-		// For now we simply log the draft slug; in production, navigate to editor page
-		console.log("Editing draft:", draft.slug);
-	};
-
-	const renderCard = (book: DraftWithMetadata) => (
+	const renderCard = (book: BookDraftWithMetadata) => (
 		<Grid size={{xs: 12, sm: 6, md: 4}} key={book.slug}>
 			<Card variant="outlined" onClick={() => handleSelectDraft(book)} sx={{ cursor: "pointer", "&:hover": { boxShadow: 3 } }}>
 				<CardContent>
