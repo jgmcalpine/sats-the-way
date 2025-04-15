@@ -77,15 +77,14 @@ export function useDrafts() {
     const publishDraftEvent = useCallback(async (
         pubkey: string, 
         encryptedContent: string,
-        draftType?: string,
+        draftId: string,
         originalEvent?: NDKEvent
     ): Promise<NDKEvent> => {
         try {
             const tags: string[][] = [['p', pubkey]];
             
             // Create a unique identifier for this draft
-            const draftIdentifier = draftType || 'general';
-            
+            const draftIdentifier = draftId || crypto.randomUUID();            
             // Add parameterized replaceable event tag for NIP-33
             tags.push(['d', draftIdentifier]);
             
@@ -129,7 +128,6 @@ export function useDrafts() {
     ): Promise<NDKEvent> => {
         try {
             updateDraftStatus('new', 'sending');
-            
             const pubkey = await getSignerPubkey();
             
             // Ensure we have created_at and last_modified fields
@@ -140,8 +138,7 @@ export function useDrafts() {
             };
             
             const encryptedContent = await encryptDraft(pubkey, draftWithTimestamps);
-            const draftType = draft.draft_type || 'general';
-            const newEvent = await publishDraftEvent(pubkey, encryptedContent, draftType);
+            const newEvent = await publishDraftEvent(pubkey, encryptedContent, draft.id);
             
             // Add to cache
             draftCache.current.set(newEvent.id, { 
@@ -174,8 +171,7 @@ export function useDrafts() {
                 last_modified: Date.now(),
             });
 
-            const draftType = updatedDraft.draft_type || 'general';
-            const updatedEvent = await publishDraftEvent(pubkey, encryptedContent, draftType, originalEvent);
+            const updatedEvent = await publishDraftEvent(pubkey, encryptedContent, updatedDraft.id, originalEvent);
             
             // Update cache
             if (draftCache.current.has(eventId)) {

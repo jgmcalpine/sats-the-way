@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { NDKEvent } from '@nostr-dev-kit/ndk';
+import { v4 as uuidv4 } from 'uuid';
 import { 
 	TextField, 
 	Button, 
@@ -30,19 +31,17 @@ const BookEditor: React.FC<BookEditorProps> = ({ bookEventId, onCreateBook }) =>
 	const [chapters, setChapters] = useState<ChapterDraft[]>([]);
 	const [loading, setLoading] = useState<boolean>(false);
 	const [isCreatingNewBook, setIsCreatingNewBook] = useState<boolean>(false);
-	const [selectedChapterId, setSelectedChapterId] = useState<number>(1);
+	const [selectedChapterPosition, setSelectedChapterPosition] = useState<number>(0);
 	const [draftText, setDraftText] = useState<string>('');
-	const [bookToEdit, setBookToEdit] = useState<{event: NDKEvent, draft: NostrDraftEvent} | null>(null);
-	const { getDraftById, listDrafts } = useDrafts();
+	const [bookToEdit, setBookToEdit] = useState<{ event: NDKEvent, draft: NostrDraftEvent } | null>(null);
+	const { getDraftById, listDrafts, createDraft } = useDrafts();
 	// Pending chapter switch is used on desktop when a chapter is clicked.
 	const [pendingChapter, setPendingChapter] = useState<ChapterDraft | null>(null);
-
 	useEffect(() => {
 		const getDraft = async () => {
 			try {
 				if (!bookEventId) return;
 				const draftBook = await getDraftById(bookEventId);
-				console.log("DRAFT BOOK: ", draftBook);
 				setBookToEdit(draftBook);
 			} catch (e) {
 				console.error("Failed to load book");
@@ -56,12 +55,13 @@ const BookEditor: React.FC<BookEditorProps> = ({ bookEventId, onCreateBook }) =>
 		const getChapters = async () => {
 			try {
 				if (!bookEventId) return;
+
 				setLoading(true);
 				const chapters = await listDrafts({ book: bookEventId, draft_type: "chapter" });
-				console.log("CHAPTERS: ", chapters);
+
 				setChapters(chapters.map(chapter => chapter.draft as ChapterDraft));
 				setLoading(false);
-				setSelectedChapterId(1);
+				setSelectedChapterPosition(0);
 			} catch (e) {
 				console.error("Failed to load book");
 			}
@@ -74,38 +74,38 @@ const BookEditor: React.FC<BookEditorProps> = ({ bookEventId, onCreateBook }) =>
 		console.log(`Saving draft for chapter ${chapterId}:`, text);
 	};
 
-	const createNewChapter = (): void => {
-		const newChapter: ChapterDraft = {
-			id: 'set new id',
-			draft_type: 'chapter',
-			entry_type: 'chapter',
-			media_type: 'text',
-			position: chapters.length + 1,
-			book: bookEventId,
+	const createNewChapter = async (): Promise<void> => {
+		const newChapter = {
+			id: uuidv4(),
+			draft_type: "chapter" as const,
+			media_type: "text" as const,
+			entry_type: "chapter" as const,
+			body: "",
 			paid: false,
-			body: '',
-			encrypted_body: null,
-			encryption_scheme: null,
-			last_modified: Date.now(),
-		};
+			last_modified: new Date().getTime(),
+			book: bookEventId,
+			position: chapters.length
+		}
+		await createDraft(newChapter);
+
 		setChapters((prev) => [...prev, newChapter]);
-		setSelectedChapterId(newChapter.position);
+		setSelectedChapterPosition(selectedChapterPosition + 1);
 		setDraftText('');
 	};
 
 	// ------- Desktop Modal Handlers -------
 	const handleChapterClick = (chapter: ChapterDraft) => {
 		// Only open the modal if it's a different chapter.
-		if (chapter.position !== selectedChapterId) {
+		if (chapter.position !== selectedChapterPosition) {
 			setPendingChapter(chapter);
 		}
 	};
 
 	const confirmChapterSwitch = () => {
 		// Save the current draft before switching.
-		saveDraftForChapter(selectedChapterId, draftText);
+		saveDraftForChapter(selectedChapterPosition, draftText);
 		if (pendingChapter) {
-			setSelectedChapterId(pendingChapter.position);
+			setSelectedChapterPosition(pendingChapter.position);
 			setDraftText(pendingChapter.body || '');
 		}
 		setPendingChapter(null);
@@ -116,11 +116,11 @@ const BookEditor: React.FC<BookEditorProps> = ({ bookEventId, onCreateBook }) =>
 	};
 	// Handler for mobile selection change.
 	const handleMobileSelectChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
-		setSelectedChapterId(parseInt(event.target.value, 10));
+		setSelectedChapterPosition(parseInt(event.target.value, 10));
 	};
 
 	const handleNextChapter = () => {
-		saveDraftForChapter(selectedChapterId, draftText);
+		saveDraftForChapter(selectedChapterPosition, draftText);
 		createNewChapter();
 	};
 
@@ -153,7 +153,7 @@ const BookEditor: React.FC<BookEditorProps> = ({ bookEventId, onCreateBook }) =>
 					{/* Show dropdown on small screens */}
 					<Box className="block lg:hidden mb-4">
 					  <Select
-						value={selectedChapterId.toString()}
+						value={selectedChapterPosition.toString()}
 						onChange={() => handleMobileSelectChange}
 						variant="outlined"
 						fullWidth
@@ -181,7 +181,7 @@ const BookEditor: React.FC<BookEditorProps> = ({ bookEventId, onCreateBook }) =>
 						{chapters.map((chapter) => (
 						  <ListItemButton
 							key={chapter.position}
-							selected={chapter.position === selectedChapterId}
+							selected={chapter.position === selectedChapterPosition}
 							onClick={() => handleChapterClick(chapter)}
 							sx={{
 							  '&.Mui-selected': {
