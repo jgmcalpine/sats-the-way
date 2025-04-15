@@ -7,21 +7,33 @@ import DraftBookList from '@/components/ui/DraftBookList';
 import { BookDraftWithMetadata } from '@/types/drafts';
 import BookEditor from "@/components/ui/BookEditor";
 
-const BASE_FREE_DRAFT_CHAPTER = {
-    book: null,
-    paid: false,
-    published: false
-}
-
 export default function WritePage() {
     const { currentUser, loading } = useAuth();
-    const [draftToEdit, setDraftToEdit] = useState<BookDraftWithMetadata | null>(null)
+    const { createDraft } = useDrafts();
+    const [draftToEdit, setDraftToEdit] = useState<string | null>(null)
 
     if (loading) return null;
 
     const handleEditDraft = (draft: BookDraftWithMetadata) => {
         console.log("should be editing this draftL ", draft);
-        setDraftToEdit(draft);
+        setDraftToEdit(draft.draft?.id);
+    }
+
+    const handleNewBook = async () => {
+        const newDraftBook = await createDraft({
+            id: '777',
+            draft_type: 'book',
+            series_type: 'book',
+            media_type: 'text',
+            title: '',
+            language: 'english',
+            author: currentUser?.pubkey || '',
+            chapters: [],
+            published: false,
+            last_modified: new Date().getTime()
+        });
+
+        setDraftToEdit(newDraftBook.id);
     }
 
     if (!currentUser) {
@@ -32,7 +44,7 @@ export default function WritePage() {
         <div className="flex flex-col justify-center items-center h-full min-h-screen">
             <DraftBookList handleEditDraft={handleEditDraft} />
             This is where we will write
-            <BookEditor bookId={draftToEdit?.draft?.id} />
+            <BookEditor onCreateBook={handleNewBook} bookId={draftToEdit} />
         </div>
     )
 }

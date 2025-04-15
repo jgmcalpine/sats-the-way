@@ -12,10 +12,10 @@ export interface BookDraft extends DraftBase {
 	series_type: "book" | "video" | "music"
 	media_type: "text" | "audio" | "video"
 	title: string
-	slug: string
 	author: string
-	description?: string
 	language: string
+	description?: string
+	slug?: string
 	tags?: string[]
 	chapters: {
 		id: string

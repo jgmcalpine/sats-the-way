@@ -12,10 +12,11 @@ import ChapterSwitchModal from '@/components/ui/ChapterSwitchModal';
 import type { ChapterDraft } from '@/types/drafts'; // Adjust the import path
 
 interface BookEditorProps {
-	bookId?: string;
+    onCreateBook: () => void;
+	bookId: string | null;
 }
 
-const BookEditor: React.FC<BookEditorProps> = ({ bookId }) => {
+const BookEditor: React.FC<BookEditorProps> = ({ bookId, onCreateBook }) => {
 	// State for chapter drafts, loading, current selected chapter (by position) and draft text.
 	const [chapters, setChapters] = useState<ChapterDraft[]>([]);
 	const [loading, setLoading] = useState<boolean>(false);
@@ -154,7 +155,7 @@ const BookEditor: React.FC<BookEditorProps> = ({ bookId }) => {
 		return (
 			<div className="p-4 text-center">
 				<Typography variant="h6">No Book Selected</Typography>
-				<Button variant="contained" color="primary" onClick={() => console.log('Create new book')}>
+				<Button variant="contained" color="primary" onClick={onCreateBook}>
 					Create New Book
 				</Button>
 			</div>
