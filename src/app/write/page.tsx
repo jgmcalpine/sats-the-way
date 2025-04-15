@@ -18,7 +18,7 @@ export default function WritePage() {
     if (loading) return null;
 
     const onEditDraft = (book: BookDraftWithMetadata) => {
-        setDraftToEdit(book.draft.id);
+        setDraftToEdit(book.event.id);
     }
 
     const onDeleteDraft = (book: BookDraftWithMetadata) => {
@@ -51,7 +51,7 @@ export default function WritePage() {
     return (
         <div className="flex flex-col justify-center items-center h-full min-h-screen">
             <DraftBookList handleDeleteDraft={onDeleteDraft} handleEditDraft={onEditDraft} />
-            <BookEditor onCreateBook={handleNewBook} bookId={draftToEdit} />
+            <BookEditor onCreateBook={handleNewBook} bookEventId={draftToEdit} />
         </div>
     )
 }

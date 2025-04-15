@@ -1,33 +1,57 @@
 import React, { useState, useEffect } from 'react';
-import {
-	Button,
+import { NDKEvent } from '@nostr-dev-kit/ndk';
+import { 
+	TextField, 
+	Button, 
+	Select, 
+	MenuItem, 
 	CircularProgress,
-	MenuItem,
-	Select,
-	TextField,
+	Paper,
+	Box,
 	Typography,
-	SelectChangeEvent
-} from '@mui/material';
+	Divider,
+	List,
+	ListItem,
+	ListItemButton,
+	ListItemText
+  } from '@mui/material';
 import ChapterSwitchModal from '@/components/ui/ChapterSwitchModal';
 import NewBookModal from '@/components/ui/NewBookModal';
-import type { ChapterDraft } from '@/types/drafts';
+import type { ChapterDraft, NostrDraftEvent } from '@/types/drafts';
 import { CreateBookMetadata } from '@/types/books';
+import { useDrafts } from '@/hooks/useDrafts';
 
 interface BookEditorProps {
     onCreateBook: (book: CreateBookMetadata) => void;
-	bookId: string | null;
+	bookEventId: string | null;
 }
 
-const BookEditor: React.FC<BookEditorProps> = ({ bookId, onCreateBook }) => {
-	// State for chapter drafts, loading, current selected chapter (by position) and draft text.
+const BookEditor: React.FC<BookEditorProps> = ({ bookEventId, onCreateBook }) => {
+	console.log("bookEventId: ", bookEventId);
 	const [chapters, setChapters] = useState<ChapterDraft[]>([]);
 	const [loading, setLoading] = useState<boolean>(false);
 	const [isCreatingNewBook, setIsCreatingNewBook] = useState<boolean>(false);
 	const [selectedChapterId, setSelectedChapterId] = useState<number>(1);
 	const [draftText, setDraftText] = useState<string>('');
-	
+	const [bookToEdit, setBookToEdit] = useState<{event: NDKEvent, draft: NostrDraftEvent} | null>(null);
+	const { getDraftById } = useDrafts();
+	console.log("WJHAT IS BOOJK TO EDIT: ", bookToEdit);
 	// Pending chapter switch is used on desktop when a chapter is clicked.
 	const [pendingChapter, setPendingChapter] = useState<ChapterDraft | null>(null);
+
+	useEffect(() => {
+		const getDraft = async () => {
+			try {
+				if (!bookEventId) return;
+				const draftBook = await getDraftById(bookEventId);
+				setBookToEdit(draftBook);
+			} catch (e) {
+				console.error("Failed to load book");
+			}
+		}
+
+		getDraft();
+	}, [bookEventId])
 
 	// ------ Placeholder Functionality (to be replaced with your real implementation) ------
 	const fetchChapters = async (bookId: string): Promise<ChapterDraft[]> => {
@@ -79,7 +103,7 @@ const BookEditor: React.FC<BookEditorProps> = ({ bookId, onCreateBook }) => {
 			entry_type: 'chapter',
 			media_type: 'text',
 			position: chapters.length + 1,
-			book: bookId ?? null,
+			book: bookEventId ?? null,
 			paid: false,
 			body: '',
 			encrypted_body: null,
@@ -94,9 +118,9 @@ const BookEditor: React.FC<BookEditorProps> = ({ bookId, onCreateBook }) => {
 
 	useEffect(() => {
 		const loadChapters = async () => {
-			if (!bookId) return;
+			if (!bookEventId) return;
 			setLoading(true);
-			const fetchedChapters = await fetchChapters(bookId);
+			const fetchedChapters = await fetchChapters(bookEventId);
 			if (fetchedChapters.length === 0) {
 				const defaultChapter: ChapterDraft = {
 					id: '123',
@@ -104,7 +128,7 @@ const BookEditor: React.FC<BookEditorProps> = ({ bookId, onCreateBook }) => {
 					entry_type: 'chapter',
 					media_type: 'text',
 					position: 1,
-					book: bookId,
+					book: bookEventId,
 					paid: false,
 					body: '',
 					encrypted_body: null,
@@ -120,7 +144,7 @@ const BookEditor: React.FC<BookEditorProps> = ({ bookId, onCreateBook }) => {
 			setLoading(false);
 		};
 		loadChapters();
-	}, [bookId]);
+	}, [bookEventId]);
 
 	// ------- Desktop Modal Handlers -------
 	const handleChapterClick = (chapter: ChapterDraft) => {
@@ -143,9 +167,8 @@ const BookEditor: React.FC<BookEditorProps> = ({ bookId, onCreateBook }) => {
 	const cancelChapterSwitch = () => {
 		setPendingChapter(null);
 	};
-
 	// Handler for mobile selection change.
-	const handleMobileSelectChange = (event: SelectChangeEvent<string>) => {
+	const handleMobileSelectChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
 		setSelectedChapterId(parseInt(event.target.value, 10));
 	};
 
@@ -154,8 +177,8 @@ const BookEditor: React.FC<BookEditorProps> = ({ bookId, onCreateBook }) => {
 		createNewChapter();
 	};
 
-	// If no bookId is provided, render a basic view.
-	if (!bookId && !isCreatingNewBook) {
+	// If no bookEventId is provided, render a basic view.
+	if ((!bookEventId || !bookToEdit) && !isCreatingNewBook) {
 		return (
 			<div className="p-4 text-center">
 				<Typography variant="h6">No Book Selected</Typography>
@@ -166,98 +189,116 @@ const BookEditor: React.FC<BookEditorProps> = ({ bookId, onCreateBook }) => {
 		);
 	}
 
-	return (
-		<div className="p-4">
-			{/* Mobile View */}
-			<div className="md:hidden">
-				<div className="mb-4">
-					{loading ? (
-						<CircularProgress size={24} />
-					) : (
-						<Select
-							value={selectedChapterId.toString()}
-							onChange={handleMobileSelectChange}
-							variant="outlined"
-							fullWidth
-						>
-							{chapters.map((chapter) => (
-								<MenuItem key={chapter.position} value={chapter.position.toString()}>
-									Chapter {chapter.position}
-								</MenuItem>
-							))}
-						</Select>
-					)}
-				</div>
-				<div className="flex gap-2">
-					<TextField
-						label="Chapter Content"
-						variant="outlined"
-						fullWidth
-						value={draftText}
-						onChange={(e) => setDraftText(e.target.value)}
-						className="bg-white"
-					/>
-					<Button variant="contained" onClick={handleNextChapter}>
-						Next Chapter
-					</Button>
-				</div>
-			</div>
+	const { title } = bookToEdit?.draft || {};
 
-			{/* Desktop View */}
-			<div className="hidden md:flex gap-4">
-				{/* Chapter List */}
-				<div className="w-48 border border-gray-300 rounded overflow-y-auto max-h-[300px]">
-					{loading ? (
-						<div className="flex justify-center p-4">
-							<CircularProgress size={24} />
-						</div>
-					) : (
-						<ul>
-							{chapters.map((chapter) => (
-								<li
-									key={chapter.position}
-									className={`cursor-pointer p-2 hover:bg-gray-100 ${
-										chapter.position === selectedChapterId ? 'bg-gray-200 font-bold text-black' : ''
-									}`}
-									onClick={() => handleChapterClick(chapter)}
-								>
-									Chapter {chapter.position}
-								</li>
-							))}
-						</ul>
-					)}
-				</div>
-				{/* Editor */}
-				<div className="flex-grow flex flex-col gap-2">
-					<TextField
-						label="Chapter Content"
+	return (
+		<Box className="p-4 w-full">
+		  <Paper elevation={3} className="p-4">
+			<Box className="flex flex-col lg:flex-row gap-4">
+			  {/* Chapter List - Responsive for all devices */}
+			  <Box className="w-full lg:w-48 mb-4 lg:mb-0">
+				{loading ? (
+				  <Box className="flex justify-center p-4">
+					<CircularProgress size={24} />
+				  </Box>
+				) : (
+				  <>
+					{/* Show dropdown on small screens */}
+					<Box className="block lg:hidden mb-4">
+					  <Select
+						value={selectedChapterId.toString()}
+						onChange={() => handleMobileSelectChange}
 						variant="outlined"
-						multiline
-						rows={10}
 						fullWidth
-						value={draftText}
-						onChange={(e) => setDraftText(e.target.value)}
-						className="bg-white"
-					/>
-					<div className="text-right">
-						<Button variant="contained" onClick={handleNextChapter}>
-							Save
-						</Button>
-						<Button variant="contained" onClick={handleNextChapter}>
-							Next
-						</Button>
-					</div>
-				</div>
-			</div>
-			{/* Modal for Chapter Switch Confirmation */}
-			<ChapterSwitchModal
-				open={pendingChapter !== null}
-				onConfirm={confirmChapterSwitch}
-				onCancel={cancelChapterSwitch}
-			/>
-			<NewBookModal open={isCreatingNewBook} onClose={() => setIsCreatingNewBook(false)} onSubmit={onCreateBook}  />
-		</div>
-	);
+						size="small"
+					  >
+						{chapters.map((chapter) => (
+						  <MenuItem key={chapter.position} value={chapter.position.toString()}>
+							Chapter {chapter.position}
+						  </MenuItem>
+						))}
+					  </Select>
+					</Box>
+					
+					{/* Show list on larger screens */}
+					<Paper variant="outlined" className="hidden lg:block h-full max-h-80 overflow-y-auto">
+					  <List disablePadding>
+						<ListItem sx={{ backgroundColor: '#f5f5f5' }}>
+						  {title && (
+							<Typography variant="subtitle2" fontWeight="bold">
+								{title}
+						  	</Typography>
+						)}
+						</ListItem>
+						<Divider />
+						{chapters.map((chapter) => (
+						  <ListItemButton
+							key={chapter.position}
+							selected={chapter.position === selectedChapterId}
+							onClick={() => handleChapterClick(chapter)}
+							sx={{
+							  '&.Mui-selected': {
+								backgroundColor: 'primary.light',
+							  }
+							}}
+						  >
+							<ListItemText primary={`Chapter ${chapter.position}`} />
+						  </ListItemButton>
+						))}
+					  </List>
+					</Paper>
+				  </>
+				)}
+			  </Box>
+	  
+			  {/* Editor - Responsive for all devices */}
+			  <Box className="flex-grow">
+				<TextField
+				  label="Chapter Content"
+				  variant="outlined"
+				  multiline
+				  minRows={4}
+				  maxRows={12}
+				  fullWidth
+				  value={draftText}
+				  onChange={(e) => setDraftText(e.target.value)}
+				  className="bg-white mb-4"
+				/>
+				
+				{/* Action Buttons */}
+				<Box className="flex justify-end gap-2">
+				  <Button 
+					variant="outlined" 
+					color="primary"
+					onClick={() => saveDraftForChapter}
+				  >
+					Save
+				  </Button>
+				  <Button 
+					variant="contained" 
+					color="primary" 
+					onClick={handleNextChapter}
+				  >
+					Next
+				  </Button>
+				</Box>
+			  </Box>
+			</Box>
+		  </Paper>
+		  
+		  {/* Modals */}
+		  <ChapterSwitchModal
+			open={pendingChapter !== null}
+			onConfirm={confirmChapterSwitch}
+			onCancel={cancelChapterSwitch}
+		  />
+		  <NewBookModal 
+			open={isCreatingNewBook} 
+			onClose={() => setIsCreatingNewBook(false)} 
+			onSubmit={onCreateBook} 
+		  />
+		</Box>
+	  );
 };
 
 export default BookEditor;
