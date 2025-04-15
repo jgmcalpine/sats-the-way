@@ -1,10 +1,13 @@
 'use client';
 
 import { useState } from "react";
+import { v4 as uuidv4 } from 'uuid';
+
 import { useAuth } from "@/components/AuthProvider";
 import { useDrafts } from '@/hooks/useDrafts';
 import DraftBookList from '@/components/ui/DraftBookList';
 import { BookDraftWithMetadata } from '@/types/drafts';
+import { CreateBookMetadata } from '@/types/books';
 import BookEditor from "@/components/ui/BookEditor";
 
 export default function WritePage() {
@@ -22,13 +25,16 @@ export default function WritePage() {
         deleteDraft(book.event);
     }
 
-    const handleNewBook = async () => {
+    const handleNewBook = async (bookMetaData: CreateBookMetadata) => {
+        const { title, description, dedication } = bookMetaData;
         const newDraftBook = await createDraft({
-            id: '777',
+            id: uuidv4(),
             draft_type: 'book',
             series_type: 'book',
             media_type: 'text',
-            title: '',
+            description,
+            title,
+            dedication,
             language: 'english',
             author: currentUser?.pubkey || '',
             chapters: [],

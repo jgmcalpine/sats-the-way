@@ -9,10 +9,12 @@ import {
 	SelectChangeEvent
 } from '@mui/material';
 import ChapterSwitchModal from '@/components/ui/ChapterSwitchModal';
-import type { ChapterDraft } from '@/types/drafts'; // Adjust the import path
+import NewBookModal from '@/components/ui/NewBookModal';
+import type { ChapterDraft } from '@/types/drafts';
+import { CreateBookMetadata } from '@/types/books';
 
 interface BookEditorProps {
-    onCreateBook: () => void;
+    onCreateBook: (book: CreateBookMetadata) => void;
 	bookId: string | null;
 }
 
@@ -20,8 +22,10 @@ const BookEditor: React.FC<BookEditorProps> = ({ bookId, onCreateBook }) => {
 	// State for chapter drafts, loading, current selected chapter (by position) and draft text.
 	const [chapters, setChapters] = useState<ChapterDraft[]>([]);
 	const [loading, setLoading] = useState<boolean>(false);
+	const [isCreatingNewBook, setIsCreatingNewBook] = useState<boolean>(false);
 	const [selectedChapterId, setSelectedChapterId] = useState<number>(1);
 	const [draftText, setDraftText] = useState<string>('');
+	
 	// Pending chapter switch is used on desktop when a chapter is clicked.
 	const [pendingChapter, setPendingChapter] = useState<ChapterDraft | null>(null);
 
@@ -151,11 +155,11 @@ const BookEditor: React.FC<BookEditorProps> = ({ bookId, onCreateBook }) => {
 	};
 
 	// If no bookId is provided, render a basic view.
-	if (!bookId) {
+	if (!bookId && !isCreatingNewBook) {
 		return (
 			<div className="p-4 text-center">
 				<Typography variant="h6">No Book Selected</Typography>
-				<Button variant="contained" color="primary" onClick={onCreateBook}>
+				<Button variant="contained" color="primary" onClick={() => setIsCreatingNewBook(true)}>
 					Create New Book
 				</Button>
 			</div>
@@ -237,7 +241,10 @@ const BookEditor: React.FC<BookEditorProps> = ({ bookId, onCreateBook }) => {
 					/>
 					<div className="text-right">
 						<Button variant="contained" onClick={handleNextChapter}>
-							Next Chapter
+							Save
+						</Button>
+						<Button variant="contained" onClick={handleNextChapter}>
+							Next
 						</Button>
 					</div>
 				</div>
@@ -248,6 +255,7 @@ const BookEditor: React.FC<BookEditorProps> = ({ bookId, onCreateBook }) => {
 				onConfirm={confirmChapterSwitch}
 				onCancel={cancelChapterSwitch}
 			/>
+			<NewBookModal open={isCreatingNewBook} onClose={() => setIsCreatingNewBook(false)} onSubmit={onCreateBook}  />
 		</div>
 	);
 };
