@@ -17,6 +17,7 @@ export interface BookDraft extends DraftBase {
 	author: string
 	language: string
 	description?: string
+    dedication?: string
 	slug?: string
 	tags?: string[]
 	chapters: {
