@@ -1,26 +1,38 @@
 'use client';
 
+import { useState } from "react";
 import { useAuth } from "@/components/AuthProvider";
-import SimpleTextInput from '@/components/ui/SimpleTextInput';
+import { useDrafts } from '@/hooks/useDrafts';
 import DraftBookList from '@/components/ui/DraftBookList';
+import { BookDraftWithMetadata } from '@/types/drafts';
+import BookEditor from "@/components/ui/BookEditor";
+
+const BASE_FREE_DRAFT_CHAPTER = {
+    book: null,
+    paid: false,
+    published: false
+}
 
 export default function WritePage() {
     const { currentUser, loading } = useAuth();
+    const [draftToEdit, setDraftToEdit] = useState<BookDraftWithMetadata | null>(null)
 
-    if (loading) return;
+    if (loading) return null;
 
-    const onSubmitText = (text: string) => {
-        console.log("should submit here", text);
+    const handleEditDraft = (draft: BookDraftWithMetadata) => {
+        console.log("should be editing this draftL ", draft);
+        setDraftToEdit(draft);
+    }
+
+    if (!currentUser) {
+        return <div>Connect with nip-07 to create your own adventures!</div>
     }
 
     return (
         <div className="flex flex-col justify-center items-center h-full min-h-screen">
-            <DraftBookList />
+            <DraftBookList handleEditDraft={handleEditDraft} />
             This is where we will write
-
-            {currentUser && (
-                <SimpleTextInput onSubmit={onSubmitText} />
-            )}
+            <BookEditor bookId={draftToEdit?.draft?.id} />
         </div>
     )
 }
