@@ -33,7 +33,7 @@ export interface ChapterDraft extends DraftBase {
 	entry_type: "chapter" | "episode" | "track"
 	media_type: "text" | "audio" | "video"
 	body: string
-	book: string | null // can be null until assigned to a published book
+	book: string
 	paid: boolean
 	position: number
 	title?: string
@@ -47,6 +47,7 @@ export type NostrDraftEvent = BookDraft | ChapterDraft
 
 export interface DraftFilter {
     draft_type?: DraftType;
+    book?: string;
 }
 
 // Define an interface for our UI mapping (we're only handling book drafts here)

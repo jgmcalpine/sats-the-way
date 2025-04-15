@@ -23,19 +23,17 @@ import { useDrafts } from '@/hooks/useDrafts';
 
 interface BookEditorProps {
     onCreateBook: (book: CreateBookMetadata) => void;
-	bookEventId: string | null;
+	bookEventId: string;
 }
 
 const BookEditor: React.FC<BookEditorProps> = ({ bookEventId, onCreateBook }) => {
-	console.log("bookEventId: ", bookEventId);
 	const [chapters, setChapters] = useState<ChapterDraft[]>([]);
 	const [loading, setLoading] = useState<boolean>(false);
 	const [isCreatingNewBook, setIsCreatingNewBook] = useState<boolean>(false);
 	const [selectedChapterId, setSelectedChapterId] = useState<number>(1);
 	const [draftText, setDraftText] = useState<string>('');
 	const [bookToEdit, setBookToEdit] = useState<{event: NDKEvent, draft: NostrDraftEvent} | null>(null);
-	const { getDraftById } = useDrafts();
-	console.log("WJHAT IS BOOJK TO EDIT: ", bookToEdit);
+	const { getDraftById, listDrafts } = useDrafts();
 	// Pending chapter switch is used on desktop when a chapter is clicked.
 	const [pendingChapter, setPendingChapter] = useState<ChapterDraft | null>(null);
 
@@ -44,6 +42,7 @@ const BookEditor: React.FC<BookEditorProps> = ({ bookEventId, onCreateBook }) =>
 			try {
 				if (!bookEventId) return;
 				const draftBook = await getDraftById(bookEventId);
+				console.log("DRAFT BOOK: ", draftBook);
 				setBookToEdit(draftBook);
 			} catch (e) {
 				console.error("Failed to load book");
@@ -51,46 +50,25 @@ const BookEditor: React.FC<BookEditorProps> = ({ bookEventId, onCreateBook }) =>
 		}
 
 		getDraft();
-	}, [bookEventId])
+	}, [bookEventId]);
 
-	// ------ Placeholder Functionality (to be replaced with your real implementation) ------
-	const fetchChapters = async (bookId: string): Promise<ChapterDraft[]> => {
-		return new Promise((resolve) => {
-			setTimeout(() => {
-				const mockChapters: ChapterDraft[] = Math.random() > 0.5
-					? [
-							{
-								id: '987',
-								draft_type: 'chapter',
-								entry_type: 'chapter',
-								media_type: 'text',
-								body: 'Chapter 1 draft content...',
-								encrypted_body: null,
-								encryption_scheme: null,
-								book: bookId,
-								paid: false,
-								position: 1,
-								last_modified: Date.now(),
-							},
-							{
-								id: '3737',
-								draft_type: 'chapter',
-								entry_type: 'chapter',
-								media_type: 'text',
-								body: 'Chapter 2 draft content...',
-								encrypted_body: null,
-								encryption_scheme: null,
-								book: bookId,
-								paid: false,
-								position: 2,
-								last_modified: Date.now(),
-							},
-					  ]
-					: [];
-				resolve(mockChapters);
-			}, 1000);
-		});
-	};
+	useEffect(() => {
+		const getChapters = async () => {
+			try {
+				if (!bookEventId) return;
+				setLoading(true);
+				const chapters = await listDrafts({ book: bookEventId, draft_type: "chapter" });
+				console.log("CHAPTERS: ", chapters);
+				setChapters(chapters.map(chapter => chapter.draft as ChapterDraft));
+				setLoading(false);
+				setSelectedChapterId(1);
+			} catch (e) {
+				console.error("Failed to load book");
+			}
+		}
+
+		getChapters();
+	}, [bookEventId]);
 
 	const saveDraftForChapter = (chapterId: number, text: string): void => {
 		console.log(`Saving draft for chapter ${chapterId}:`, text);
@@ -103,7 +81,7 @@ const BookEditor: React.FC<BookEditorProps> = ({ bookEventId, onCreateBook }) =>
 			entry_type: 'chapter',
 			media_type: 'text',
 			position: chapters.length + 1,
-			book: bookEventId ?? null,
+			book: bookEventId,
 			paid: false,
 			body: '',
 			encrypted_body: null,
@@ -114,37 +92,6 @@ const BookEditor: React.FC<BookEditorProps> = ({ bookEventId, onCreateBook }) =>
 		setSelectedChapterId(newChapter.position);
 		setDraftText('');
 	};
-	// ------------------------------------------------------------------------------------
-
-	useEffect(() => {
-		const loadChapters = async () => {
-			if (!bookEventId) return;
-			setLoading(true);
-			const fetchedChapters = await fetchChapters(bookEventId);
-			if (fetchedChapters.length === 0) {
-				const defaultChapter: ChapterDraft = {
-					id: '123',
-					draft_type: 'chapter',
-					entry_type: 'chapter',
-					media_type: 'text',
-					position: 1,
-					book: bookEventId,
-					paid: false,
-					body: '',
-					encrypted_body: null,
-					encryption_scheme: null,
-					last_modified: Date.now(),
-				};
-				setChapters([defaultChapter]);
-				setSelectedChapterId(1);
-			} else {
-				setChapters(fetchedChapters);
-				setSelectedChapterId(fetchedChapters[0].position);
-			}
-			setLoading(false);
-		};
-		loadChapters();
-	}, [bookEventId]);
 
 	// ------- Desktop Modal Handlers -------
 	const handleChapterClick = (chapter: ChapterDraft) => {
@@ -214,7 +161,7 @@ const BookEditor: React.FC<BookEditorProps> = ({ bookEventId, onCreateBook }) =>
 					  >
 						{chapters.map((chapter) => (
 						  <MenuItem key={chapter.position} value={chapter.position.toString()}>
-							Chapter {chapter.position}
+							Chapter {chapter.position + 1}
 						  </MenuItem>
 						))}
 					  </Select>

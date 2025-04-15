@@ -13,7 +13,7 @@ import BookEditor from "@/components/ui/BookEditor";
 export default function WritePage() {
     const { currentUser, loading } = useAuth();
     const { createDraft, deleteDraft } = useDrafts();
-    const [draftToEdit, setDraftToEdit] = useState<string | null>(null)
+    const [draftToEdit, setDraftToEdit] = useState<string>('')
 
     if (loading) return null;
 

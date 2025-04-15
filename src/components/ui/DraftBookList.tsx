@@ -21,14 +21,11 @@ const DraftBookList: React.FC<DraftBookListProps> = ({ handleEditDraft, handleDe
 	const [loading, setLoading] = useState(true);
 	const [selectedBook, setSelectedBook] = useState<BookDraftWithMetadata | null>(null);
     const { listDrafts } = useDrafts();
-	console.log("here be drafts: ", drafts);
     useEffect(() => {
 		const loadDrafts = async () => {
 			try {
 				const events = await listDrafts();
-                console.log("EVENT: ", events);
 				const bookDrafts = events.filter(({ draft }) => isBookDraft(draft));
-				console.log("Book drafts: ", bookDrafts)
 				setDrafts(bookDrafts as BookDraftWithMetadata[]);
 			} catch (e) {
 				console.error("Failed to load drafts", e);
@@ -46,7 +43,6 @@ const DraftBookList: React.FC<DraftBookListProps> = ({ handleEditDraft, handleDe
 	};
 
 	const renderCard = (book: BookDraftWithMetadata) => {
-		console.log("DRAFTTYYTYYTYT: ", book);
 		return (
 		<Grid size={{xs: 12, sm: 6, md: 4}} key={book.draft.id}>
 			<Card variant="outlined" onClick={() => handleSelectDraft(book)} sx={{ cursor: "pointer", "&:hover": { boxShadow: 3 } }}>
