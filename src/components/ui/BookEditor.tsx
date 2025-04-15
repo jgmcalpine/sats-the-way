@@ -32,6 +32,7 @@ const BookEditor: React.FC<BookEditorProps> = ({ bookId, onCreateBook }) => {
 				const mockChapters: ChapterDraft[] = Math.random() > 0.5
 					? [
 							{
+								id: '987',
 								draft_type: 'chapter',
 								entry_type: 'chapter',
 								media_type: 'text',
@@ -41,10 +42,10 @@ const BookEditor: React.FC<BookEditorProps> = ({ bookId, onCreateBook }) => {
 								book: bookId,
 								paid: false,
 								position: 1,
-								published: false,
 								last_modified: Date.now(),
 							},
 							{
+								id: '3737',
 								draft_type: 'chapter',
 								entry_type: 'chapter',
 								media_type: 'text',
@@ -54,7 +55,6 @@ const BookEditor: React.FC<BookEditorProps> = ({ bookId, onCreateBook }) => {
 								book: bookId,
 								paid: false,
 								position: 2,
-								published: false,
 								last_modified: Date.now(),
 							},
 					  ]
@@ -70,6 +70,7 @@ const BookEditor: React.FC<BookEditorProps> = ({ bookId, onCreateBook }) => {
 
 	const createNewChapter = (): void => {
 		const newChapter: ChapterDraft = {
+			id: 'set new id',
 			draft_type: 'chapter',
 			entry_type: 'chapter',
 			media_type: 'text',
@@ -79,7 +80,6 @@ const BookEditor: React.FC<BookEditorProps> = ({ bookId, onCreateBook }) => {
 			body: '',
 			encrypted_body: null,
 			encryption_scheme: null,
-			published: false,
 			last_modified: Date.now(),
 		};
 		setChapters((prev) => [...prev, newChapter]);
@@ -95,6 +95,7 @@ const BookEditor: React.FC<BookEditorProps> = ({ bookId, onCreateBook }) => {
 			const fetchedChapters = await fetchChapters(bookId);
 			if (fetchedChapters.length === 0) {
 				const defaultChapter: ChapterDraft = {
+					id: '123',
 					draft_type: 'chapter',
 					entry_type: 'chapter',
 					media_type: 'text',
@@ -104,7 +105,6 @@ const BookEditor: React.FC<BookEditorProps> = ({ bookId, onCreateBook }) => {
 					body: '',
 					encrypted_body: null,
 					encryption_scheme: null,
-					published: false,
 					last_modified: Date.now(),
 				};
 				setChapters([defaultChapter]);
