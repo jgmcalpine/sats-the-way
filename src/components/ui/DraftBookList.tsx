@@ -51,7 +51,7 @@ const DraftBookList: React.FC<DraftBookListProps> = ({ handleEditDraft, handleDe
 						{book.draft.title}
 					</Typography>
 					<Typography variant="body2" color="text.secondary">
-						Language: 'English'
+						Language: English
 					</Typography>
 					<Box mt={1}>
 						<Chip label="Draft" color="warning" size="small" />

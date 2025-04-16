@@ -47,7 +47,7 @@ const BookEditor: React.FC<BookEditorProps> = ({ bookEventId, onCreateBook }) =>
 				const draftBook = await getDraftById(bookEventId);
 				setBookToEdit(draftBook);
 			} catch (e) {
-				console.error("Failed to load book");
+				console.error("Failed to load book", e);
 			}
 		}
 
@@ -67,7 +67,7 @@ const BookEditor: React.FC<BookEditorProps> = ({ bookEventId, onCreateBook }) =>
 				setSelectedChapterPosition(0);
 				setDraftText(ourChapters[0]?.draft.body || '')
 			} catch (e) {
-				console.error("Failed to load book");
+				console.error("Failed to load book", e);
 			}
 		}
 
