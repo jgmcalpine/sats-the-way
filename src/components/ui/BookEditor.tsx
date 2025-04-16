@@ -61,7 +61,7 @@ const BookEditor: React.FC<BookEditorProps> = ({ bookEventId, onCreateBook }) =>
 				if (!bookToEdit || !bookToEdit.draft) return;
 
 				setLoading(true);
-				const chapters = await getChaptersByBookId(bookToEdit.draft.id);
+				const chapters = await getChaptersByBookId(bookToEdit.draft.id, true);
 				console.log("chapter: ", chapters);
 				const ourChapters = chapters.map(chapter => ({ event: chapter.event, draft: chapter.draft as ChapterDraft }));
 				setChapters(ourChapters);
@@ -83,32 +83,42 @@ const BookEditor: React.FC<BookEditorProps> = ({ bookEventId, onCreateBook }) =>
 	};
 
 	const handleAddChapter = async () => {
-		if (!bookEventId) {
+		if (!bookToEdit || !bookToEdit.draft) {
 		  console.error('No book selected');
 		  return;
 		}
-	
+	  
 		try {
 		  // Create new chapter data
 		  const chapterId = crypto.randomUUID();
-		  const newChapterData: Omit<ChapterDraft, 'last_modified' | 'created_at' | 'book'> = {
+		  const newChapterData: Omit<ChapterDraft, 'last_modified' | 'created_at'> = {
 			id: chapterId,
 			draft_type: 'chapter',
 			entry_type: 'chapter',
 			media_type: 'text',
 			body: 'The story continues...',
 			paid: false,
-			position: chapters.length + 1, // Position it after existing chapters
-			title: `Chapter ${chapters.length + 1}: The Adventure Continues`
+			position: chapters.length, // Position it based on current length
+			title: `Chapter ${chapters.length + 1}: The Adventure Continues`,
+			book: bookToEdit.draft.id || ''
 		  };
-	
-		  // Add chapter to the book
-		  const { bookEvent, chapterEvent } = await createNewChapter(bookEventId, newChapterData);
+	  
+		  // Add chapter to the book - use the correct parameter order
+		  const { bookEvent, chapterEvent } = await createNewChapter(
+			bookEventId,
+			newChapterData
+		  );
+		  
 		  console.log('Updated book:', bookEvent.id);
 		  console.log('Added chapter:', chapterEvent.id);
 		  
-		  // Reload chapters to refresh the list
-		  await loadChapters(bookEventId);
+		  // Reload chapters to refresh the list - make sure to use the correct ID
+		  const updatedChapters = await getChaptersByBookId(bookToEdit.draft.id);
+		  setChapters(updatedChapters);
+		  
+		  // Select the newly added chapter
+		  setSelectedChapterPosition(updatedChapters.length - 1);
+		  setDraftText(updatedChapters[updatedChapters.length - 1]?.draft.body || '');
 		  
 		  return { bookEvent, chapterEvent };
 		} catch (error) {
@@ -118,10 +128,19 @@ const BookEditor: React.FC<BookEditorProps> = ({ bookEventId, onCreateBook }) =>
 
 	const loadChapters = async (bookId: string) => {
 		try {
+		  setLoading(true);
 		  const bookChapters = await getChaptersByBookId(bookId);
 		  setChapters(bookChapters);
+		  setLoading(false);
 		  console.log(`Loaded ${bookChapters.length} chapters for book ${bookId}`);
+		  
+		  // If chapters were loaded successfully, select the first one
+		  if (bookChapters.length > 0) {
+			setSelectedChapterPosition(0);
+			setDraftText(bookChapters[0]?.draft.body || '');
+		  }
 		} catch (error) {
+		  setLoading(false);
 		  console.error('Error loading chapters:', error);
 		}
 	};

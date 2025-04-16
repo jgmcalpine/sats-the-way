@@ -31,6 +31,8 @@ export interface BookDraft extends DraftBase {
 
 export interface ChapterDraft extends DraftBase {
 	draft_type: "chapter"
+	/* eslint-disable  @typescript-eslint/no-explicit-any */
+	tags?: any;
 	entry_type: "chapter" | "episode" | "track"
 	media_type: "text" | "audio" | "video"
 	body: string

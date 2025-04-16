@@ -58,8 +58,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       if (!(window as any).nostr) throw new Error('Nostr extension not found')
 
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const pubkey = await (window as any).nostr.getPublicKey()
-      localStorage.setItem(LOCAL_STORAGE_KEY, pubkey)
+      const pubkey = await (window as any).nostr.getPublicKey();
+      localStorage.setItem(LOCAL_STORAGE_KEY, pubkey);
 
       let user: User = { pubkey }
       try {
