@@ -28,13 +28,16 @@ interface BookEditorProps {
 }
 
 const BookEditor: React.FC<BookEditorProps> = ({ bookEventId, onCreateBook }) => {
-	const [chapters, setChapters] = useState<ChapterDraft[]>([]);
+	const [chapters, setChapters] = useState<{ event: NDKEvent, draft: ChapterDraft }[]>([]);
 	const [loading, setLoading] = useState<boolean>(false);
 	const [isCreatingNewBook, setIsCreatingNewBook] = useState<boolean>(false);
 	const [selectedChapterPosition, setSelectedChapterPosition] = useState<number>(0);
-	const [draftText, setDraftText] = useState<string>('');
+	const [draftText, setDraftText] = useState<string>(chapters[selectedChapterPosition]?.draft.body || '');
 	const [bookToEdit, setBookToEdit] = useState<{ event: NDKEvent, draft: NostrDraftEvent } | null>(null);
-	const { getDraftById, listDrafts, createDraft } = useDrafts();
+	const { getDraftById, listDrafts, createDraft, updateDraft } = useDrafts();
+	console.log("chapters: ", chapters);
+	console.log("bookToEdit: ", bookToEdit);
+	console.log("draftText: ", draftText);
 	// Pending chapter switch is used on desktop when a chapter is clicked.
 	const [pendingChapter, setPendingChapter] = useState<ChapterDraft | null>(null);
 	useEffect(() => {
@@ -58,10 +61,11 @@ const BookEditor: React.FC<BookEditorProps> = ({ bookEventId, onCreateBook }) =>
 
 				setLoading(true);
 				const chapters = await listDrafts({ book: bookEventId, draft_type: "chapter" });
-
-				setChapters(chapters.map(chapter => chapter.draft as ChapterDraft));
+				const ourChapters = chapters.map(chapter => ({ event: chapter.event, draft: chapter.draft as ChapterDraft }));
+				setChapters(ourChapters);
 				setLoading(false);
 				setSelectedChapterPosition(0);
+				setDraftText(ourChapters[0]?.draft.body || '')
 			} catch (e) {
 				console.error("Failed to load book");
 			}
@@ -70,8 +74,10 @@ const BookEditor: React.FC<BookEditorProps> = ({ bookEventId, onCreateBook }) =>
 		getChapters();
 	}, [bookEventId]);
 
-	const saveDraftForChapter = (chapterId: number, text: string): void => {
-		console.log(`Saving draft for chapter ${chapterId}:`, text);
+	const saveDraftForChapter = (chapterPosition: number, text: string): void => {
+		console.log(`Saving draft for chapter ${chapterPosition}:`, text);
+		const chapterObj = chapters[chapterPosition];
+		updateDraft(chapterObj.event, { ...chapterObj.draft, body: text })
 	};
 
 	const createNewChapter = async (): Promise<void> => {
@@ -86,9 +92,9 @@ const BookEditor: React.FC<BookEditorProps> = ({ bookEventId, onCreateBook }) =>
 			book: bookEventId,
 			position: chapters.length
 		}
-		await createDraft(newChapter);
+		const chapterEvent = await createDraft(newChapter);
 
-		setChapters((prev) => [...prev, newChapter]);
+		setChapters((prev) => [...prev, {event: chapterEvent, draft: newChapter}]);
 		setSelectedChapterPosition(selectedChapterPosition + 1);
 		setDraftText('');
 	};
@@ -160,8 +166,8 @@ const BookEditor: React.FC<BookEditorProps> = ({ bookEventId, onCreateBook }) =>
 						size="small"
 					  >
 						{chapters.map((chapter) => (
-						  <MenuItem key={chapter.position} value={chapter.position.toString()}>
-							Chapter {chapter.position + 1}
+						  <MenuItem key={chapter.draft.position} value={chapter.draft.position.toString()}>
+							Chapter {chapter.draft.position + 1}
 						  </MenuItem>
 						))}
 					  </Select>
@@ -180,16 +186,16 @@ const BookEditor: React.FC<BookEditorProps> = ({ bookEventId, onCreateBook }) =>
 						<Divider />
 						{chapters.map((chapter) => (
 						  <ListItemButton
-							key={chapter.position}
-							selected={chapter.position === selectedChapterPosition}
-							onClick={() => handleChapterClick(chapter)}
+							key={chapter.draft.position}
+							selected={chapter.draft.position === selectedChapterPosition}
+							onClick={() => handleChapterClick(chapter.draft as ChapterDraft)}
 							sx={{
 							  '&.Mui-selected': {
 								backgroundColor: 'primary.light',
 							  }
 							}}
 						  >
-							<ListItemText primary={`Chapter ${chapter.position}`} />
+							<ListItemText primary={`Chapter ${chapter.draft.position}`} />
 						  </ListItemButton>
 						))}
 					  </List>
@@ -214,10 +220,10 @@ const BookEditor: React.FC<BookEditorProps> = ({ bookEventId, onCreateBook }) =>
 				
 				{/* Action Buttons */}
 				<Box className="flex justify-end gap-2">
-				  <Button 
+				  <Button
 					variant="outlined" 
 					color="primary"
-					onClick={() => saveDraftForChapter}
+					onClick={() => saveDraftForChapter(selectedChapterPosition, draftText)}
 				  >
 					Save
 				  </Button>
