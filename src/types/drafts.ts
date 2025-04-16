@@ -5,6 +5,7 @@ export type DraftType = "book" | "chapter"
 export interface DraftBase {
     id: string
 	draft_type: DraftType
+    created_at: number
 	last_modified: number // timestamp for syncing and autosave
 }
 
