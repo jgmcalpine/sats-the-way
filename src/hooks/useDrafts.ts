@@ -75,70 +75,76 @@ export function useDrafts() {
     }, []);
 
     const publishDraftEvent = useCallback(async (
-        pubkey: string, 
+        pubkey: string,
         encryptedContent: string,
         draftId: string,
         draftType: string,
         bookId?: string,
-        originalEvent?: boolean
+        options?: {
+            originalEvent?: boolean;
+            extraTags?: string[][];
+        }
     ): Promise<NDKEvent> => {
         try {
-            const tags: string[][] = [['p', pubkey]];
-            
-            // Create a unique identifier for this draft
-            const draftIdentifier = draftId || crypto.randomUUID();            
-            // Add parameterized replaceable event tag for NIP-33
-            tags.push(['d', draftIdentifier]);
-            
-            // Add draft type tag for easier filtering
-            tags.push(['t', draftType]);
-            
-            // If this is a chapter, add the book ID it belongs to
-            if (draftType === 'chapter' && bookId) {
-                console.log(`Adding book tag for chapter: ${bookId}`);
-                tags.push(['b', bookId]);
+            const now = Math.floor(Date.now() / 1000);
+            const draftIdentifier = draftId || crypto.randomUUID();
+    
+            // Base tags
+            const tags: string[][] = [
+                ["p", pubkey],                            // Author
+                ["d", draftIdentifier],                   // NIP-33 replaceable ID
+                ["t", draftType],                         // For filtering by draft_type
+            ];
+    
+            // Tag for book reference (only for chapters)
+            if (draftType === "chapter" && bookId) {
+                tags.push(["b", bookId]);                 // Internal book reference (for your cache-based lookup)
+                tags.push(["book", bookId]);              // NIP-01 compatible tag (for NDK queries) ✅
             }
-            
-            if (originalEvent) {
-                // Reference the original event by its id
-                tags.push(['e', draftId]);
+    
+            // Optional: tag the event being replaced or referenced
+            if (options?.originalEvent) {
+                tags.push(["e", draftId]);                // For threading/replace references
             }
-            
+    
+            // Optional: extra tags from the caller (e.g. ["position", "1"])
+            if (options?.extraTags?.length) {
+                tags.push(...options.extraTags);
+            }
+    
             const event = new NDKEvent(ndk, {
-                kind: DRAFT_PARAMETERIZED_KIND, // Use parameterized kind consistently
+                kind: DRAFT_PARAMETERIZED_KIND,
                 pubkey,
                 tags,
                 content: encryptedContent,
-                created_at: Math.floor(Date.now() / 1000),
+                created_at: now,
             });
-            
+    
             await event.sign();
-            
-            // First, check relay connectivity
-            console.log("Connected relays:", ndk.pool?.relays.size);
-            console.log("Publishing event with tags:", event.tags);
-            
-            // Use the correct publish approach with timeout
-            try {
-                // Set a longer timeout for the publish operation
-                const publishPromise = event.publish();
-                const timeoutPromise = new Promise((_, reject) => 
-                    setTimeout(() => reject(new Error("Publish timeout")), 10000)
-                );
-                
-                await Promise.race([publishPromise, timeoutPromise]);
-                return event;
-            } catch (publishError) {
-                console.error("Publish failed:", publishError);
-                throw publishError;
-            }
+    
+            console.log("📝 Publishing draft event:");
+            console.log("  Kind:", event.kind);
+            console.log("  Created At:", now);
+            console.log("  Tags:", tags);
+    
+            // Time-limited publish
+            const publishPromise = event.publish();
+            const timeoutPromise = new Promise<never>((_, reject) =>
+                setTimeout(() => reject(new Error("Publish timeout")), 10000)
+            );
+    
+            await Promise.race([publishPromise, timeoutPromise]);
+    
+            return event;
         } catch (error) {
+            console.error("❌ Failed to publish draft:", error);
             throw new DraftError(
-                `Failed to publish draft event: ${error instanceof Error ? error.message : String(error)}`, 
+                `Failed to publish draft event: ${error instanceof Error ? error.message : String(error)}`,
                 DraftErrorType.PUBLICATION_ERROR
             );
         }
     }, [ndk]);
+    
 
     const validateDraftEvent = useCallback((
         event: NDKEvent, 
@@ -151,7 +157,8 @@ export function useDrafts() {
     }, []);
 
     const createDraft = useCallback(async (
-        draft: NostrDraftEvent
+        draft: NostrDraftEvent,
+        options?: { tags?: string[][] }
     ): Promise<NDKEvent> => {
         try {
             updateDraftStatus('new', 'sending');
@@ -173,7 +180,8 @@ export function useDrafts() {
                 encryptedContent, 
                 draft.id, 
                 draft.draft_type,
-                bookId
+                bookId,
+                { extraTags: options?.tags || [] }
             );
             
             // Add to cache
@@ -183,6 +191,8 @@ export function useDrafts() {
             });
             
             updateDraftStatus(newEvent.id, 'sent');
+            console.log("Created chapterEvent.id:", newEvent.id);
+            console.log("chapterEvent.raw:", newEvent.rawEvent);
             return newEvent;
         } catch (error) {
             updateDraftStatus('new', 'failed');
@@ -302,7 +312,8 @@ export function useDrafts() {
                     
                     // Filter by book ID if specified and this is a chapter
                     if (filter?.book && draft.draft_type === 'chapter') {
-                        return (draft as ChapterDraft).book === filter.book;
+                        const chapterDraft = draft as ChapterDraft;
+                        return chapterDraft.book === filter.book;
                     }
                     
                     return true;
@@ -339,10 +350,12 @@ export function useDrafts() {
             
             if (filter?.book) {
                 eventFilter['#b'] = [filter.book];
+                console.log(`Filtering chapters for book ID: ${filter.book}`);
             }
     
             // Get draft events
             const events = await ndk.fetchEvents(eventFilter);
+            console.log(`Found ${events.size} events matching filter:`, eventFilter);
     
             // Group events by their 'd' tag to handle replaceable events
             const eventsByDTag = new Map<string, NDKEvent>();
@@ -353,6 +366,12 @@ export function useDrafts() {
                 // Find the 'd' tag to use as identifier for parameterized replaceable events
                 const dTag = event.tags.find(tag => tag[0] === 'd')?.[1];
                 if (!dTag) continue; // Skip events without 'd' tag
+                
+                // Log book ID tag if present
+                const bTag = event.tags.find(tag => tag[0] === 'b')?.[1];
+                if (bTag && filter?.book) {
+                    console.log(`Event ${event.id} has book tag: ${bTag}, filter wants: ${filter.book}`);
+                }
                 
                 // Only keep the newest event for each 'd' tag
                 const existingEvent = eventsByDTag.get(dTag);
@@ -380,7 +399,9 @@ export function useDrafts() {
                     }
                     
                     if (filter?.book && draft.draft_type === 'chapter') {
-                        matchesFilter = matchesFilter && (draft as ChapterDraft).book === filter.book;
+                        const chapterDraft = draft as ChapterDraft;
+                        matchesFilter = matchesFilter && chapterDraft.book === filter.book;
+                        console.log(`Chapter ${draft.id} has book: ${chapterDraft.book}, filter wants: ${filter.book}, matches: ${matchesFilter}`);
                     }
     
                     if (draft) {
@@ -394,9 +415,14 @@ export function useDrafts() {
                 });
     
             const results = await Promise.all(decryptionPromises);
-            return results.filter((result): result is { event: NDKEvent; draft: NostrDraftEvent } => 
+            const filteredResults = results.filter((result): result is { event: NDKEvent; draft: NostrDraftEvent } => 
                 result !== null
             );
+            
+            console.log(`Found ${filteredResults.length} drafts after filtering`);
+            console.log("All chapters in cache:");
+            console.log(Array.from(draftCache.current.entries()));
+            return filteredResults;
         } catch (error) {
             console.error('Failed to list drafts:', error);
             throw error;
@@ -443,27 +469,30 @@ export function useDrafts() {
     ): Promise<{ event: NDKEvent; draft: NostrDraftEvent } | null> => {
         // Check cache first
         if (draftCache.current.has(eventId)) {
+            console.log(`Found draft ${eventId} in cache`);
             return draftCache.current.get(eventId) || null;
         }
         
         try {
+            console.log(`Fetching draft with ID: ${eventId}`);
             const pubkey = await getSignerPubkey();
             const event = await ndk.fetchEvent({ 
                 ids: [eventId],
                 authors: [pubkey]
             });
-            
+            console.log("Fetched event: ", event);
             if (!event) {
                 throw new DraftError(`Draft not found: ${eventId}`, DraftErrorType.NOT_FOUND_ERROR);
             }
             
             const draft = await decryptDraft(event, pubkey);
+            console.log("DRAFT in the fetch: ", draft)
             if (!draft) {
                 return null;
             }
-            
             const result = { event, draft };
             draftCache.current.set(eventId, result);
+            console.log(`Added draft ${eventId} to cache with type: ${draft.draft_type}`);
             return result;
         } catch (error) {
             console.error(`Failed to get draft by ID ${eventId}:`, error);
@@ -521,82 +550,116 @@ export function useDrafts() {
         }
     }, [createDraft]);
 
-    // NEW FUNCTION: Add a new chapter to an existing book
     const createNewChapter = useCallback(async (
-        bookId: string,
-        chapterData: Omit<ChapterDraft, 'last_modified' | 'created_at' | 'book'>
+        bookEventId: string,
+        chapterData: Omit<ChapterDraft, 'last_modified' | 'created_at'>
     ): Promise<{ bookEvent: NDKEvent; chapterEvent: NDKEvent }> => {
         try {
-            // 1. Get the book first
-            const bookResult = await getDraftById(bookId);
+            console.log(`Creating new chapter for book EVENT ID: ${bookEventId}`);
+            
+            // Fetch full book info (this gives us both event + draft ID)
+            const bookResult = await getDraftById(bookEventId);
+            console.log("BOOK RESULT", bookResult)
             if (!bookResult || bookResult.draft.draft_type !== 'book') {
-                throw new DraftError(`Book not found: ${bookId}`, DraftErrorType.NOT_FOUND_ERROR);
+                throw new DraftError(`Book not found: ${bookEventId}`, DraftErrorType.NOT_FOUND_ERROR);
             }
-            
+    
             const bookDraft = bookResult.draft as BookDraft;
-            
-            // 2. Create the new chapter
+    
+            // Correct: use bookDraft.id (not event ID) for internal linkage
             const chapterDraft: ChapterDraft = {
                 ...chapterData,
-                book: bookId,
+                id: chapterData.id || crypto.randomUUID(),
+                book: bookDraft.id,
+                draft_type: 'chapter',
                 created_at: Date.now(),
-                last_modified: Date.now()
+                last_modified: Date.now(),
+                tags: [
+                    ["book", chapterData.book], // ✅ Tag with the actual EVENT ID so NDK can query by it
+                    ["position", chapterData.position.toString()],
+                    ["draft_type", "chapter"]
+                ]
             };
-            
-            const chapterEvent = await createDraft(chapterDraft);
-            
-            // 3. Update the book with reference to the new chapter
+    
+            console.log("Creating chapter draft with internal book ID:", bookDraft.id);
+    
+            const chapterEvent = await createDraft(chapterDraft, {
+                tags: [
+                    ["book", bookEventId],
+                    ["position", chapterDraft.position.toString()],
+                    ["draft_type", "chapter"]
+                ]
+            });
+            console.log("what CHAPTER EVENT: ", chapterEvent);
+            draftCache.current.set(chapterEvent.id, {
+                event: chapterEvent,
+                draft: chapterDraft
+            });
+    
+            // Add this chapter to the book's chapter list
+            const updatedChapters = [
+                ...(bookDraft.chapters || []),
+                {
+                    id: chapterDraft.id,
+                    title: chapterDraft.title || '',
+                    paid: chapterDraft.paid || false,
+                    position: chapterData.position
+                }
+            ].sort((a, b) => a.position - b.position);
+    
             const updatedBook: BookDraft = {
                 ...bookDraft,
                 last_modified: Date.now(),
-                chapters: [
-                    ...bookDraft.chapters,
-                    {
-                        id: chapterDraft.id,
-                        title: chapterDraft.title || '',
-                        paid: chapterDraft.paid,
-                        position: chapterDraft.position
-                    }
-                ]
+                chapters: updatedChapters
             };
-            
-            // Sort chapters by position
-            updatedBook.chapters.sort((a, b) => a.position - b.position);
-            
+    
             const bookEvent = await updateDraft(bookResult.event, updatedBook);
-            
+    
+            clearCache();
+            await getDraftById(bookEvent.id);
+            console.log("Using bookEventId:", bookEventId);
+            console.log("Resolved bookDraft.id:", bookDraft.id);
+            console.log("Assigning chapter.book:", bookDraft.id);
+            console.log("Tagging event with ['book', bookEventId]:", bookEventId);
             return { bookEvent, chapterEvent };
         } catch (error) {
             console.error('Failed to create new chapter:', error);
             throw error;
         }
-    }, [getDraftById, createDraft, updateDraft]);
+    }, [getDraftById, createDraft, updateDraft, clearCache]);
+    
+    
 
     const getChaptersByBookId = useCallback(async (
-        bookId: string,
-        forceRefresh = true  // Change default to true to ensure we get fresh data
+        bookDraftId: string, // must be the draft ID
+        forceRefresh = true
     ): Promise<{ event: NDKEvent; draft: ChapterDraft }[]> => {
         try {
-            console.log(`Fetching chapters for book ID: ${bookId}`);
+            console.log(`Fetching chapters for book draft ID: ${bookDraftId}`);
+    
+            if (forceRefresh) {
+                clearCache();
+            }
+    
             const chapters = await listDrafts({
                 draft_type: 'chapter',
-                book: bookId
+                book: bookDraftId
             }, forceRefresh);
-            
-            console.log(`Found ${chapters.length} chapters:`, chapters);
-            
-            // Cast to ChapterDraft and sort by position
+    
+            console.log(`Found ${chapters.length} chapters for book ${bookDraftId}`);
+    
             return chapters
-                .map(item => ({ 
-                    event: item.event, 
-                    draft: item.draft as ChapterDraft 
+                .map(item => ({
+                    event: item.event,
+                    draft: item.draft as ChapterDraft
                 }))
                 .sort((a, b) => a.draft.position - b.draft.position);
         } catch (error) {
-            console.error(`Failed to get chapters for book ${bookId}:`, error);
+            console.error(`Failed to get chapters for book ${bookDraftId}:`, error);
             throw error;
         }
-    }, [listDrafts]);
+    }, [listDrafts, clearCache]);
+    
 
     return {
         createDraft,
