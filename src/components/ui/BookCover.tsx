@@ -1,9 +1,10 @@
-import { Box, Grid, Card, CardContent, Typography } from "@mui/material"
+import { Grid, Card, CardContent, Typography } from "@mui/material"
 import { BookDraft } from '@/types/drafts';
+import { SeriesMetadataEvent } from '@/types/series';
 
 interface BookCoverProps {
-    book: BookDraft;
-    handleSelectBook: (book: BookDraft) => void;
+    book: BookDraft | SeriesMetadataEvent;
+    handleSelectBook: (book: BookDraft | SeriesMetadataEvent) => void;
 }
 
 export default function BookCover({ book, handleSelectBook }: BookCoverProps) {

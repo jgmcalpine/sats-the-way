@@ -1,4 +1,5 @@
 export interface SeriesMetadataEvent {
+	id: string;
 	series_type: "book" | "video" | "music";
 	media_type: "text" | "audio" | "video";
 	title: string;
@@ -15,6 +16,7 @@ export interface SeriesMetadataEvent {
 }
 
 export interface SeriesEntryEvent {
+	id: string;
 	entry_type: "chapter" | "episode" | "track";
 	media_type: "text" | "audio" | "video";
 	book: string;
