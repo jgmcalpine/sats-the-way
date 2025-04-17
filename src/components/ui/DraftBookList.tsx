@@ -2,12 +2,11 @@
 
 import React, { useEffect, useState } from "react";
 import { NDKEvent } from "@nostr-dev-kit/ndk";
-import { Grid, Box, Typography, CircularProgress, Button, Divider, IconButton } from "@mui/material";
-import { Close as CloseIcon } from '@mui/icons-material';
-
+import { Grid, Box, Typography, CircularProgress } from "@mui/material";
 import { NostrDraftEvent, BookDraft, BookDraftWithMetadata } from "@/types/drafts";
 import { useDrafts } from "@/hooks/useDrafts";
-import BookCover from "@/components/ui/BookCover";
+import BookFrontCover from "@/components/ui/BookFrontCover";
+import BookBackCover from "@/components/ui/BookDraftBackCover";
 
 // Type guard: checks if the draft is a BookDraft (and not a ChapterDraft)
 function isBookDraft(draft: NostrDraftEvent): draft is BookDraft {
@@ -27,9 +26,10 @@ const DraftBookList: React.FC<DraftBookListProps> = ({ handleEditDraft, handleDe
     useEffect(() => {
 		const loadDrafts = async () => {
 			try {
-				const events = await listDrafts();
-				const bookDrafts = events.filter(({ draft }) => isBookDraft(draft));
-				setDrafts(bookDrafts as BookDraftWithMetadata[]);
+				// const events = await listDrafts();
+				// const bookDrafts = events.filter(({ draft }) => isBookDraft(draft));
+				// setDrafts(bookDrafts as BookDraftWithMetadata[]);
+				setDrafts([{event: {} as NDKEvent, draft: { title: "Grapes of Wrath", author: "John Steinbeck", id: '123' } as BookDraft }])
 			} catch (e) {
 				console.error("Failed to load drafts", e);
 			} finally {
@@ -58,48 +58,12 @@ const DraftBookList: React.FC<DraftBookListProps> = ({ handleEditDraft, handleDe
 				{drafts.length && drafts.map((bookWithMetadata) => {
 					const { draft } = bookWithMetadata;
 					console.log("what is draft here")
-					return <BookCover key={draft.id} book={draft} handleSelectBook={() => handleSelectDraft(bookWithMetadata)} />;
+					return <BookFrontCover key={draft.id} book={draft} handleSelectBook={() => handleSelectDraft(bookWithMetadata)} />;
 				})}
 			 </Grid>
 			{/* Detail view section */}
 			{selectedBook && (
-				<Box mt={4} p={2} border="1px solid #ddd" borderRadius={2}>
-					<Box className="flex justify-between">
-						<Typography variant="h6" gutterBottom>
-							Details for: {selectedBook.draft.title}
-						</Typography>
-						<IconButton className="text-white" onClick={() => setSelectedBook(null)}>
-							<CloseIcon color="primary" />
-						</IconButton>
-					</Box>
-					<Divider sx={{ mb: 2 }} />
-					<Typography variant="body1">
-						Description: {selectedBook.draft.description || "No description provided."}
-					</Typography>
-					<Typography variant="body1">
-						Last Updated:{" "}
-						{new Date(selectedBook.draft.last_modified).toLocaleString(undefined, {
-							hour: "2-digit",
-							minute: "2-digit",
-							year: "numeric",
-							month: "short",
-							day: "numeric"
-						})}
-					</Typography>
-					{selectedBook.draft.chapters && (
-						<Typography variant="body1">
-							Number of Chapters: {selectedBook.draft.chapters.length}
-						</Typography>
-					)}
-					<Box mt={2} display="flex" gap={2}>
-						<Button variant="contained" color="primary" onClick={() => handleEditDraft(selectedBook)}>
-							Edit Draft
-						</Button>
-						<Button variant="outlined" onClick={() => handleDeleteDraft(selectedBook)}>
-							Delete Draft
-						</Button>
-					</Box>
-				</Box>
+				<BookBackCover bookWithEvent={selectedBook} handleCloseBook={() => setSelectedBook(null)} handleEditDraft={handleEditDraft} handleDeleteDraft={handleDeleteDraft} />
 			)}
 		</Box>
 	);
