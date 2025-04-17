@@ -23,6 +23,11 @@ export default function WritePage() {
     const onDeleteDraft = (book: BookDraftWithMetadata) => {
         deleteDraft(book.event);
     }
+
+    const handlePublishBook = () => {
+        console.log("here we publish book and chapters events and delete all the draft events");
+    }
+
     const handleNewBook = async ({title, description, dedication}: { title: string, description?: string, dedication?: string }) => {
         try {
             // Create book data (excluding last_modified and created_at)
@@ -73,7 +78,7 @@ export default function WritePage() {
     return (
         <div className="flex flex-col justify-center items-center h-full min-h-screen">
             <DraftBookList handleDeleteDraft={onDeleteDraft} handleEditDraft={onEditDraft} />
-            <BookEditor onCreateBook={handleNewBook} bookEventId={draftToEdit} />
+            <BookEditor onPublishBook={handlePublishBook} onCreateBook={handleNewBook} bookEventId={draftToEdit} />
         </div>
     )
 }

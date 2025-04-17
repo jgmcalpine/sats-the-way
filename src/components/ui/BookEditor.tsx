@@ -24,10 +24,11 @@ import { useDrafts } from '@/hooks/useDrafts';
 
 interface BookEditorProps {
     onCreateBook: (book: CreateBookMetadata) => void;
+	onPublishBook: () => void;
 	bookEventId: string;
 }
 
-const BookEditor: React.FC<BookEditorProps> = ({ bookEventId, onCreateBook }) => {
+const BookEditor: React.FC<BookEditorProps> = ({ bookEventId, onCreateBook, onPublishBook }) => {
 	const [chapters, setChapters] = useState<{ event: NDKEvent, draft: ChapterDraft }[]>([]);
 	const [loading, setLoading] = useState<boolean>(false);
 	const [isCreatingNewBook, setIsCreatingNewBook] = useState<boolean>(false);
@@ -179,12 +180,12 @@ const BookEditor: React.FC<BookEditorProps> = ({ bookEventId, onCreateBook }) =>
 	// If no bookEventId is provided, render a basic view.
 	if ((!bookEventId || !bookToEdit) && !isCreatingNewBook) {
 		return (
-			<div className="p-4 text-center">
+			<Box className="p-4 text-center">
 				<Typography variant="h6">No Book Selected</Typography>
 				<Button variant="contained" color="primary" onClick={() => setIsCreatingNewBook(true)}>
 					Create New Book
 				</Button>
-			</div>
+			</Box>
 		);
 	}
 
@@ -296,6 +297,11 @@ const BookEditor: React.FC<BookEditorProps> = ({ bookEventId, onCreateBook }) =>
 			onClose={() => setIsCreatingNewBook(false)} 
 			onSubmit={onCreateBook} 
 		  />
+		  <Box className="flex justify-end">
+			<Button variant="contained" color="primary" onClick={() => onPublishBook()}>
+				Publish Book
+			</Button> 
+		  </Box>
 		</Box>
 	  );
 };
