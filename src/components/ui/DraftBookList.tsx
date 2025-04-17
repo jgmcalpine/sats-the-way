@@ -26,10 +26,9 @@ const DraftBookList: React.FC<DraftBookListProps> = ({ handleEditDraft, handleDe
     useEffect(() => {
 		const loadDrafts = async () => {
 			try {
-				// const events = await listDrafts();
-				// const bookDrafts = events.filter(({ draft }) => isBookDraft(draft));
-				// setDrafts(bookDrafts as BookDraftWithMetadata[]);
-				setDrafts([{event: {} as NDKEvent, draft: { title: "Grapes of Wrath", author: "John Steinbeck", id: '123' } as BookDraft }])
+				const events = await listDrafts();
+				const bookDrafts = events.filter(({ draft }) => isBookDraft(draft));
+				setDrafts(bookDrafts as BookDraftWithMetadata[]);
 			} catch (e) {
 				console.error("Failed to load drafts", e);
 			} finally {
