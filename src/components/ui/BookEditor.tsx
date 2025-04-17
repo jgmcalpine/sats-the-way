@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { NDKEvent } from '@nostr-dev-kit/ndk';
-import { v4 as uuidv4 } from 'uuid';
 import { 
 	TextField, 
 	Button, 

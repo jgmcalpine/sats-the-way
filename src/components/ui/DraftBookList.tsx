@@ -1,10 +1,13 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { Grid, Box, Card, CardContent, Typography, CircularProgress, Button, Divider, Chip, IconButton } from "@mui/material";
+import { NDKEvent } from "@nostr-dev-kit/ndk";
+import { Grid, Box, Typography, CircularProgress, Button, Divider, IconButton } from "@mui/material";
 import { Close as CloseIcon } from '@mui/icons-material';
+
 import { NostrDraftEvent, BookDraft, BookDraftWithMetadata } from "@/types/drafts";
 import { useDrafts } from "@/hooks/useDrafts";
+import BookCover from "@/components/ui/BookCover";
 
 // Type guard: checks if the draft is a BookDraft (and not a ChapterDraft)
 function isBookDraft(draft: NostrDraftEvent): draft is BookDraft {
@@ -18,7 +21,7 @@ interface DraftBookListProps {
 
 const DraftBookList: React.FC<DraftBookListProps> = ({ handleEditDraft, handleDeleteDraft }: DraftBookListProps) => {
 	const [drafts, setDrafts] = useState<BookDraftWithMetadata[]>([]);
-	const [loading, setLoading] = useState(true);
+	const [isLoading, setIsLoading] = useState(true);
 	const [selectedBook, setSelectedBook] = useState<BookDraftWithMetadata | null>(null);
     const { listDrafts } = useDrafts();
     useEffect(() => {
@@ -30,7 +33,7 @@ const DraftBookList: React.FC<DraftBookListProps> = ({ handleEditDraft, handleDe
 			} catch (e) {
 				console.error("Failed to load drafts", e);
 			} finally {
-				setLoading(false);
+				setIsLoading(false);
 			}
 		};
 
@@ -42,37 +45,22 @@ const DraftBookList: React.FC<DraftBookListProps> = ({ handleEditDraft, handleDe
 		setSelectedBook(event);
 	};
 
-	const renderCard = (book: BookDraftWithMetadata) => {
-		return (
-		<Grid size={{xs: 12, sm: 6, md: 4}} key={book.draft.id}>
-			<Card variant="outlined" onClick={() => handleSelectDraft(book)} sx={{ cursor: "pointer", "&:hover": { boxShadow: 3 } }}>
-				<CardContent>
-					<Typography variant="h6" gutterBottom>
-						{book.draft.title}
-					</Typography>
-					<Typography variant="body2" color="text.secondary">
-						Language: English
-					</Typography>
-					<Box mt={1}>
-						<Chip label="Draft" color="warning" size="small" />
-					</Box>
-				</CardContent>
-			</Card>
-		</Grid>
-	)};
+	if (isLoading) {
+		return <CircularProgress />;
+	}
 
 	return (
-		<Box p={2}>
+		<Box p={2} className="min-w-full flex flex-col items-center">
 			<Typography variant="h5" gutterBottom>
 				Your Draft Books
 			</Typography>
-			{loading ? (
-				<CircularProgress />
-			) : (
-				<Grid container spacing={2}>
-					{(drafts.length ? drafts : []).map(renderCard)}
-				</Grid>
-			)}
+			<Grid container spacing={2} width="50%">
+				{drafts.length && drafts.map((bookWithMetadata) => {
+					const { draft } = bookWithMetadata;
+					console.log("what is draft here")
+					return <BookCover key={draft.id} book={draft} handleSelectBook={() => handleSelectDraft(bookWithMetadata)} />;
+				})}
+			 </Grid>
 			{/* Detail view section */}
 			{selectedBook && (
 				<Box mt={4} p={2} border="1px solid #ddd" borderRadius={2}>
