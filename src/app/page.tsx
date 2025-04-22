@@ -2,7 +2,7 @@
 
 import Bookshelf, { BookData } from '@/components/ui/BookShelf';
 
-export const mockBooks: BookData[] = [
+const mockBooks: BookData[] = [
   {
     id: "book-1",
     title: "The Silent Echo",
