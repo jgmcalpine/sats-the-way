@@ -9,6 +9,7 @@ import BookBackModal from '@/components/ui/BookBackModal';
 // Reuse the existing types
 interface Chapter {
   fee: number | null;
+  id: number | null;
 }
 
 export interface BookData {
@@ -21,31 +22,32 @@ export interface BookData {
 
 interface BookshelfProps {
   books: BookData[];
-  onReadBook?: (bookId: string) => void;
+  onChooseBook?: (bookId: string) => void;
 }
 
-const Bookshelf: React.FC<BookshelfProps> = ({ books, onReadBook }) => {
-  // Local state management
+const Bookshelf: React.FC<BookshelfProps> = ({ books, onChooseBook }) => {
   const [selectedBook, setSelectedBook] = useState<BookData | null>(null);
-  const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
-
+  const [isBackCoverModalOpen, setIsBackCoverModalOpen] = useState<boolean>(false);
+  
   // Handle book click to open modal
   const handleBookClick = (book: BookData) => {
     setSelectedBook(book);
-    setIsModalOpen(true);
-  };
-
-  // Handle modal close
-  const handleCloseModal = () => {
-    setIsModalOpen(false);
-  };
-
-  // Handle read book button click
-  const handleReadBook = () => {
-    if (selectedBook && onReadBook) {
-      onReadBook(selectedBook.id);
+    if (onChooseBook) {
+        onChooseBook(book.id)
+    } else {
+        setIsBackCoverModalOpen(true);
     }
-    setIsModalOpen(false);
+  };
+
+  const handleCloseModal = () => {
+    setIsBackCoverModalOpen(false);
+  };
+
+  const handleChooseBook = () => {
+    if (selectedBook && onChooseBook) {
+      onChooseBook(selectedBook.id);
+    }
+    setIsBackCoverModalOpen(false);
   };
 
   return (
@@ -98,13 +100,13 @@ const Bookshelf: React.FC<BookshelfProps> = ({ books, onReadBook }) => {
       </Paper>
 
       {/* Book modal */}
-      {selectedBook && (
+      {selectedBook && isBackCoverModalOpen && (
         <BookBackModal
-          open={isModalOpen}
+          open={isBackCoverModalOpen}
           onClose={handleCloseModal}
           description={selectedBook.description}
           chapters={selectedBook.chapters}
-          readBook={handleReadBook}
+          readBook={handleChooseBook}
         />
       )}
     </Container>
