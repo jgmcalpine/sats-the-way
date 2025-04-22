@@ -1,11 +1,11 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { Grid, Box, Typography, CircularProgress } from "@mui/material";
+import { Box, Typography, CircularProgress } from "@mui/material";
 import { NostrDraftEvent, BookDraft, BookDraftWithMetadata } from "@/types/drafts";
 import { useDrafts } from "@/hooks/useDrafts";
-import BookFrontCover from "@/components/ui/BookFrontCover";
-import BookBackCover from "@/components/ui/BookDraftBackCover";
+import Bookshelf, { BookData } from "@/components/ui/BookShelf";
+import { mockBooks } from "@/constants/mock";
 
 // Type guard: checks if the draft is a BookDraft (and not a ChapterDraft)
 function isBookDraft(draft: NostrDraftEvent): draft is BookDraft {
@@ -18,16 +18,16 @@ interface DraftBookListProps {
 }
 
 const DraftBookList: React.FC<DraftBookListProps> = ({ handleEditDraft, handleDeleteDraft }: DraftBookListProps) => {
-	const [drafts, setDrafts] = useState<BookDraftWithMetadata[]>([]);
+	const [drafts, setDrafts] = useState<BookData[]>([]);
 	const [isLoading, setIsLoading] = useState(true);
-	const [selectedBook, setSelectedBook] = useState<BookDraftWithMetadata | null>(null);
-    const { listDrafts } = useDrafts();
+    // const { listDrafts } = useDrafts();
     useEffect(() => {
 		const loadDrafts = async () => {
 			try {
-				const events = await listDrafts();
-				const bookDrafts = events.filter(({ draft }) => isBookDraft(draft));
-				setDrafts(bookDrafts as BookDraftWithMetadata[]);
+				// const events = await listDrafts();
+				// const bookDrafts = events.filter(({ draft }) => isBookDraft(draft));
+				// setDrafts(bookDrafts as BookDraftWithMetadata[]);
+				setDrafts(mockBooks)
 			} catch (e) {
 				console.error("Failed to load drafts", e);
 			} finally {
@@ -38,11 +38,6 @@ const DraftBookList: React.FC<DraftBookListProps> = ({ handleEditDraft, handleDe
 		loadDrafts();
 	}, []);
 
-	// Handler to select a draft for viewing its details
-	const handleSelectDraft = (event: BookDraftWithMetadata) => {
-		setSelectedBook(event);
-	};
-
 	if (isLoading) {
 		return <CircularProgress />;
 	}
@@ -52,17 +47,9 @@ const DraftBookList: React.FC<DraftBookListProps> = ({ handleEditDraft, handleDe
 			<Typography variant="h5" gutterBottom>
 				Your Draft Books
 			</Typography>
-			<Grid container spacing={2} width="50%">
-				{drafts.length && drafts.map((bookWithMetadata) => {
-					const { draft } = bookWithMetadata;
-					console.log("what is draft here")
-					return <BookFrontCover key={draft.id} book={draft} handleSelectBook={() => handleSelectDraft(bookWithMetadata)} />;
-				})}
-			 </Grid>
-			{/* Detail view section */}
-			{selectedBook && (
-				<BookBackCover bookWithEvent={selectedBook} handleCloseBook={() => setSelectedBook(null)} handleEditDraft={handleEditDraft} handleDeleteDraft={handleDeleteDraft} />
-			)}
+			<Bookshelf 
+				books={drafts} 
+			/>
 		</Box>
 	);
 };
