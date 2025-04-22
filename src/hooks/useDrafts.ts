@@ -518,7 +518,8 @@ export function useDrafts() {
                     id: chapterId,
                     title: initialChapterData.title || '',
                     paid: initialChapterData.paid,
-                    position: initialChapterData.position
+                    position: initialChapterData.position,
+                    fee: null
                 }]
             };
             console.log("Creating book draft:", bookDraft);
@@ -604,7 +605,8 @@ export function useDrafts() {
                     id: chapterDraft.id,
                     title: chapterDraft.title || '',
                     paid: chapterDraft.paid || false,
-                    position: chapterData.position
+                    position: chapterData.position,
+                    fee: null
                 }
             ].sort((a, b) => a.position - b.position);
     

@@ -1,7 +1,18 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { Dialog, DialogContent, DialogActions, Button, IconButton, Typography, List, ListItem, ListItemText, Box } from '@mui/material';
+import { 
+  Dialog, 
+  DialogContent, 
+  DialogActions, 
+  Button, 
+  IconButton, 
+  Typography, 
+  List,
+  ListItem, 
+  ListItemText, 
+  Box 
+} from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
 
 interface Chapter {
@@ -153,7 +164,7 @@ const BookBackModal: React.FC<BookBackModalProps> = ({
                     <ListItem key={index} className="py-2">
                       <ListItemText 
                         primary={`Chapter ${index + 1}`} 
-                        secondary={chapter.fee !== null ? `Fee: $${chapter.fee.toFixed(2)}` : 'Free'}
+                        secondary={Boolean(chapter.fee) ? `Fee: $${chapter.fee?.toFixed(2)}` : 'Free'}
                         className="text-gray-700"
                       />
                     </ListItem>

@@ -24,6 +24,7 @@ export interface BookDraft extends DraftBase {
 	chapters: {
 		id: string
 		title?: string
+		fee: number | null
 		paid: boolean
 		position: number
 	}[]
