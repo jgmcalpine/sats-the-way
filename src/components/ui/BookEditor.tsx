@@ -34,7 +34,7 @@ const BookEditor: React.FC<BookEditorProps> = ({ bookEventId, onCreateBook, onPu
 	const [selectedChapterPosition, setSelectedChapterPosition] = useState<number>(0);
 	const [draftText, setDraftText] = useState<string>(chapters[selectedChapterPosition]?.draft.body || '');
 	const [bookToEdit, setBookToEdit] = useState<{ event: NDKEvent, draft: NostrDraftEvent } | null>(null);
-	const { getDraftById, listDrafts, createNewChapter, updateDraft, getChaptersByBookId } = useDrafts();
+	const { getDraftById, createNewChapter, updateDraft, getChaptersByBookId } = useDrafts();
 	console.log("chapters: ", chapters);
 	console.log("bookToEdit: ", bookToEdit);
 	console.log("draftText: ", draftText);
@@ -126,24 +126,24 @@ const BookEditor: React.FC<BookEditorProps> = ({ bookEventId, onCreateBook, onPu
 		}
 	};
 
-	const loadChapters = async (bookId: string) => {
-		try {
-		  setLoading(true);
-		  const bookChapters = await getChaptersByBookId(bookId);
-		  setChapters(bookChapters);
-		  setLoading(false);
-		  console.log(`Loaded ${bookChapters.length} chapters for book ${bookId}`);
+	// const loadChapters = async (bookId: string) => {
+	// 	try {
+	// 	  setLoading(true);
+	// 	  const bookChapters = await getChaptersByBookId(bookId);
+	// 	  setChapters(bookChapters);
+	// 	  setLoading(false);
+	// 	  console.log(`Loaded ${bookChapters.length} chapters for book ${bookId}`);
 		  
-		  // If chapters were loaded successfully, select the first one
-		  if (bookChapters.length > 0) {
-			setSelectedChapterPosition(0);
-			setDraftText(bookChapters[0]?.draft.body || '');
-		  }
-		} catch (error) {
-		  setLoading(false);
-		  console.error('Error loading chapters:', error);
-		}
-	};
+	// 	  // If chapters were loaded successfully, select the first one
+	// 	  if (bookChapters.length > 0) {
+	// 		setSelectedChapterPosition(0);
+	// 		setDraftText(bookChapters[0]?.draft.body || '');
+	// 	  }
+	// 	} catch (error) {
+	// 	  setLoading(false);
+	// 	  console.error('Error loading chapters:', error);
+	// 	}
+	// };
 
 	// ------- Desktop Modal Handlers -------
 	const handleChapterClick = (chapter: ChapterDraft) => {

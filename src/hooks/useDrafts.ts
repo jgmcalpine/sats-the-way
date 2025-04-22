@@ -338,6 +338,7 @@ export function useDrafts() {
             }
     
             // Build the filter for fetching events
+            // eslint-disable-next-line  @typescript-eslint/no-explicit-any
             const eventFilter: any = {
                 kinds: [DRAFT_KIND, DRAFT_PARAMETERIZED_KIND],
                 authors: [pubkey],

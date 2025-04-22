@@ -1,7 +1,5 @@
 'use client';
 
-import { useState } from 'react';
-
 import Bookshelf, { BookData } from '@/components/ui/BookShelf';
 
 export const mockBooks: BookData[] = [
@@ -90,34 +88,11 @@ export const mockBooks: BookData[] = [
 ];
 
 export default function Home() {
-  const [selectedBook, setSelectedBook] = useState<BookData | null>(null);
-  const [isModalOpen, setIsModalOpen] = useState(false);
-
-  const booksWithHandlers = mockBooks.map(book => ({
-    ...book,
-    handleClick: () => {
-      setSelectedBook(book);
-      setIsModalOpen(true);
-    }
-  }));
-
-  const handleCloseModal = () => {
-    setIsModalOpen(false);
-  };
-
-  const handleReadBook = () => {
-    console.log(`Reading book: ${selectedBook?.title}`);
-    setIsModalOpen(false);
-    // Additional logic for reading the book would go here
-  };
-
-
   return (
     <div className="py-8">
       <h1 className="text-3xl font-bold text-center mb-8">My Library</h1>
       <Bookshelf 
         books={mockBooks} 
-        onReadBook={handleReadBook} 
       />
     </div>
   );

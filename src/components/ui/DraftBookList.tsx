@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { NDKEvent } from "@nostr-dev-kit/ndk";
 import { Grid, Box, Typography, CircularProgress } from "@mui/material";
 import { NostrDraftEvent, BookDraft, BookDraftWithMetadata } from "@/types/drafts";
 import { useDrafts } from "@/hooks/useDrafts";
