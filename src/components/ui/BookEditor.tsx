@@ -7,8 +7,15 @@ import {
   Button, 
   TextField,
   Typography,
-  ListItemButton 
+  ListItemButton,
+  IconButton,
+  Box,
+  Tooltip
 } from '@mui/material';
+import { Bolt as BoltIcon, CurrencyBitcoin as CurrencyBitcoinIcon } from '@mui/icons-material';
+
+import { EditableText } from '@/components/ui/EditableText';
+import { isValidLightningAddress } from '@/utils/lightning';
 
 interface Chapter {
   fee: number | null;
@@ -31,9 +38,12 @@ interface BookEditorProps {
 
 const BookEditor: React.FC<BookEditorProps> = ({ book, onSave, onNewChapter }) => {
   const [content, setContent] = useState<string>('');
+  const [lightningAddress, setLightningAddress] = useState<string>('');
   const [selectedChapterId, setSelectedChapterId] = useState<number | null>(
     book.chapters.length > 0 ? book.chapters[0].id : null
   );
+
+  const hasValidLightningAddress = isValidLightningAddress(lightningAddress);
 
   const handleChapterSelect = (chapterId: number | null) => {
     setSelectedChapterId(chapterId);
@@ -63,9 +73,12 @@ const BookEditor: React.FC<BookEditorProps> = ({ book, onSave, onNewChapter }) =
             <Typography variant="h5" className="mb-4 text-center font-serif text-amber-900">
               {book.title}
             </Typography>
-            <Typography variant="subtitle1" className="mb-6 text-center italic text-amber-800">
-              by {book.author}
-            </Typography>
+			<Box display="flex" alignItems="center" gap={2}>
+			  <Tooltip title="Add your lightning address here">
+				<BoltIcon color="primary" />
+			  </Tooltip>
+			  <EditableText onSave={(val: string) => setLightningAddress(val)} value={lightningAddress} />
+			</Box>
             
             <Typography variant="h6" className="mb-2 font-serif text-amber-900">
               Chapters
@@ -82,10 +95,19 @@ const BookEditor: React.FC<BookEditorProps> = ({ book, onSave, onNewChapter }) =
                         selectedChapterId === chapter.id ? 'bg-amber-200' : ''
                       }`}
                     >
-                      <ListItemText 
-                        primary={`Chapter ${index + 1}`} 
-                        secondary={chapter.fee ? `Fee: $${chapter.fee}` : 'Free'} 
-                      />
+					  <Box className="flex justify-between items-center w-full">
+						<ListItemText 
+							primary={`Chapter ${index + 1}`} 
+							secondary={chapter.fee ? `Fee: $${chapter.fee}` : 'Free'} 
+						/>
+						<Tooltip arrow disableFocusListener={hasValidLightningAddress} title="Add a valid lightning address to set chapter fees">
+							<span>
+								<IconButton disabled={!hasValidLightningAddress}>
+									<CurrencyBitcoinIcon />
+								</IconButton>
+							</span>
+						</Tooltip>
+					  </Box>
                     </ListItemButton>
                   </ListItem>
                 ))}
