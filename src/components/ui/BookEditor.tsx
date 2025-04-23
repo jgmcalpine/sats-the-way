@@ -20,6 +20,7 @@ import { isValidLightningAddress } from '@/utils/lightning';
 interface Chapter {
   fee: number | null;
   id: number | null;
+  title?: string | null;
 }
 
 export interface BookData {
@@ -77,7 +78,7 @@ const BookEditor: React.FC<BookEditorProps> = ({ book, onSave, onNewChapter }) =
 			  <Tooltip title="Add your lightning address here">
 				<BoltIcon color="primary" />
 			  </Tooltip>
-			  <EditableText onSave={(val: string) => setLightningAddress(val)} value={lightningAddress} />
+			  <EditableText className='w-full' onSave={(val: string) => setLightningAddress(val)} value={lightningAddress} />
 			</Box>
             
             <Typography variant="h6" className="mb-2 font-serif text-amber-900">
@@ -96,9 +97,7 @@ const BookEditor: React.FC<BookEditorProps> = ({ book, onSave, onNewChapter }) =
                       }`}
                     >
 					  <Box className="flex justify-between items-center w-full">
-						<ListItemText 
-							primary={`Chapter ${index + 1}`} 
-						/>
+						<EditableText onSave={(title: string) => console.log("Update the chapter title", title)} value={ chapter.title ? `${chapter.title}` : `Chapter ${index + 1}`} />
 						<Tooltip arrow disableFocusListener={hasValidLightningAddress} title={hasValidLightningAddress ? '' : "Add a valid lightning address to set chapter fees"}>
 							<span className="flex items-center justify-center">
 								<CurrencyBitcoinIcon color="secondary" />

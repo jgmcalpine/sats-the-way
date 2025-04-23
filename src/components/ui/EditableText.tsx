@@ -102,7 +102,7 @@ export const EditableText: React.FC<EditableTextProps> = ({
   };
 
   return (
-    <Box className={`inline-block w-full ${className}`}>
+    <Box className={`inline-block ${className}`}>
       {isEditing ? (
         // --- Edit Mode ---
         <div className="flex items-center space-x-1">
