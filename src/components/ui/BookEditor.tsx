@@ -66,7 +66,7 @@ const BookEditor: React.FC<BookEditorProps> = ({ book, onSave, onNewChapter }) =
         <div className="absolute inset-0 bg-amber-50 rounded-lg shadow-2xl transform -skew-x-1" />
         
         {/* Book content container */}
-        <div className="relative flex w-full rounded-lg overflow-hidden">
+        <div className="relative flex flex-col md:flex-row w-full rounded-lg overflow-hidden">
           {/* Left page - Chapter list */}
           <Paper elevation={0} className="flex-1 bg-amber-50 pt-8 pb-4 px-6 rounded-l-lg border-r border-amber-200">
 			<Box display="flex" justifyContent="center">
