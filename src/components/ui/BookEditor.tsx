@@ -71,14 +71,14 @@ const BookEditor: React.FC<BookEditorProps> = ({ book, onSave, onNewChapter }) =
         <div className="relative flex w-full rounded-lg overflow-hidden">
           {/* Left page - Chapter list */}
           <Paper elevation={0} className="flex-1 bg-amber-50 pt-8 pb-4 px-6 rounded-l-lg border-r border-amber-200">
-            <Typography variant="h5" className="mb-4 text-center font-serif text-amber-900">
-              {book.title}
-            </Typography>
+			<Box display="flex" justifyContent="center">
+			  <EditableText placeholder='Add a title' value={book.title} onSave={() => console.log("updat the title")} textProps={{ variant: "h4" }} className="mb-4 text-center font-serif text-amber-900 text-4xl w-full" />
+			</Box>
 			<Box display="flex" alignItems="center" gap={2}>
 			  <Tooltip title="Add your lightning address here">
 				<BoltIcon color="primary" />
 			  </Tooltip>
-			  <EditableText className='w-full' onSave={(val: string) => setLightningAddress(val)} value={lightningAddress} />
+			  <EditableText placeholder='ex:myaddress@getalbi.com' className='w-full' onSave={(val: string) => setLightningAddress(val)} value={lightningAddress} />
 			</Box>
             
             <Typography variant="h6" className="mb-2 font-serif text-amber-900">
@@ -97,11 +97,11 @@ const BookEditor: React.FC<BookEditorProps> = ({ book, onSave, onNewChapter }) =
                       }`}
                     >
 					  <Box className="flex justify-between items-center w-full">
-						<EditableText onSave={(title: string) => console.log("Update the chapter title", title)} value={ chapter.title ? `${chapter.title}` : `Chapter ${index + 1}`} />
+						<EditableText placeholder='Chapter title' onSave={(title: string) => console.log("Update the chapter title", title)} value={ chapter.title ? `${chapter.title}` : `Chapter ${index + 1}`} />
 						<Tooltip arrow disableFocusListener={hasValidLightningAddress} title={hasValidLightningAddress ? '' : "Add a valid lightning address to set chapter fees"}>
 							<span className="flex items-center justify-center">
 								<CurrencyBitcoinIcon color="secondary" />
-								<EditableText value={chapter.fee ? `${chapter.fee}` : 'Free'} onSave={(newPrice: string) => console.log("save the new value: ", newPrice)} />
+								<EditableText placeholder='How many sats?' value={chapter.fee ? `${chapter.fee}` : 'Free'} onSave={(newPrice: string) => console.log("save the new value: ", newPrice)} />
 							</span>
 						</Tooltip>
 					  </Box>
