@@ -23,7 +23,7 @@ export default function WritePage() {
     }
 
     return (
-        <div className="flex flex-col justify-center items-center h-full min-h-screen">
+        <div className="flex flex-col justify-center items-center h-full min-h-screen pb-48">
             <DraftBookList handleEditDraft={onEditDraft} />
             {draftToEdit && <BookEditor book={draftToEdit} onNewChapter={() => console.log("new chaptering")} onSave={() => {console.log("ON SAVE")}} />}
         </div>

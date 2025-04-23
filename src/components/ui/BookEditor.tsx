@@ -98,13 +98,11 @@ const BookEditor: React.FC<BookEditorProps> = ({ book, onSave, onNewChapter }) =
 					  <Box className="flex justify-between items-center w-full">
 						<ListItemText 
 							primary={`Chapter ${index + 1}`} 
-							secondary={chapter.fee ? `Fee: $${chapter.fee}` : 'Free'} 
 						/>
-						<Tooltip arrow disableFocusListener={hasValidLightningAddress} title="Add a valid lightning address to set chapter fees">
-							<span>
-								<IconButton disabled={!hasValidLightningAddress}>
-									<CurrencyBitcoinIcon />
-								</IconButton>
+						<Tooltip arrow disableFocusListener={hasValidLightningAddress} title={hasValidLightningAddress ? '' : "Add a valid lightning address to set chapter fees"}>
+							<span className="flex items-center justify-center">
+								<CurrencyBitcoinIcon color="secondary" />
+								<EditableText value={chapter.fee ? `${chapter.fee}` : 'Free'} onSave={(newPrice: string) => console.log("save the new value: ", newPrice)} />
 							</span>
 						</Tooltip>
 					  </Box>
