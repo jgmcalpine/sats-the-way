@@ -200,5 +200,154 @@ export const mockBooks: BookData[] = [
     id: "fsm-meta-1",
     sig: "<sig-meta>"
   };
+
+  import { v4 as uuidv4 } from 'uuid'; // If needed, or use pre-defined strings
+
+import { State, FsmData } from '@/components/ui/FsmBuilder'; // Assuming types are exported or accessible
+
+// --- Define IDs ---
+const BOOK_ID = 'book-adventure-001'; // Example Book ID
+const AUTHOR_PUBKEY = 'author-pubkey-123'; // Example Author Pubkey
+
+const CHAPTER_START_ID = 'ch-start-forest';
+const CHAPTER_CAVE_ID = 'ch-cave-entrance';
+const CHAPTER_RIVER_ID = 'ch-river-crossing';
+const CHAPTER_TREASURE_ID = 'ch-treasure-room'; // Paid choice target
+const CHAPTER_TRAP_ID = 'ch-trap-pit'; // Free choice target
+const CHAPTER_END_GOOD_ID = 'ch-end-escape'; // End state
+const CHAPTER_END_BAD_ID = 'ch-end-trapped'; // End state
+
+const TRANS_START_TO_CAVE = 'tr-start-cave';
+const TRANS_START_TO_RIVER = 'tr-start-river';
+const TRANS_CAVE_TO_TREASURE = 'tr-cave-treasure';
+const TRANS_CAVE_TO_TRAP = 'tr-cave-trap';
+const TRANS_RIVER_TO_END = 'tr-river-escape';
+const TRANS_TRAP_TO_END = 'tr-trap-end';
+const TRANS_TREASURE_TO_END = 'tr-treasure-escape';
+
+
+// --- Define States (Chapters) ---
+const states: Record<string, State> = {
+    [CHAPTER_START_ID]: {
+        id: CHAPTER_START_ID,
+        name: 'Chapter 1: Whispering Woods',
+        content: 'You find yourself lost in a dense forest. Sunlight barely pierces the thick canopy above. Before you, the path splits. To the left, you see the dark mouth of a cave. To the right, you hear the sound of rushing water.',
+        isStartState: true,
+        isEndState: false,
+        entryFee: 0, // Free to start
+        transitions: [
+            {
+                id: TRANS_START_TO_CAVE,
+                choiceText: 'Enter the cave.',
+                targetStateId: CHAPTER_CAVE_ID,
+                price: 0, // Free choice
+            },
+            {
+                id: TRANS_START_TO_RIVER,
+                choiceText: 'Head towards the river.',
+                targetStateId: CHAPTER_RIVER_ID,
+                price: 0, // Free choice
+            },
+        ],
+    },
+    [CHAPTER_CAVE_ID]: {
+        id: CHAPTER_CAVE_ID,
+        name: 'Chapter 2: The Cave Mouth',
+        content: 'The air in the cave is cold and damp. Moss clings to the walls. You see two tunnels ahead. One seems to glitter faintly in the distance, but costs a small fee to explore. The other descends into darkness.',
+        isStartState: false,
+        isEndState: false,
+        entryFee: 100, // Cost 100 sats to enter this chapter
+        transitions: [
+            {
+                id: TRANS_CAVE_TO_TREASURE,
+                choiceText: 'Investigate the glittering tunnel (Cost: 500 sats).',
+                targetStateId: CHAPTER_TREASURE_ID,
+                price: 500, // Paid choice
+            },
+            {
+                id: TRANS_CAVE_TO_TRAP,
+                choiceText: 'Descend into darkness.',
+                targetStateId: CHAPTER_TRAP_ID,
+                price: 0, // Free choice
+            },
+        ],
+    },
+    [CHAPTER_RIVER_ID]: {
+        id: CHAPTER_RIVER_ID,
+        name: 'Chapter 2: Rushing River',
+        content: 'You reach a wide, fast-flowing river. A rickety rope bridge spans the chasm. It looks perilous, but it\'s the only way across you can see.',
+        isStartState: false,
+        isEndState: false,
+        entryFee: 0, // Free chapter
+        transitions: [
+            {
+                id: TRANS_RIVER_TO_END,
+                choiceText: 'Attempt to cross the bridge.',
+                targetStateId: CHAPTER_END_GOOD_ID, // Leads directly to a good end
+                price: 0,
+            },
+        ],
+    },
+    [CHAPTER_TREASURE_ID]: {
+        id: CHAPTER_TREASURE_ID,
+        name: 'Chapter 3: Treasure Room',
+        content: 'Your gamble paid off! The tunnel opens into a small chamber filled with ancient coins and sparkling gems. You gather as much as you can carry. A hidden passage offers a way out.',
+        isStartState: false,
+        isEndState: false, // Not an end state itself, must choose exit
+        entryFee: 0, // Fee was paid on the *choice* leading here
+        transitions: [
+            {
+                id: TRANS_TREASURE_TO_END,
+                choiceText: 'Take the hidden passage.',
+                targetStateId: CHAPTER_END_GOOD_ID,
+                price: 0,
+            }
+        ],
+    },
+    [CHAPTER_TRAP_ID]: {
+        id: CHAPTER_TRAP_ID,
+        name: 'Chapter 3: The Pitfall',
+        content: 'You take a few steps into the darkness when the floor gives way beneath you! You tumble down into a deep pit. Luckily, you land on a pile of soft leaves, unharmed but stuck.',
+        isStartState: false,
+        isEndState: false, // Not an end state itself
+        entryFee: 0,
+        transitions: [
+             {
+                id: TRANS_TRAP_TO_END,
+                choiceText: 'Wait for rescue (or doom).',
+                targetStateId: CHAPTER_END_BAD_ID,
+                price: 0,
+            }
+        ],
+    },
+    [CHAPTER_END_GOOD_ID]: {
+        id: CHAPTER_END_GOOD_ID,
+        name: 'Ending: Freedom!',
+        content: 'You emerge into the bright sunlight, safe and sound (and perhaps a little richer!). Your adventure concludes successfully. THE END.',
+        isStartState: false,
+        isEndState: true, // This is an end state
+        entryFee: 0,
+        transitions: [], // No transitions from an end state
+    },
+     [CHAPTER_END_BAD_ID]: {
+        id: CHAPTER_END_BAD_ID,
+        name: 'Ending: Trapped!',
+        content: 'Days turn into nights, and no one comes. You are trapped in the pit with only leaves for company. Your adventure ends here. THE END.',
+        isStartState: false,
+        isEndState: true, // This is an end state
+        entryFee: 0,
+        transitions: [],
+    },
+};
+
+// --- Assemble FsmData ---
+export const mockFsmData: FsmData = {
+    states: states,
+    startStateId: CHAPTER_START_ID,
+};
+
+// Also export bookId and authorPubkey if needed by the parent component easily
+export const mockBookId = BOOK_ID;
+export const mockAuthorPubkey = AUTHOR_PUBKEY;
   
   
