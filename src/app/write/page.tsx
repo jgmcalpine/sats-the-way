@@ -1,6 +1,9 @@
 'use client';
 
-import { useState } from "react";
+import { useState , useEffect} from "react";
+// import { useRouter } from 'next/router'; // If loading based on route
+
+import { Button, CircularProgress, Alert, Box, Typography } from '@mui/material';
 
 import { useAuth } from "@/components/AuthProvider";
 import DraftBookList from '@/components/ui/DraftBookList';
@@ -9,72 +12,123 @@ import BookEditor from "@/components/ui/BookEditor";
 import FsmBuilder from "@/components/ui/FsmBuilder";
 import WriteHeader from "@/components/ui/WriteHeader";
 
+import { useNostrBookEditor } from '@/hooks/useNostrBookEditor';
+
+const RELAYS = ['wss://relay.damus.io', 'wss://relay.primal.net', 'wss://nos.lol']; // Your preferred relays
+
 import { mockFsmData, mockBookId, mockAuthorPubkey } from '@/constants/mock';
 import type { State, FsmData } from '@/components/ui/FsmBuilder'; // Adjust path if needed
 
 export default function WritePage() {
+    // const router = useRouter();
+    // const { bookNaddr } = router.query;
+    const [bookNaddr, setBookNaddr] = useState<string | null>(null);
+    const [currentUserPubkey, setCurrentUserPubkey] = useState<string | null>(null); // Get this from your auth context/login state
     const { currentUser, loading } = useAuth();
     const [showEditor, setShowEditor] = useState(false);
-    const [draftToEdit, setDraftToEdit] = useState<BookData | null>(null)
+    const [fsmData, setFsmData] = useState<FsmData | null>(null);
+    const [currentBookId, setCurrentBookId] = useState<string | null>(null);
+    const [currentBookTitle, setCurrentBookTitle] = useState<string | undefined>(undefined);
+    const [isLoadingPage, setIsLoadingPage] = useState(true);
+    const [draftToEdit, setDraftToEdit] = useState<BookData | null>(null);
 
-    if (loading) return null;
+    const {
+        isConnecting,
+        isProcessing, // Use this for button loading states
+        error, // Display errors
+        createAndLoadNewBook,
+        loadBook,
+        saveChapter,
+        saveAllProgress,
+        publishBook,
+    } = useNostrBookEditor(RELAYS, currentUserPubkey);
 
-    // Handler for saving the entire book (metadata + all chapters)
-  const handleSaveProgress = async (data: FsmData) => {
-    console.log("SAVING ENTIRE BOOK:", data);
-    // 1. Construct Kind 31111 (Book Metadata) event using data.startStateId etc.
-    //    Use mockBookId and mockAuthorPubkey for 'd' and 'a' tags.
-    // 2. For each state in data.states:
-    //    Construct Kind 31112 (Chapter) event using state data.
-    //    Use state.id for 'd' tag.
-    //    Use "31111:<mockAuthorPubkey>:<mockBookId>" for 'a' tag.
-    // 3. Sign and publish all events.
-    await new Promise(resolve => setTimeout(resolve, 1000)); // Simulate async
-    console.log("Entire book save simulated.");
-     // Maybe update initialData state here if fetching fresh data after save
-  };
+    useEffect(() => {
+        const getPubkey = async () => {
+            if (window.nostr) {
+                try {
+                    const pubkey = await window.nostr.getPublicKey();
+                    setCurrentUserPubkey(pubkey);
+                } catch (e) { console.error("Could not get pubkey:", e); }
+            }
+        };
+        getPubkey();
+    }, []);
 
-  // Handler for publishing the book
-  const handlePublish = async (data: FsmData) => {
-    console.log("PUBLISHING BOOK:", data);
-    // Similar to save, but might:
-    // 1. Add/update 'publishedAt' in Kind 31111 content.
-    // 2. Publish to more relays.
-    await new Promise(resolve => setTimeout(resolve, 1500)); // Simulate async
-    console.log("Book publish simulated.");
-  };
+    useEffect(() => {
+        if (bookNaddr && typeof bookNaddr === 'string' && currentUserPubkey) {
+            setIsLoadingPage(true);
+            setShowEditor(true); // Assume showing editor if loading specific book
+            loadBook(bookNaddr)
+                .then(result => {
+                    if (result) {
+                        setFsmData(result.fsmData);
+                        setCurrentBookId(result.bookId);
+                        // Attempt to get title from loaded data (might need adjustment based on loadBook return)
+                         const metadata = result.fsmData // You might need to adjust loadBook to return metadata title separately
+                        //  setCurrentBookTitle(metadata?.title);
+                    } else {
+                        // Handle book not found - maybe redirect or show error
+                        setShowEditor(false); // Go back to header if load fails?
+                    }
+                })
+                .finally(() => setIsLoadingPage(false));
+        } else {
+            setIsLoadingPage(false); // Not loading a specific book initially
+        }
+    }, [bookNaddr, loadBook, currentUserPubkey]); // Depend on identifier and load function availability
 
-  // Handler for saving just one chapter
-  const handleSaveChapter = async (chapterData: State) => {
-    console.log("SAVING CHAPTER:", chapterData);
-    // 1. Construct Kind 31112 (Chapter) event using chapterData.
-    // 2. Use chapterData.id for the 'd' tag.
-    // 3. Use "31111:<mockAuthorPubkey>:<mockBookId>" for the 'a' tag.
-    // 4. Sign and publish *this single* event.
-    await new Promise(resolve => setTimeout(resolve, 500)); // Simulate async
-    console.log("Chapter save simulated.");
-     // Maybe update initialData state here if fetching fresh data after save
-  };
-
-    const onEditDraft = (book: BookData | undefined) => {
-        if (!book) return;
-        setDraftToEdit(book);
-    }
-
-    const handleStartNewAdventure = () => {
-        console.log("Starting a new adventure!");
-        // Here you would typically:
-        // 1. Generate a new unique bookId and chapterId for the initial state.
-        // 2. Create a minimal FsmData object with one starting chapter.
-        // 3. Navigate to the editor page OR toggle the editor's visibility.
-        setShowEditor(true);
-        // You might need to pass newly generated IDs/data to the FsmBuilder below
+    const handleStartAdventure = async () => {
+        if (isProcessing || !currentUserPubkey) return;
+        const result = await createAndLoadNewBook();
+        if (result) {
+            setFsmData(result.initialFsmData);
+            setCurrentBookId(result.bookId);
+            setCurrentBookTitle('Untitled Adventure'); // Default title
+            setShowEditor(true);
+            // Optionally update URL using router.push(`/editor/${newNaddr}`, undefined, { shallow: true });
+            // Need to encode the new bookId/authorPubkey into naddr1... format first
+            // const naddr = nip19.naddrEncode({ identifier: result.bookId, pubkey: currentUserPubkey, kind: BOOK_METADATA_KIND, relays: RELAYS });
+            // router.push(`/editor/${naddr}`, undefined, { shallow: true });
+        }
+        // Error state is handled by the hook
     };
 
-    const handleSave = async () => { console.log("Save triggered"); };
+     // These handlers now directly call the hook methods
+     const handleSaveChapter = async (chapterData: State) => {
+        if (!currentBookId || !currentUserPubkey || isProcessing) return;
+        await saveChapter(chapterData, currentBookId, currentUserPubkey);
+        // Optionally show success feedback (e.g., snackbar)
+    };
+
+    const handleSaveAll = async (data: FsmData) => {
+         if (!currentBookId || !currentUserPubkey || isProcessing) return;
+         // Find current title from data if possible (user might have edited it in FsmBuilder if you added that field)
+         // For now, using the state variable:
+         await saveAllProgress(data, currentBookId, currentBookTitle, currentUserPubkey);
+         // Update local FSM data state AFTER save? Or assume component state is source of truth?
+         // setFsmData(data); // Update local state to match what was saved
+         // Optionally show success feedback
+    };
+
+    const handlePublish = async (data: FsmData) => {
+        if (!currentBookId || !currentUserPubkey || isProcessing) return;
+        // Find current title...
+        await publishBook(data, currentBookId, currentBookTitle, currentUserPubkey);
+         // Optionally show success feedback
+    };
 
     if (!currentUser) {
         return <div>Connect with nip-07 to create your own adventures!</div>
+    }
+
+    if (isConnecting || isLoadingPage || loading) {
+        return (
+            <Box display="flex" justifyContent="center" alignItems="center" minHeight="50vh">
+                <CircularProgress />
+                <Typography sx={{ ml: 2 }}>{isConnecting ? 'Connecting to Nostr relays...' : 'Loading book data...'}</Typography>
+            </Box>
+        );
     }
 
     return (
@@ -82,7 +136,7 @@ export default function WritePage() {
             {/* <DraftBookList handleEditDraft={onEditDraft} /> */}
             {/* {draftToEdit && <BookEditor book={draftToEdit} onNewChapter={() => console.log("new chaptering")} onSave={() => {console.log("ON SAVE")}} />} */}
             {!showEditor ? (
-                 <WriteHeader onStartWriting={handleStartNewAdventure} />
+                 <WriteHeader onStartWriting={handleStartAdventure} />
             ) : (
                 <>
                     {/* Render the builder, potentially passing initial empty data */}
@@ -91,7 +145,7 @@ export default function WritePage() {
                         bookId={"new-book-" + Date.now()}
                         authorPubkey={"your-user-pubkey"} // Get this from user session/login
                         // initialData={/* Pass minimal starting data */}
-                        onSaveProgress={handleSave}
+                        onSaveProgress={handleSaveAll}
                         onPublish={handlePublish}
                         onSaveChapter={handleSaveChapter}
                     />
