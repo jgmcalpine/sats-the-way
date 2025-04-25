@@ -7,12 +7,14 @@ import DraftBookList from '@/components/ui/DraftBookList';
 import { BookData } from "@/components/ui/BookShelf";
 import BookEditor from "@/components/ui/BookEditor";
 import FsmBuilder from "@/components/ui/FsmBuilder";
+import WriteHeader from "@/components/ui/WriteHeader";
 
 import { mockFsmData, mockBookId, mockAuthorPubkey } from '@/constants/mock';
 import type { State, FsmData } from '@/components/ui/FsmBuilder'; // Adjust path if needed
 
 export default function WritePage() {
     const { currentUser, loading } = useAuth();
+    const [showEditor, setShowEditor] = useState(false);
     const [draftToEdit, setDraftToEdit] = useState<BookData | null>(null)
 
     if (loading) return null;
@@ -59,24 +61,42 @@ export default function WritePage() {
         setDraftToEdit(book);
     }
 
+    const handleStartNewAdventure = () => {
+        console.log("Starting a new adventure!");
+        // Here you would typically:
+        // 1. Generate a new unique bookId and chapterId for the initial state.
+        // 2. Create a minimal FsmData object with one starting chapter.
+        // 3. Navigate to the editor page OR toggle the editor's visibility.
+        setShowEditor(true);
+        // You might need to pass newly generated IDs/data to the FsmBuilder below
+    };
+
+    const handleSave = async () => { console.log("Save triggered"); };
+
     if (!currentUser) {
         return <div>Connect with nip-07 to create your own adventures!</div>
     }
 
     return (
         <div className="flex flex-col justify-center items-center h-full min-h-screen pb-48">
-            <DraftBookList handleEditDraft={onEditDraft} />
-            {draftToEdit && <BookEditor book={draftToEdit} onNewChapter={() => console.log("new chaptering")} onSave={() => {console.log("ON SAVE")}} />}
-            <FsmBuilder
-                // Use state if managing data here, otherwise pass mock directly
-                // initialData={currentFsmData}
-                initialData={mockFsmData}
-                bookId={mockBookId} // Pass required context
-                authorPubkey={mockAuthorPubkey} // Pass required context
-                onSaveProgress={handleSaveProgress}
-                onPublish={handlePublish}
-                onSaveChapter={handleSaveChapter} // Pass the new handler
-            />
+            {/* <DraftBookList handleEditDraft={onEditDraft} /> */}
+            {/* {draftToEdit && <BookEditor book={draftToEdit} onNewChapter={() => console.log("new chaptering")} onSave={() => {console.log("ON SAVE")}} />} */}
+            {!showEditor ? (
+                 <WriteHeader onStartWriting={handleStartNewAdventure} />
+            ) : (
+                <>
+                    {/* Render the builder, potentially passing initial empty data */}
+                    <FsmBuilder
+                        // You'd generate a unique bookId and authorPubkey here
+                        bookId={"new-book-" + Date.now()}
+                        authorPubkey={"your-user-pubkey"} // Get this from user session/login
+                        // initialData={/* Pass minimal starting data */}
+                        onSaveProgress={handleSave}
+                        onPublish={handlePublish}
+                        onSaveChapter={handleSaveChapter}
+                    />
+                </>
+            )}
         </div>
     )
 }
