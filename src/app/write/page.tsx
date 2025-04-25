@@ -14,8 +14,7 @@ import WriteHeader from "@/components/ui/WriteHeader";
 
 import { useNostrBookEditor } from '@/hooks/useNostrBookEditor';
 
-const RELAYS = ['wss://relay.damus.io', 'wss://relay.primal.net', 'wss://nos.lol']; // Your preferred relays
-
+import { DEFAULT_RELAYS } from '@/constants/nostr';
 import { mockFsmData, mockBookId, mockAuthorPubkey } from '@/constants/mock';
 import type { State, FsmData } from '@/components/ui/FsmBuilder'; // Adjust path if needed
 
@@ -41,7 +40,7 @@ export default function WritePage() {
         saveChapter,
         saveAllProgress,
         publishBook,
-    } = useNostrBookEditor(RELAYS, currentUserPubkey);
+    } = useNostrBookEditor(DEFAULT_RELAYS, currentUserPubkey);
 
     useEffect(() => {
         const getPubkey = async () => {
