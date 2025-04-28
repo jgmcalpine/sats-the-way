@@ -4,17 +4,14 @@ import { useState , useEffect} from "react";
 import { CircularProgress, Box, Typography } from '@mui/material';
 
 import { useAuth } from "@/components/AuthProvider";
-import BookCard from "@/components/ui/BookCard";
 import { BookData } from "@/components/ui/BookShelf";
 import FsmBuilder from "@/components/ui/FsmBuilder";
 import WriteHeader from "@/components/ui/WriteHeader";
-import type { State, FsmData } from '@/components/ui/FsmBuilder'; // Adjust path if needed
+import type { State, FsmData } from '@/components/ui/FsmBuilder';
+import BookGrid from "@/components/ui/BookGrid";
 
-import { BookListItem, useNostrBookList } from '@/hooks/useNostrBookList'
+import { BookListItem } from '@/hooks/useNostrBookList'
 import { useNostrBookEditor } from '@/hooks/useNostrBookEditor';
-
-import { DEFAULT_RELAYS } from '@/constants/nostr';
-
 
 export default function WritePage() {
     const [bookNaddr, setBookNaddr] = useState<string | null>(null);
@@ -38,14 +35,6 @@ export default function WritePage() {
         publishBook,
     } = useNostrBookEditor(currentUserPubkey);
 
-    const { books, isLoading, fetchBooks } = useNostrBookList({
-		relays: DEFAULT_RELAYS,
-		authorPubkey: currentUserPubkey || undefined,  // only **my** books
-		initialFetch: true,
-	});
-
-      console.log("wgat are the books", books)
-
     useEffect(() => {
         const getPubkey = async () => {
             if (window.nostr) {
@@ -57,10 +46,6 @@ export default function WritePage() {
         };
         getPubkey();
     }, []);
-
-    useEffect(() => {
-		fetchBooks('all');
-	}, [fetchBooks]);
 
     useEffect(() => {
         if (bookNaddr && typeof bookNaddr === 'string' && currentUserPubkey) {
@@ -142,21 +127,7 @@ export default function WritePage() {
             {!showEditor ? (
                 <Box>
                     <WriteHeader onStartWriting={handleStartAdventure} />
-                    <ul className="grid gap-4 sm:grid-cols-2">
-                        {books
-                            .filter((b) => b.status === 'draft')
-                            .map((b) => {
-                                const {bookId, title, description, authorPubkey} = b;
-                                return (
-                                    <li
-                                        key={b.bookId}
-                                        className="cursor-pointer"
-                                        onClick={() => openEditor(b)}
-                                    >
-                                        <BookCard id={bookId} title={title} description={description} author={authorPubkey} />
-                                    </li>
-                            )})}
-                    </ul>
+                    <BookGrid filter={{authors: currentUserPubkey ? [currentUserPubkey] : [], status: 'draft'}} />
                 </Box>
             ) : (
                 <>
