@@ -161,7 +161,7 @@ export const useNostrBookEditor = (
     }, [currentUserPubkey, relays]); // Dependencies: pubkey and relays list
 
     /**
-     * Prepares the EventTemplate for the Book Metadata (Kind 31111).
+     * Prepares the EventTemplate for the Book Metadata (Kind 30077).
      * @param bookId - Unique identifier for the book ('d' tag).
      * @param startStateId - ID of the starting chapter/state.
      * @param authorPubkey - The author's public key.
