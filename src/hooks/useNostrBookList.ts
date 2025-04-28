@@ -1,6 +1,6 @@
 // src/hooks/useNostrBookList.ts
 // Hook rewritten to use @nostr-dev-kit/ndk instead of nostr‑tools SimplePool.
-// Hard‑tabs are used throughout per user preference.
+// Hard‑tabs throughout per user preference.
 
 import { useState, useCallback, useEffect } from 'react';
 import { nip19 } from 'nostr-tools';
@@ -10,22 +10,25 @@ import { useNdk } from '@/components/NdkProvider';
 
 import { BOOK_KIND } from '@/lib/nostr';
 
-// --- Types ---
+// ────────────────────────────────────────────────────────────────────────────────
+// Types
+// ────────────────────────────────────────────────────────────────────────────────
 export interface BookListItem {
 	bookId: string;
 	title: string;
+	description?: string;            // ← NEW: parsed from metadata.content.description | summary
+	coverImage?: string;            // ← NEW: optional cover img URL (metadata.content.image)
 	authorPubkey: string;
 	status: 'draft' | 'published' | 'unknown';
 	createdAt: number;
 	naddr: string;
-	event: NDKEvent;
+	event: NDKEvent;                // full raw event in case callers need it
 }
 
 interface UseNostrBookListOptions {
 	relays: string[];
 	authorPubkey?: string;
 	initialFetch?: boolean;
-    status?: string;
 }
 
 interface UseNostrBookListResult {
@@ -35,25 +38,23 @@ interface UseNostrBookListResult {
 	fetchBooks: (statusFilter?: 'all' | 'draft' | 'published') => Promise<void>;
 }
 
-/**
- * Fetch a list of Kind‑30077 metadata events (interactive books) via NDK.
- */
+// ────────────────────────────────────────────────────────────────────────────────
+// Hook
+// ────────────────────────────────────────────────────────────────────────────────
 export const useNostrBookList = ({
 	relays,
 	authorPubkey,
 	initialFetch = true,
 }: UseNostrBookListOptions): UseNostrBookListResult => {
 	const { ndk } = useNdk();
+
 	const [books, setBooks] = useState<BookListItem[]>([]);
 	const [isLoading, setIsLoading] = useState(false);
 	const [error, setError] = useState<string | null>(null);
 
-	/** Helper to build a RelaySet from URL strings – only when the caller
-	 * passes an explicit `relays` array. NDKRelaySet expects `NDKRelay`
-	 * objects, so we convert the URLs first.
-	 */
+	// Build RelaySet only when explicit relays are provided
 	const buildRelaySet = (): NDKRelaySet | undefined => {
-		if (!relays.length) return undefined; // fall back to global pool
+		if (!relays.length) return undefined;
 		return RelaySet.fromRelayUrls(relays, ndk);
 	};
 
@@ -80,10 +81,15 @@ export const useNostrBookList = ({
 					if (!bookId) return;
 
 					let title = 'Untitled Book';
+					let description: string | undefined;
+					let image: string | undefined;
 					let status: BookListItem['status'] = 'unknown';
+
 					try {
 						const c = JSON.parse(evt.content || '{}');
 						title = c.title || evt.tagValue('title') || title;
+						description = c.description || c.summary;
+						image = c.image;
 						status = c.status === 'published' ? 'published' : c.status === 'draft' ? 'draft' : 'unknown';
 					} catch {}
 
@@ -99,6 +105,8 @@ export const useNostrBookList = ({
 					processed.push({
 						bookId,
 						title,
+						description,
+						coverImage: image,
 						authorPubkey: evt.pubkey,
 						status,
 						createdAt: evt.created_at!,
