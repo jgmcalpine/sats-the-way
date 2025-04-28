@@ -6,7 +6,6 @@ import { CircularProgress, Box, Typography } from '@mui/material';
 import { useAuth } from "@/components/AuthProvider";
 import BookCard from "@/components/ui/BookCard";
 import { BookData } from "@/components/ui/BookShelf";
-import BookEditor from "@/components/ui/BookEditor";
 import FsmBuilder from "@/components/ui/FsmBuilder";
 import WriteHeader from "@/components/ui/WriteHeader";
 import type { State, FsmData } from '@/components/ui/FsmBuilder'; // Adjust path if needed
