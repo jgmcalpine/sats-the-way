@@ -1,26 +1,23 @@
 'use client';
 
 import { useState , useEffect} from "react";
-// import { useRouter } from 'next/router'; // If loading based on route
-
-import { Button, CircularProgress, Alert, Box, Typography } from '@mui/material';
+import { CircularProgress, Box, Typography } from '@mui/material';
 
 import { useAuth } from "@/components/AuthProvider";
-import DraftBookList from '@/components/ui/DraftBookList';
+import BookCard from "@/components/ui/BookCard";
 import { BookData } from "@/components/ui/BookShelf";
 import BookEditor from "@/components/ui/BookEditor";
 import FsmBuilder from "@/components/ui/FsmBuilder";
 import WriteHeader from "@/components/ui/WriteHeader";
+import type { State, FsmData } from '@/components/ui/FsmBuilder'; // Adjust path if needed
 
+import { BookListItem, useNostrBookList } from '@/hooks/useNostrBookList'
 import { useNostrBookEditor } from '@/hooks/useNostrBookEditor';
 
 import { DEFAULT_RELAYS } from '@/constants/nostr';
-import { mockFsmData, mockBookId, mockAuthorPubkey } from '@/constants/mock';
-import type { State, FsmData } from '@/components/ui/FsmBuilder'; // Adjust path if needed
+
 
 export default function WritePage() {
-    // const router = useRouter();
-    // const { bookNaddr } = router.query;
     const [bookNaddr, setBookNaddr] = useState<string | null>(null);
     const [currentUserPubkey, setCurrentUserPubkey] = useState<string | null>(null); // Get this from your auth context/login state
     const { currentUser, loading } = useAuth();
@@ -40,7 +37,15 @@ export default function WritePage() {
         saveChapter,
         saveAllProgress,
         publishBook,
-    } = useNostrBookEditor(DEFAULT_RELAYS, currentUserPubkey);
+    } = useNostrBookEditor(currentUserPubkey);
+
+    const { books, isLoading, fetchBooks } = useNostrBookList({
+		relays: DEFAULT_RELAYS,
+		authorPubkey: currentUserPubkey || undefined,  // only **my** books
+		initialFetch: true,
+	});
+
+      console.log("wgat are the books", books)
 
     useEffect(() => {
         const getPubkey = async () => {
@@ -53,6 +58,10 @@ export default function WritePage() {
         };
         getPubkey();
     }, []);
+
+    useEffect(() => {
+		fetchBooks('all');
+	}, [fetchBooks]);
 
     useEffect(() => {
         if (bookNaddr && typeof bookNaddr === 'string' && currentUserPubkey) {
@@ -85,12 +94,7 @@ export default function WritePage() {
             setCurrentBookId(result.bookId);
             setCurrentBookTitle('Untitled Adventure'); // Default title
             setShowEditor(true);
-            // Optionally update URL using router.push(`/editor/${newNaddr}`, undefined, { shallow: true });
-            // Need to encode the new bookId/authorPubkey into naddr1... format first
-            // const naddr = nip19.naddrEncode({ identifier: result.bookId, pubkey: currentUserPubkey, kind: BOOK_METADATA_KIND, relays: RELAYS });
-            // router.push(`/editor/${naddr}`, undefined, { shallow: true });
         }
-        // Error state is handled by the hook
     };
 
      // These handlers now directly call the hook methods
@@ -117,6 +121,10 @@ export default function WritePage() {
          // Optionally show success feedback
     };
 
+    const openEditor = (b: BookListItem) => {
+		setShowEditor(true);
+	};
+
     if (!currentUser) {
         return <div>Connect with nip-07 to create your own adventures!</div>
     }
@@ -129,21 +137,34 @@ export default function WritePage() {
             </Box>
         );
     }
-
+    
     return (
         <div className="flex flex-col justify-center items-center h-full min-h-screen pb-48">
-            {/* <DraftBookList handleEditDraft={onEditDraft} /> */}
-            {/* {draftToEdit && <BookEditor book={draftToEdit} onNewChapter={() => console.log("new chaptering")} onSave={() => {console.log("ON SAVE")}} />} */}
             {!showEditor ? (
-                 <WriteHeader onStartWriting={handleStartAdventure} />
+                <Box>
+                    <WriteHeader onStartWriting={handleStartAdventure} />
+                    <ul className="grid gap-4 sm:grid-cols-2">
+                        {books
+                            .filter((b) => b.status === 'draft')
+                            .map((b) => {
+                                const {bookId, title, description, authorPubkey} = b;
+                                return (
+                                    <li
+                                        key={b.bookId}
+                                        className="cursor-pointer"
+                                        onClick={() => openEditor(b)}
+                                    >
+                                        <BookCard id={bookId} title={title} description={description} author={authorPubkey} />
+                                    </li>
+                            )})}
+                    </ul>
+                </Box>
             ) : (
                 <>
-                    {/* Render the builder, potentially passing initial empty data */}
                     <FsmBuilder
-                        // You'd generate a unique bookId and authorPubkey here
                         bookId={"new-book-" + Date.now()}
                         authorPubkey={"your-user-pubkey"} // Get this from user session/login
-                        // initialData={/* Pass minimal starting data */}
+                        initialData={fsmData || undefined}
                         onSaveProgress={handleSaveAll}
                         onPublish={handlePublish}
                         onSaveChapter={handleSaveChapter}
