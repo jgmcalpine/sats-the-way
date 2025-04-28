@@ -54,7 +54,6 @@ export interface State {
   isStartState: boolean;
   isEndState: boolean;
   transitions: Transition[];
-  entryFee?: number; // Optional: Cost to enter/view this state (defaults to free if undefined/0)
 }
 
 export interface FsmData {
@@ -78,7 +77,6 @@ const createNewState = (isStart = false): State => ({
   isStartState: isStart,
   isEndState: false,
   transitions: [],
-  entryFee: 0,
 });
 
 // --- The Component ---
@@ -177,9 +175,6 @@ const FsmBuilder: React.FC<FsmBuilderProps> = ({
         const currentState = newStates[idToUpdate];
         // Ensure fee/price are numbers or undefined
         const safeUpdates = { ...updates };
-        if (safeUpdates.entryFee !== undefined) {
-            safeUpdates.entryFee = Number(safeUpdates.entryFee) || 0;
-        }
         if (safeUpdates.transitions) {
             safeUpdates.transitions = safeUpdates.transitions.map(t => ({
                 ...t,
@@ -267,12 +262,6 @@ const FsmBuilder: React.FC<FsmBuilderProps> = ({
   const handleStateContentChange = useCallback((event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
       if (!selectedStateId) return;
        handleUpdateState(selectedStateId, { content: event.target.value });
-  }, [selectedStateId, handleUpdateState]);
-
-  const handleStateEntryFeeChange = useCallback((event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-      if (!selectedStateId) return;
-      const fee = parseFloat(event.target.value);
-      handleUpdateState(selectedStateId, { entryFee: isNaN(fee) || fee < 0 ? 0 : fee });
   }, [selectedStateId, handleUpdateState]);
 
   const handleStartStateChange = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
@@ -507,18 +496,6 @@ const FsmBuilder: React.FC<FsmBuilderProps> = ({
                                   />
                                 </Tooltip>
                               )}
-                              {(state.entryFee ?? 0) > 0 && (
-                                <Tooltip title={`Cost to enter: ₿${state.entryFee?.toFixed(2)}`}>
-                                     <Chip
-                                        icon={<CurrencyBitcoin sx={{ fontSize: 14, marginLeft: '4px' }}/>}
-                                        label={`${state.entryFee?.toFixed(2)}`}
-                                        size="small"
-                                        color="success"
-                                        variant="outlined"
-                                        className="text-xs h-5"
-                                     />
-                                </Tooltip>
-                              )}
                                {state.isEndState && (
                                     <Chip label="End" size="small" color="error" variant="outlined" className="text-xs h-5" />
                                )}
@@ -569,17 +546,6 @@ const FsmBuilder: React.FC<FsmBuilderProps> = ({
                         value={selectedState.name} onChange={handleStateNameChange}
                         className="font-serif"
                     />
-                </Grid>
-                 <Grid size={{xs: 12, md: 5}}>
-                    <Tooltip title="Optional cost ($) required for the user to view this step's content. Leave as 0 for free access.">
-                        <TextField
-                          label="Step Entry Fee (₿)" variant="outlined" size="small" fullWidth
-                          type="number"
-                          value={selectedState.entryFee ?? 0}
-                          onChange={handleStateEntryFeeChange}
-                          className="font-sans" InputLabelProps={{ className: "font-sans text-sm" }}
-                        />
-                    </Tooltip>
                 </Grid>
                 {/* Flags */}
                 <Grid size={{xs: 12}} className="flex items-center gap-2 sm:gap-4 -mt-2">
@@ -640,7 +606,7 @@ const FsmBuilder: React.FC<FsmBuilderProps> = ({
                              <Select labelId={`target-state-label-${transition.id}`} value={transition.targetStateId} onChange={(e) => handleTransitionTargetChange(transition.id, e)} label="Leads To Step" className="font-serif" MenuProps={{ PaperProps: { className: 'font-serif max-h-60' } }} >
                                <MenuItem value="" disabled className="italic text-gray-400"><em>Select target...</em></MenuItem>
                                {availableTargetStates.length === 0 && ( <MenuItem value="" disabled className="italic text-gray-400"><em>No other steps available</em></MenuItem> )}
-                               {availableTargetStates.map(state => ( <MenuItem key={state.id} value={state.id} className="font-serif text-sm"> {state.name || '(Untitled Step)'} {state.isEndState ? '(End)' : ''} {(state.entryFee ?? 0) > 0 ? ` ($${state.entryFee?.toFixed(2)})` : ''} </MenuItem> ))}
+                               {availableTargetStates.map(state => ( <MenuItem key={state.id} value={state.id} className="font-serif text-sm"> {state.name || '(Untitled Step)'} {state.isEndState ? '(End)' : ''} </MenuItem> ))}
                              </Select>
                            </Tooltip>
                         </FormControl>
