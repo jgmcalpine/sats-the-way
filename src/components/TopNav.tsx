@@ -1,141 +1,192 @@
+// components/TopNav.tsx
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import {
   AppBar,
   Toolbar,
-  Button,
   IconButton,
-  Typography,
-  Box,
+  Drawer,
+  List,
+  ListItemButton,
   Avatar,
-  Popover
+  Tooltip,
+  Menu, 
+  MenuItem 
 } from '@mui/material';
-import { AccountCircle } from '@mui/icons-material';
+import { Logout as LogoutIcon, AccountCircle as AccountCircleIcon, Menu as MenuIcon } from '@mui/icons-material';
 
-// Types
-interface User {
-  pubkey: string;
-  name?: string;
-  picture?: string;
-}
+import { useNdk } from '@/components/NdkProvider';
+import { useNip07 } from '@/hooks/nostr/useNip07';
 
-interface TopNavProps {
-  currentUser?: User | null;
-  onConnect?: () => void;
-  onDisconnect?: () => void;
-  loading?: boolean;
-}
+type Profile = { picture?: string; name?: string };
 
-const TopNav: React.FC<TopNavProps> = ({
-  currentUser,
-  onConnect,
-  onDisconnect,
-  loading
-}) => {
-  const [hasMounted, setHasMounted] = useState(false);
-  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
-  const pathname = usePathname(); // Get current path for active styling
-  
+export default function TopNav() {
+  const pathname = usePathname();
+  const [drawer, setDrawer] = useState(false);
+  const [anchorEl, setAnchorEl] = useState<Element | null>(null);
+
+  /* nostr */
+  const { ndk } = useNdk();
+  const { pubkey, isAvailable, connect, disconnect } = useNip07();
+  const [profile, setProfile] = useState<Profile | null>(null);
+
+  /* fetch Kind-0 metadata when connected */
   useEffect(() => {
-    setHasMounted(true)
-  }, [])
-  
-  if (!hasMounted) return null;
-  
-  const linkStyle = "px-3 py-2 rounded-md text-sm font-medium";
-  const activeStyle = "bg-gray-900 text-white";
-  const inactiveStyle = "text-gray-300 hover:bg-gray-700 hover:text-white";
+    if (!pubkey) return;
 
-  const onProfileClick = (event: React.MouseEvent<HTMLElement>) => {
-		setAnchorEl(anchorEl ? null : event.currentTarget);
-  }
+    const user = ndk.getUser({ pubkey });
+    user.fetchProfile().then(() => {
+      const { image, picture, name } = user.profile || {};
+      setProfile({ picture: image || picture, name });
+    });
+  }, [ndk, pubkey]);
 
-  const isProfileOpen = Boolean(anchorEl);
-	const id = isProfileOpen ? 'profile-popover' : undefined;
+  /* helpers */
+  const navItems = [
+    { href: '/read', label: 'Read' },
+    { href: '/write', label: 'Write' },
+  ];
+  const isActive = (href: string) => pathname?.startsWith(href);
 
-  const getLinkClassName = (href: string): string => {
-    return `${linkStyle} ${pathname === href ? activeStyle : inactiveStyle}`;
-  };
-
+  /* ---- JSX ---- */
   return (
-    <AppBar position="static" color="transparent" elevation={0}>
-      <Toolbar>
-        {/* Left side - Navigation */}
-        <Box sx={{ flexGrow: 1, display: 'flex', alignItems: 'center' }}>
-          <Typography 
-            variant="h6" 
-            component="div" 
-            sx={{ mr: 4 }}
+    <>
+      <AppBar position="static" color="default" className="shadow-none">
+        <Toolbar className="px-4 md:px-8">
+          {/* mobile burger */}
+          <IconButton
+            edge="start"
+            aria-label="menu"
+            sx={{ mr: 2, display: { md: 'none' } }}
+            onClick={() => setDrawer(true)}
           >
-            SatsTheWay
-          </Typography>
-          
-          <Link href="/" className={getLinkClassName('/')}>
-            Home
+            <MenuIcon />
+          </IconButton>
+
+          {/* logo / brand */}
+          <Link href="/" className="font-semibold text-lg md:text-xl">
+            NostrBooks
           </Link>
-          <Link href="/write" className={getLinkClassName('/write')}>
-            Write
-          </Link>
-        </Box>
-        {/* Right side - Connect/Profile */}
-        <Box>
-          {currentUser ? (
-            <Box>
-              <IconButton 
-                onClick={onProfileClick}
-                color='primary'
-                size="large"
-                sx={{ padding: 0.5 }}
+
+          {/* desktop nav */}
+          <nav className="ml-6 gap-6 hidden md:flex">
+            {navItems.map(({ href, label }) => (
+              <Link
+                key={href}
+                href={href}
+                className={`relative transition
+                  ${isActive(href) ? 'text-primary' : 'text-gray-600'}
+                  hover:text-primary
+                `}
               >
-                {currentUser.picture ? (
-                  <Avatar 
-                    src={currentUser.picture} 
-                    alt={currentUser.name || 'Profile'}
-                  />
-                ) : (
-                  <AccountCircle fontSize="large" />
+                {label}
+                {/* glow highlight */}
+                {isActive(href) && (
+                  <span className="absolute -inset-1 rounded-lg shadow-[0_0_8px_theme(colors.blue.500)] pointer-events-none" />
                 )}
-              </IconButton>
-              <Popover
-                id={id}
-                open={isProfileOpen}
+              </Link>
+            ))}
+          </nav>
+
+          {/* spacer */}
+          <div className="flex-1" />
+
+          {/* connect / avatar */}
+          {pubkey ? (
+            <>
+              <Tooltip title={profile?.name || 'Profile'}>
+                <Avatar
+                  src={profile?.picture}
+                  sx={{ width: 32, height: 32, cursor: 'pointer' }}
+                  onClick={e => setAnchorEl(e.currentTarget)}
+                >
+                  {!profile?.picture && <AccountCircleIcon />}
+                </Avatar>
+              </Tooltip>
+
+              <Menu
                 anchorEl={anchorEl}
+                open={Boolean(anchorEl)}
                 onClose={() => setAnchorEl(null)}
-                anchorOrigin={{
-                  vertical: 'bottom',
-                  horizontal: 'right',
-                }}
-                transformOrigin={{
-                  vertical: 'top',
-                  horizontal: 'right',
-                }}
               >
-                <Box sx={{ p: 2, minWidth: 200 }}>
-                  <Button fullWidth variant="text" onClick={onDisconnect}>Logout</Button>
-                </Box>
-              </Popover>
-            </Box>
+                <MenuItem
+                  onClick={() => {
+                    setAnchorEl(null);
+                    disconnect();        // <- from useNip07()
+                  }}
+                >
+                  <LogoutIcon fontSize="small" className="mr-2" />
+                  Disconnect
+                </MenuItem>
+              </Menu>
+            </>
           ) : (
-            <Button
-              variant="contained"
-              color="primary"
-              onClick={onConnect}
-              disabled={loading}
-              sx={{ 
-                minWidth: 120,
-                fontWeight: 'bold'
+            <button
+              className="rounded-md bg-blue-600 text-white px-3 py-1.5 text-sm hover:bg-blue-700"
+              onClick={connect}
+            >
+              {isAvailable ? 'Connect' : 'Install Wallet'}
+            </button>
+          )}
+        </Toolbar>
+      </AppBar>
+
+      {/* mobile drawer */}
+      <Drawer
+        anchor="left"
+        open={drawer}
+        onClose={() => setDrawer(false)}
+        PaperProps={{ className: 'w-64 p-4' }}
+      >
+        <List>
+          {navItems.map(({ href, label }) => (
+            <ListItemButton
+              key={href}
+              component={Link}
+              href={href}
+              selected={isActive(href)}
+              onClick={() => setDrawer(false)}
+            >
+              {label}
+            </ListItemButton>
+          ))}
+        </List>
+
+        <div className="mt-auto px-4 pb-4">
+        {pubkey ? (
+          <>
+            <div className="flex items-center gap-2">
+              <Avatar src={profile?.picture} />
+              <span className="truncate">{profile?.name ?? 'Anon'}</span>
+            </div>
+
+            <button
+              className="flex w-full items-center justify-center gap-1 rounded-md bg-gray-200 py-2 text-sm text-gray-700 hover:bg-gray-300"
+              onClick={() => {
+                setDrawer(false);
+                disconnect();
               }}
             >
-                {loading ? "Connecting..." : "Connect"}
-            </Button>
-          )}
-        </Box>
-      </Toolbar>
-    </AppBar>
+              <LogoutIcon fontSize="small" />
+              Disconnect
+            </button>
+          </>
+        ) : (
+          <button
+            className="rounded-md w-full bg-blue-600 text-white py-2 hover:bg-blue-700"
+            onClick={() => {
+              setDrawer(false);
+              connect();
+            }}
+          >
+            {isAvailable ? 'Connect Wallet' : 'Install Wallet'}
+          </button>
+        )}
+        </div>
+      </Drawer>
+    </>
   );
-};
-
-export default TopNav;
+}

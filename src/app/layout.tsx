@@ -1,7 +1,7 @@
 import "./globals.css"
 import { Suspense } from "react"
 import { AuthProvider } from "@/components/AuthProvider"
-import { NDKProvider } from "@/components/NdkProvider";
+import { NdkProvider } from "@/components/NdkProvider";
 import NavigationWrapper from "@/components/NavigationWrapper"
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
@@ -9,12 +9,12 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="en">
       <body>
         <AuthProvider>
-          <NDKProvider>
+          <NdkProvider>
             <Suspense fallback={<div style={{ height: 64 }} />} >
               <NavigationWrapper />
             </Suspense>
             <main>{children}</main>
-          </NDKProvider>
+          </NdkProvider>
         </AuthProvider>
       </body>
     </html>
