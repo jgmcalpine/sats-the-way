@@ -8,11 +8,10 @@ import {
     nip19,
     Filter,
 } from 'nostr-tools';
-import type { State, FsmData } from '@/components/ui/FsmBuilder'; // Adjust path if needed
+import type { State, FsmData } from '@/components/ui/FsmBuilder';
+import { BOOK_KIND, NODE_KIND } from '@/lib/nostr';
 
 // --- Constants ---
-const BOOK_METADATA_KIND = 31111; // Replaceable event for Book Metadata
-const CHAPTER_KIND = 31112; // Replaceable event for individual Chapters/States
 const LOAD_TIMEOUT_MS = 5000; // Timeout for fetching chapters
 
 // --- Hook Interface ---
@@ -201,7 +200,7 @@ export const useNostrBookEditor = (
         // Add other optional tags ('summary', 'image', 't', 'L') if available in content
 
         return {
-            kind: BOOK_METADATA_KIND,
+            kind: BOOK_KIND,
             tags: tags,
             content: JSON.stringify(content),
             created_at: new Date().getTime()
@@ -221,7 +220,7 @@ export const useNostrBookEditor = (
         authorPubkey: string
     ): EventTemplate => {
         // Construct the 'a' tag linking to the metadata event: kind:pubkey:d_tag_identifier
-        const addrTag: string = `${BOOK_METADATA_KIND}:${authorPubkey}:${bookId}`;
+        const addrTag: string = `${BOOK_KIND}:${authorPubkey}:${bookId}`;
 
         // Content directly maps from State, ensuring only data fields are included
         const content = {
@@ -247,7 +246,7 @@ export const useNostrBookEditor = (
         // Add optional tags ('L' for language) if needed
 
         return {
-            kind: CHAPTER_KIND,
+            kind: NODE_KIND,
             tags: tags,
             content: JSON.stringify(content),
             created_at: new Date().getTime()
@@ -398,7 +397,7 @@ export const useNostrBookEditor = (
             let currentMetadataEvent: NostrEvent | null = null;
             try {
                  currentMetadataEvent = await currentPool.get(relays, {
-                     kinds: [BOOK_METADATA_KIND],
+                     kinds: [BOOK_KIND],
                      authors: [authorPubkey],
                      '#d': [bookId],
                      limit: 1,
@@ -453,7 +452,7 @@ export const useNostrBookEditor = (
         try {
             // Decode naddr (same)
             const decoded = nip19.decode(nip19Identifier);
-            if (decoded.type !== 'naddr' || decoded.data.kind !== BOOK_METADATA_KIND) {
+            if (decoded.type !== 'naddr' || decoded.data.kind !== BOOK_KIND) {
                 throw new Error("Invalid ID: Expected book naddr.");
             }
 
@@ -470,8 +469,8 @@ export const useNostrBookEditor = (
             console.log(`NostrBookEditor: Found metadata event ${metadataEvent.id.substring(0, 8)}`);
 
             // Fetch Chapters using pool.subscribeMany
-            const addrTagFilter = `${BOOK_METADATA_KIND}:${authorPubkey}:${bookId}`;
-            const chapterFilter: Filter = { kinds: [CHAPTER_KIND], '#a': [addrTagFilter] };
+            const addrTagFilter = `${BOOK_KIND}:${authorPubkey}:${bookId}`;
+            const chapterFilter: Filter = { kinds: [NODE_KIND], '#a': [addrTagFilter] };
             console.log(`NostrBookEditor: Fetching chapters with filter:`, chapterFilter);
 
             if (!currentPool?.subscribeMany) { // Defensive check
