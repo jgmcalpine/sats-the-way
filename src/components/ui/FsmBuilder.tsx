@@ -1,4 +1,3 @@
-// src/components/FsmBuilder.tsx
 import React, { useState, useMemo, useCallback, useEffect } from 'react';
 import {
   Box,
@@ -74,7 +73,7 @@ interface FsmBuilderProps {
 
 const createNewState = (isStart = false): State => ({
   id: uuidv4(),
-  name: 'New Step',
+  name: 'Next Step',
   content: '',
   isStartState: isStart,
   isEndState: false,
@@ -86,18 +85,18 @@ const createNewState = (isStart = false): State => ({
 
 const FsmBuilder: React.FC<FsmBuilderProps> = ({
     initialData,
-    bookId, // Destructure props
-    authorPubkey, // Destructure props
+    bookId,
+    authorPubkey,
     onSaveProgress,
     onPublish,
-    onSaveChapter, // Destructure new prop
+    onSaveChapter,
 }) => {
   const [fsmData, setFsmData] = useState<FsmData>(
     initialData || { states: {}, startStateId: null }
   );
   const [selectedStateId, setSelectedStateId] = useState<string | null>(null);
   const [isSaving, setIsSaving] = useState(false);
-  const [isSavingChapter, setIsSavingChapter] = useState(false); // State for chapter save
+  const [isSavingChapter, setIsSavingChapter] = useState(false);
   const [isPublishing, setIsPublishing] = useState(false);
 
   useEffect(() => {
@@ -112,7 +111,6 @@ const FsmBuilder: React.FC<FsmBuilderProps> = ({
         }
     }
 }, [initialData]); 
-
 
   // Memoized calculations for display
   const totalStates = useMemo(() => Object.keys(fsmData.states).length, [fsmData.states]);
@@ -695,7 +693,7 @@ const FsmBuilder: React.FC<FsmBuilderProps> = ({
       </Grid>
 
         {/* Optional Debug Output */}
-        {/* <Paper elevation={1} className="mt-8 p-4 bg-gray-800 text-gray-200 rounded max-h-60 overflow-auto"> <Typography variant="caption" component="pre" className="text-xs whitespace-pre-wrap break-all font-mono"> {JSON.stringify(fsmData, null, 2)} </Typography> </Paper> */}
+        <Paper elevation={1} className="mt-8 p-4 bg-gray-800 text-gray-200 rounded max-h-60 overflow-auto"> <Typography variant="caption" component="pre" className="text-xs whitespace-pre-wrap break-all font-mono"> {JSON.stringify(fsmData, null, 2)} </Typography> </Paper>
 
     </Box>
   );
