@@ -1,15 +1,37 @@
 "use client";
+import React, { useEffect } from "react";
+import { useParams } from 'next/navigation'
 
-import { CircularProgress, Button, Typography } from "@mui/material";
-import { useParams, useRouter } from "next/navigation";
-import { useBookReader } from "@/hooks/useBookReader";
+import { CircularProgress, Typography } from "@mui/material";
+
+import { useNostrBookReader } from "@/hooks/useNostrBookReader";
 
 export default function BookReaderPage() {
-  const { bookId } = useParams<{ bookId: string }>();
-  const router = useRouter();
-  const reader = useBookReader(bookId);
+  const params = useParams();
+  const { authorPubkey, bookId } = params as {
+    authorPubkey: string
+    bookId: string
+  }
 
-  if (reader.loading || !reader.meta) {
+  const {
+		isLoading,
+		error,
+		bookMetadata,
+    bookEvent,
+		chapters,
+		currentChapterId,
+    currentChapter, // Derived from currentChapterId and chapters
+		fetchBookData,
+	} = useNostrBookReader();
+  
+  useEffect(() => {
+    if (bookId && authorPubkey) {
+        fetchBookData({bookId, authorPubkey});
+    }
+    // Optional: Add cleanup or handle identifier changes if needed
+}, [bookId, fetchBookData]);
+
+  if (isLoading || error) {
     return (
       <div className="flex h-screen flex-col items-center justify-center gap-4">
         <CircularProgress />
@@ -18,37 +40,24 @@ export default function BookReaderPage() {
     );
   }
 
-  const { currentChapter } = reader;
-
-  if (!currentChapter) {
-    return (
-      <div className="flex h-screen flex-col items-center justify-center">
-        <Typography variant="h6">No chapters found for this book.</Typography>
-        <Button className="mt-4" onClick={() => router.back()}>
-          Back
-        </Button>
-      </div>
-    );
-  }
-
   return (
     <div className="mx-auto max-w-3xl p-6">
       {/* Header */}
       <Typography variant="h4" className="mb-1">
-        {reader.meta.title}
+        {bookMetadata?.title}
       </Typography>
-      {reader.meta.description && (
+      {bookMetadata?.description && (
         <Typography
           variant="subtitle1"
           className="mb-6 text-gray-500 dark:text-gray-400"
         >
-          {reader.meta.description}
+          {bookMetadata.description}
         </Typography>
       )}
 
       {/* Chapter title */}
       <Typography variant="h5" className="mb-4">
-        {currentChapter.title}
+        {currentChapter?.name}
       </Typography>
 
       {/* Chapter content */}
@@ -56,14 +65,14 @@ export default function BookReaderPage() {
         variant="body1"
         className="prose mb-12 whitespace-pre-wrap"
       >
-        {currentChapter.content}
+        {currentChapter?.content}
       </Typography>
 
       {/* Navigation controls */}
       <div className="flex justify-between">
-        <Button
+        {/* <Button
           variant="outlined"
-          disabled={!reader.canPrev}
+          disabled={canPrev}
           onClick={reader.goPrev}
         >
           ← Back
@@ -74,7 +83,7 @@ export default function BookReaderPage() {
           onClick={reader.goNext}
         >
           Next →
-        </Button>
+        </Button> */}
       </div>
     </div>
   );
