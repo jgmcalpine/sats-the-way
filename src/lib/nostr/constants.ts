@@ -11,6 +11,8 @@
  */
 export const BOOK_KIND: number = 30077;
 export const NODE_KIND: number = 30078;
+export const PROGRESS_DM_KIND: number = 4 ;
+export const ZAP_RECEIPT_KIND: number = 13194;
 
 // Tag names reused throughout the spec
 export enum NostrTag {
