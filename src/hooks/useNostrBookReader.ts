@@ -153,6 +153,7 @@ export const useNostrBookReader = (): NostrBookReaderUtils => {
 					}
 
                     // Ensure transitions have necessary fields, providing defaults
+					// eslint-disable-next-line @typescript-eslint/no-explicit-any
                     const transitions = (chapterContent.transitions ?? []).map((t: any): Transition => ({
                         id: t.id || uuidv4(), // Generate ID if missing
                         choiceText: t.choiceText ?? 'Continue',
@@ -291,6 +292,7 @@ export const useNostrBookReader = (): NostrBookReaderUtils => {
             const chapterContent = JSON.parse(chapterEvent.content);
             const stateId = chapterContent.stateId || chapterId; // Use chapterId as fallback
 
+			// eslint-disable-next-line @typescript-eslint/no-explicit-any
              const transitions = (chapterContent.transitions ?? []).map((t: any): Transition => ({
                 id: t.id || uuidv4(),
                 choiceText: t.choiceText ?? 'Continue',

@@ -17,13 +17,10 @@ export default function BookReaderPage() {
 		isLoading,
 		error,
 		bookMetadata,
-    bookEvent,
-		chapters,
-		currentChapterId,
     currentChapter, // Derived from currentChapterId and chapters
 		fetchBookData,
 	} = useNostrBookReader();
-  
+
   useEffect(() => {
     if (bookId && authorPubkey) {
         fetchBookData({bookId, authorPubkey});
@@ -70,6 +67,7 @@ export default function BookReaderPage() {
 
       {/* Navigation controls */}
       <div className="flex justify-between">
+        {}
         {/* <Button
           variant="outlined"
           disabled={canPrev}
