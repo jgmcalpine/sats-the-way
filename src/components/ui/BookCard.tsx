@@ -115,7 +115,7 @@ const BookCard: React.FC<BookCardProps> = ({
             )}
             
             {/* Description if provided */}
-            {description && (
+            {description && typeof description === 'string' && (
               <Typography 
                 variant="body2" 
                 className="text-center mt-2"

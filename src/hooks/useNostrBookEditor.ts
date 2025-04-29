@@ -100,12 +100,12 @@ export const useNostrBookEditor = (
 
 	const buildChapterEvent = useCallback(
 		(chapter: State, bookId: string, authorPubkey: string): NDKEvent => {
-			const addrTag = `${BOOK_KIND}:${authorPubkey}:${bookId}`;
 			const ev = new NDKEvent(ndk);
 			ev.kind = NODE_KIND;
 			ev.tags = [
 				['d', chapter.id],
-				['a', addrTag],
+                ['a', `${NODE_KIND}:${authorPubkey}:${chapter.id}`],
+                ['a', `${BOOK_KIND}:${authorPubkey}:${bookId}`, "", "root"],
 			];
 			ev.content = JSON.stringify({
 				stateId: chapter.id,
