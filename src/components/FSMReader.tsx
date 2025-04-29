@@ -31,7 +31,7 @@ export default function FSMReader() {
 			fsm.goBack();
 			setCurrent(fsm.getCurrentChapter());
 		} catch (e) {
-			alert("Could not go back.");
+			alert(`Could not go back: ${e}`);
 		}
 	}
 

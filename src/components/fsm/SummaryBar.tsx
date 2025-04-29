@@ -5,7 +5,6 @@ import {
   PlayCircleOutline,
   CurrencyBitcoin,
 } from "@mui/icons-material";
-import type { FsmData } from "../../hooks/useFsm";
 
 interface Props {
   stats: {

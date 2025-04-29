@@ -1,5 +1,5 @@
 import React from "react";
-import { Grid, TextField, Checkbox, FormControlLabel, Tooltip } from "@mui/material";
+import { Grid, TextField, Checkbox, FormControlLabel } from "@mui/material";
 import { PlayCircleOutline, StopCircleOutlined } from "@mui/icons-material";
 import { State } from "../../hooks/useFsm";
 

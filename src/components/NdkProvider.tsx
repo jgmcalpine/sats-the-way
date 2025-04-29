@@ -38,6 +38,7 @@ export function NdkProvider({ children, instance = defaultNdk }: Props) {
   const { pubkey } = useNip07();
 
   useEffect(() => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     if (pubkey && !ndk.signer && typeof window !== 'undefined' && (window as any).nostr) {
       ndk.signer = new NDKNip07Signer();
     }

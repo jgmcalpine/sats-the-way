@@ -4,30 +4,25 @@ import { useState , useEffect} from "react";
 import { CircularProgress, Box, Typography } from '@mui/material';
 
 import { useAuth } from "@/components/AuthProvider";
-import { BookData } from "@/components/ui/BookShelf";
 import FsmBuilder from "@/components/ui/FsmBuilder";
 import WriteHeader from "@/components/ui/WriteHeader";
 import type { State, FsmData } from '@/hooks/useFsm';
 import BookGrid from "@/components/ui/BookGrid";
 
-import { BookListItem } from '@/hooks/useNostrBookList'
 import { useNostrBookEditor } from '@/hooks/useNostrBookEditor';
 
 export default function WritePage() {
-    const [bookNaddr, setBookNaddr] = useState<string | null>(null);
     const [currentUserPubkey, setCurrentUserPubkey] = useState<string | null>(null); // Get this from your auth context/login state
     const { currentUser, loading } = useAuth();
     const [showEditor, setShowEditor] = useState(false);
     const [fsmData, setFsmData] = useState<FsmData | null>(null);
     const [currentBookId, setCurrentBookId] = useState<string | null>(null);
     const [currentBookTitle, setCurrentBookTitle] = useState<string | undefined>(undefined);
-    const [isLoadingPage, setIsLoadingPage] = useState(true);
 
     const {
         isConnecting,
         isProcessing, // Use this for button loading states
         createAndLoadNewBook,
-        loadBook,
         saveChapter,
         saveAllProgress,
         publishBook,
@@ -39,34 +34,12 @@ export default function WritePage() {
                 try {
                     const pubkey = await window.nostr.getPublicKey();
                     setCurrentUserPubkey(pubkey);
+                    
                 } catch (e) { console.error("Could not get pubkey:", e); }
             }
         };
         getPubkey();
     }, []);
-
-    useEffect(() => {
-        if (bookNaddr && typeof bookNaddr === 'string' && currentUserPubkey) {
-            setIsLoadingPage(true);
-            setShowEditor(true); // Assume showing editor if loading specific book
-            loadBook(bookNaddr)
-                .then(result => {
-                    if (result) {
-                        setFsmData(result.fsmData);
-                        setCurrentBookId(result.bookId);
-                        // Attempt to get title from loaded data (might need adjustment based on loadBook return)
-                         const metadata = result.fsmData // You might need to adjust loadBook to return metadata title separately
-                        //  setCurrentBookTitle(metadata?.title);
-                    } else {
-                        // Handle book not found - maybe redirect or show error
-                        setShowEditor(false); // Go back to header if load fails?
-                    }
-                })
-                .finally(() => setIsLoadingPage(false));
-        } else {
-            setIsLoadingPage(false); // Not loading a specific book initially
-        }
-    }, [bookNaddr, loadBook, currentUserPubkey]); // Depend on identifier and load function availability
 
     const handleStartAdventure = async () => {
         if (isProcessing || !currentUserPubkey) return;
@@ -107,7 +80,7 @@ export default function WritePage() {
         return <div>Connect with nip-07 to create your own adventures!</div>
     }
 
-    if (isConnecting || isLoadingPage || loading) {
+    if (isConnecting || loading) {
         return (
             <Box display="flex" justifyContent="center" alignItems="center" minHeight="50vh">
                 <CircularProgress />

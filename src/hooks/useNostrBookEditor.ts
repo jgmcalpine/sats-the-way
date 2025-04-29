@@ -61,6 +61,7 @@ export const useNostrBookEditor = (
             console.log("publishedEvent: ", publishedEvent)
 
 			return ev;
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
 		} catch (e: any) {
 			console.error('sign/publish failed', e);
 			setError(e.message ?? 'Publish failed');
@@ -76,6 +77,7 @@ export const useNostrBookEditor = (
 			authorPubkey: string,
 			status: 'draft' | 'published',
 			title?: string,
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
 			merge?: Record<string, any>,
 		): NDKEvent => {
 			const ev = new NDKEvent(ndk);
@@ -158,6 +160,7 @@ export const useNostrBookEditor = (
                 title: '',
 			};
 			return { bookId, initialFsmData: fsmData };
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
 		} catch (e: any) {
 			setError(e.message ?? 'Creation failed');
 			return null;
@@ -288,6 +291,7 @@ export const useNostrBookEditor = (
 				states[metaContent.startStateId].isStartState = true;
 			}
 			return { bookId, fsmData: { states, startStateId: metaContent.startStateId, title: metaContent.title } };
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
 		} catch (e: any) {
 			setError(e.message ?? 'Load failed');
 			return null;

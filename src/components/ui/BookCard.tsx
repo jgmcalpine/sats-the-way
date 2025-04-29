@@ -23,7 +23,6 @@ const getRandomLightColor = (): string => {
 };
 
 const BookCard: React.FC<BookCardProps> = ({
-  id,
   title,
   author,
   description,

@@ -18,6 +18,7 @@ export function useNip07(): Nip07State {
 
   /* 1. detect extension */
   useEffect(() => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     if (typeof window !== 'undefined' && (window as any).nostr) {
       setAvail(true);
     }
@@ -29,6 +30,7 @@ export function useNip07(): Nip07State {
 
     (async () => {
       try {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const fresh = await (window as any).nostr.getPublicKey(); // silent if already authorised
         if (fresh !== pubkey) {
           localStorage.setItem(KEY, fresh);
@@ -49,6 +51,7 @@ export function useNip07(): Nip07State {
       return;
     }
     try {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const pk = await (window as any).nostr.getPublicKey();
       localStorage.setItem(KEY, pk);
       setPubkey(pk);

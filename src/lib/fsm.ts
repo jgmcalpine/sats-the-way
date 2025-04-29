@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { FSMChapter, FSMChapterEvent, FSMChapterTag } from '@/types/fsm';
 
 export class FSMNavigator {
