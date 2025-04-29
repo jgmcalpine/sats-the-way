@@ -113,6 +113,7 @@ export const useNostrBookList = ({
 
 				processed.sort((a, b) => b.createdAt - a.createdAt);
 				setBooks(processed);
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
 			} catch (e: any) {
 				setError(e?.message || 'Fetch failed');
 				setBooks([]);
