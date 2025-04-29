@@ -5,7 +5,8 @@ import {
   Typography,
   CircularProgress,
   Box,
-  Grid
+  Grid,
+  Button
 } from '@mui/material';
 
 import { useNostrBookList } from '@/hooks/useNostrBookList';
@@ -23,9 +24,10 @@ interface BooksFilter {
 
 interface BookGridProps {
   filter?: BooksFilter;
+  onSelectBook?: (bookId: string) => void;
 }
 
-const BookGrid: React.FC<BookGridProps> = ({ filter }) => {
+const BookGrid: React.FC<BookGridProps> = ({ filter, onSelectBook }) => {
   const {
     books,
     isLoading,
@@ -77,7 +79,9 @@ const BookGrid: React.FC<BookGridProps> = ({ filter }) => {
 
           return (
             <Grid key={bookId} size={{xs: 12, sm: 6, md: 4, lg: 3}}>
-              <BookCard id={bookId} author={authorPubkey} title={title} description={description} coverArtUrl={coverImage}  />
+              <Button onClick={onSelectBook ? () => onSelectBook(bookId) : () => {}}>
+                <BookCard id={bookId} author={authorPubkey} title={title} description={description} coverArtUrl={coverImage}  />
+              </Button>
             </Grid>
           );
         })}
