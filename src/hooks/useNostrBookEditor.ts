@@ -1,8 +1,3 @@
-// src/hooks/useNostrBookEditor.ts
-// Re‑implementation that swaps out nostr‑tools SimplePool/Event for @nostr-dev-kit/ndk.
-// The external public interface is unchanged so you shouldn’t need to refactor callers.
-// Code uses hard tabs (\t) per user preference and provides full TypeScript types.
-
 import { useCallback, useMemo, useState } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 import { nip19 } from 'nostr-tools'; // Only for address decoding – NDK has no helper yet.
