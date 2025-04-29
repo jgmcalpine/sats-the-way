@@ -130,44 +130,47 @@ function reducer(state: FsmData, action: Action): FsmData {
 
 export function useFsm(initial: FsmData) {
     const [data, dispatch] = useReducer(reducer, initial);
-    const [selectedId, select] = useState<string | null>(initial.startStateId ?? null);
+    const [selectedId, setSelectedId] = useState<string | null>(initial.startStateId);
+
   
     /* derived helpers */
     const totalStates      = Object.keys(data.states).length;
     const totalTransitions = Object.values(data.states).reduce((s, st) => s + st.transitions.length, 0);
-    const cheapest         = useMemo(() => cheapestPath(data.states, data.startStateId), [data]);
+    const cheapest = useMemo(
+      () => cheapestPath(data.states, data.startStateId),
+      [data]
+    );
   
     /* single-entry wrapper so the builder can call fsm.actions.* */
     const actions = {
-      selectState     : select,
-      updateMeta      : (patch: Partial<Pick<FsmData,"title"|"description">>) =>
-                         dispatch({ type: "update-meta", patch }),
+      /* meta */
+      updateMeta      : (p: Partial<Pick<FsmData, "title" | "description">>) =>
+                        dispatch({ type: "update-meta", patch: p }),
   
-      addState        : ()                    => dispatch({ type: "add-state" }),
-      deleteState     : (id: string)          => dispatch({ type: "delete-state", id }),
+      /* selection */
+      selectState     : setSelectedId,
+  
+      /* state CRUD */
+      addState        : () => dispatch({ type: "add-state" }),
+      deleteState     : (id: string) => dispatch({ type: "delete-state", id }),
       updateState     : (id: string, p: Partial<State>) =>
-                         dispatch({ type: "update-state", id, patch: p }),
+                        dispatch({ type: "update-state", id, patch: p }),
   
-      addTransition   : (stateId: string)                          =>
-                         dispatch({ type: "add-transition", stateId }),
-      deleteTransition: (stateId: string, trId: string)            =>
-                         dispatch({ type: "delete-transition", stateId, trId }),
-      updateTransition: (stateId: string, trId: string, p: Partial<Transition>) =>
-                         dispatch({ type: "update-transition", stateId, trId, patch: p }),
+      /* transition CRUD */
+      addTransition   : (sid: string) => dispatch({ type: "add-transition", stateId: sid }),
+      deleteTransition: (sid: string, tid: string) =>
+                        dispatch({ type: "delete-transition", stateId: sid, trId: tid }),
+      updateTransition: (sid: string, tid: string, p: Partial<Transition>) =>
+                        dispatch({ type: "update-transition", stateId: sid, trId: tid, patch: p }),
     };
   
     return {
-      /* data */
       data,
       selectedId,
       selected: selectedId ? data.states[selectedId] ?? null : null,
-  
-      /* stats */
       totalStates,
       totalTransitions,
       cheapest,
-  
-      /* facade expected by builder */
       actions,
     } as const;
   }

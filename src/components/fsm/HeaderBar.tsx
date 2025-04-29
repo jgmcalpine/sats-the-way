@@ -23,7 +23,7 @@ export const HeaderBar: React.FC<Props> = ({
   isSaving,
   isPublishing,
 }) => (
-  <Box className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+  <Box bgcolor="white" className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
     <Box className="flex-1 flex flex-col gap-2">
       <TextField
         value={title}
@@ -31,7 +31,6 @@ export const HeaderBar: React.FC<Props> = ({
         placeholder="Book title…"
         fullWidth
         variant="standard"
-        InputProps={{ className: title ? "" : "animate-pulse" }}
       />
       <TextField
         value={description}
