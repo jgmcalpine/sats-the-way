@@ -9,7 +9,7 @@ import { nip19 } from 'nostr-tools'; // Only for address decoding – NDK has no
 import { NDKEvent, type NDKFilter } from '@nostr-dev-kit/ndk';
 
 import { useNdk } from '@/components/NdkProvider';
-import type { State, FsmData } from '@/components/ui/FsmBuilder';
+import type { State, FsmData } from '@/hooks/useFsm';
 import { BOOK_KIND, NODE_KIND } from '@/lib/nostr';
 
 // ––––– Types –––––
@@ -110,7 +110,6 @@ export const useNostrBookEditor = (
 				bookId,
 				name: chapter.name,
 				content: chapter.content,
-				entryFee: chapter.entryFee ?? 0,
 				isEndState: chapter.isEndState,
 				transitions: chapter.transitions.map(t => ({
 					id: t.id,
@@ -144,7 +143,6 @@ export const useNostrBookEditor = (
 				content: '',
 				isStartState: true,
 				isEndState: false,
-				entryFee: 0,
 				transitions: [],
 			};
 
@@ -157,6 +155,7 @@ export const useNostrBookEditor = (
 			const fsmData: FsmData = {
 				states: { [startChapterId]: initialChapter },
 				startStateId: startChapterId,
+                title: '',
 			};
 			return { bookId, initialFsmData: fsmData };
 		} catch (e: any) {
@@ -288,7 +287,7 @@ export const useNostrBookEditor = (
 			if (metaContent.startStateId && states[metaContent.startStateId]) {
 				states[metaContent.startStateId].isStartState = true;
 			}
-			return { bookId, fsmData: { states, startStateId: metaContent.startStateId } };
+			return { bookId, fsmData: { states, startStateId: metaContent.startStateId, title: metaContent.title } };
 		} catch (e: any) {
 			setError(e.message ?? 'Load failed');
 			return null;

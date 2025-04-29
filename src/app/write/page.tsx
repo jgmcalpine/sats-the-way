@@ -7,7 +7,7 @@ import { useAuth } from "@/components/AuthProvider";
 import { BookData } from "@/components/ui/BookShelf";
 import FsmBuilder from "@/components/ui/FsmBuilder";
 import WriteHeader from "@/components/ui/WriteHeader";
-import type { State, FsmData } from '@/components/ui/FsmBuilder';
+import type { State, FsmData } from '@/hooks/useFsm';
 import BookGrid from "@/components/ui/BookGrid";
 
 import { BookListItem } from '@/hooks/useNostrBookList'
@@ -22,12 +22,10 @@ export default function WritePage() {
     const [currentBookId, setCurrentBookId] = useState<string | null>(null);
     const [currentBookTitle, setCurrentBookTitle] = useState<string | undefined>(undefined);
     const [isLoadingPage, setIsLoadingPage] = useState(true);
-    const [draftToEdit, setDraftToEdit] = useState<BookData | null>(null);
 
     const {
         isConnecting,
         isProcessing, // Use this for button loading states
-        error, // Display errors
         createAndLoadNewBook,
         loadBook,
         saveChapter,
@@ -100,14 +98,10 @@ export default function WritePage() {
 
     const handlePublish = async (data: FsmData) => {
         if (!currentBookId || !currentUserPubkey || isProcessing) return;
-        // Find current title...
-        await publishBook(data, currentBookId, currentBookTitle, currentUserPubkey);
+        const { title } = data
+        await publishBook(data, currentBookId, title, currentUserPubkey);
          // Optionally show success feedback
     };
-
-    const openEditor = (b: BookListItem) => {
-		setShowEditor(true);
-	};
 
     if (!currentUser) {
         return <div>Connect with nip-07 to create your own adventures!</div>
@@ -124,7 +118,7 @@ export default function WritePage() {
     
     return (
         <div className="flex flex-col justify-center items-center h-full min-h-screen pb-48">
-            {!showEditor ? (
+            {!showEditor || !fsmData ? (
                 <Box>
                     <WriteHeader onStartWriting={handleStartAdventure} />
                     <BookGrid filter={{authors: currentUserPubkey ? [currentUserPubkey] : [], status: 'draft'}} />
@@ -132,9 +126,7 @@ export default function WritePage() {
             ) : (
                 <>
                     <FsmBuilder
-                        bookId={"new-book-" + Date.now()}
-                        authorPubkey={"your-user-pubkey"} // Get this from user session/login
-                        initialData={fsmData || undefined}
+                        initialData={fsmData}
                         onSaveProgress={handleSaveAll}
                         onPublish={handlePublish}
                         onSaveChapter={handleSaveChapter}
