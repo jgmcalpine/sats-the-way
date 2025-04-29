@@ -10,7 +10,7 @@ import { NDKEvent, type NDKFilter } from '@nostr-dev-kit/ndk';
 
 import { useNdk } from '@/components/NdkProvider';
 import type { State, FsmData } from '@/hooks/useFsm';
-import { BOOK_KIND, NODE_KIND } from '@/lib/nostr';
+import { BOOK_KIND, NODE_KIND } from '@/lib/nostr/constants';
 
 // ––––– Types –––––
 interface NostrBookEditorUtils {

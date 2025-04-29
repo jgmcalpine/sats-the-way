@@ -1,14 +1,10 @@
-// src/hooks/useNostrBookList.ts
-// Hook rewritten to use @nostr-dev-kit/ndk instead of nostr‑tools SimplePool.
-// Hard‑tabs throughout per user preference.
-
 import { useState, useCallback, useEffect } from 'react';
 import { nip19 } from 'nostr-tools';
 import type { NDKEvent, NDKFilter, NDKRelaySet } from '@nostr-dev-kit/ndk';
 import { NDKRelaySet as RelaySet } from '@nostr-dev-kit/ndk';
 import { useNdk } from '@/components/NdkProvider';
 
-import { BOOK_KIND } from '@/lib/nostr';
+import { BOOK_KIND } from '@/lib/nostr/constants';
 
 // ────────────────────────────────────────────────────────────────────────────────
 // Types
@@ -16,13 +12,13 @@ import { BOOK_KIND } from '@/lib/nostr';
 export interface BookListItem {
 	bookId: string;
 	title: string;
-	description?: string;            // ← NEW: parsed from metadata.content.description | summary
-	coverImage?: string;            // ← NEW: optional cover img URL (metadata.content.image)
+	description?: string;
+	coverImage?: string; 
 	authorPubkey: string;
 	status: 'draft' | 'published' | 'unknown';
 	createdAt: number;
 	naddr: string;
-	event: NDKEvent;                // full raw event in case callers need it
+	event: NDKEvent; 
 }
 
 interface UseNostrBookListOptions {
