@@ -24,7 +24,7 @@ interface BooksFilter {
 
 interface BookGridProps {
   filter?: BooksFilter;
-  onSelectBook?: (bookId: string) => void;
+  onSelectBook?: (bookId: string, authorPubkey: string) => void;
 }
 
 const BookGrid: React.FC<BookGridProps> = ({ filter, onSelectBook }) => {
@@ -79,7 +79,7 @@ const BookGrid: React.FC<BookGridProps> = ({ filter, onSelectBook }) => {
 
           return (
             <Grid key={bookId} size={{xs: 12, sm: 6, md: 4, lg: 3}}>
-              <Button onClick={onSelectBook ? () => onSelectBook(bookId) : () => {}}>
+              <Button onClick={onSelectBook ? () => onSelectBook(bookId, authorPubkey) : () => {}}>
                 <BookCard id={bookId} author={authorPubkey} title={title} description={description} coverArtUrl={coverImage}  />
               </Button>
             </Grid>
