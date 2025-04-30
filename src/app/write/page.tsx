@@ -21,7 +21,7 @@ export default function WritePage() {
 
     const {
         isConnecting,
-        isProcessing, // Use this for button loading states
+        isProcessing,
         createAndLoadNewBook,
         saveChapter,
         saveAllProgress,

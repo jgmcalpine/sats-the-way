@@ -1,8 +1,9 @@
 "use client";
 import React, { useEffect } from "react";
 import { useParams } from 'next/navigation'
-
 import { CircularProgress, Typography } from "@mui/material";
+
+import NostrBookReader from "@/components/ui/NostrBookReader";
 
 import { useNostrBookReader } from "@/hooks/useNostrBookReader";
 
@@ -17,8 +18,9 @@ export default function BookReaderPage() {
 		isLoading,
 		error,
 		bookMetadata,
-    currentChapter, // Derived from currentChapterId and chapters
+    currentChapter,
 		fetchBookData,
+    goToChapterByChoice
 	} = useNostrBookReader();
 
   useEffect(() => {
@@ -27,6 +29,10 @@ export default function BookReaderPage() {
     }
     // Optional: Add cleanup or handle identifier changes if needed
 }, [bookId, fetchBookData]);
+
+const handleChapterNav = ({ id } : { id: string }) => {
+  goToChapterByChoice(id);
+}
 
   if (isLoading || error) {
     return (
@@ -37,6 +43,9 @@ export default function BookReaderPage() {
     );
   }
 
+  if (currentChapter && bookMetadata) {
+    return <NostrBookReader onTransitionSelect={handleChapterNav} currentChapter={currentChapter} bookMetadata={bookMetadata} />
+  }
   return (
     <div className="mx-auto max-w-3xl p-6">
       {/* Header */}
