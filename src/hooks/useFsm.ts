@@ -53,7 +53,7 @@ function reducer(state: FsmData, action: Action): FsmData {
           ...state.states,
           [id]: {
             id,
-            name: "New step",
+            name: `Chapter ${Object.keys(state.states).length + 1}`,
             content: "",
             isStartState: first,
             isEndState: false,

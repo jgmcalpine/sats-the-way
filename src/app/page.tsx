@@ -14,9 +14,11 @@ export default function Home() {
   }
 
   return (
-    <div className="py-8 px-2">
+    <div className="p-8">
       <h1 className="text-3xl font-bold text-center mb-8">NostrBooks</h1>
-      <BookGrid filter={{ limit: 4 }} onSelectBook={(bookId, authorPubkey) => handleReadBook(bookId, authorPubkey)} />
+      <div className="bg-amber-300 shadow-lg shadow-amber-900/30 rounded-md p-4">
+        <BookGrid filter={{ limit: 4 }} onSelectBook={(bookId, authorPubkey) => handleReadBook(bookId, authorPubkey)} />
+      </div>
     </div>
   );
 }

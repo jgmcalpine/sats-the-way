@@ -196,7 +196,7 @@ const NostrBookReader: React.FC<NostrBookReaderProps> = ({
                     >
                       <Typography variant="body1">
                         {transition.choiceText}
-                        {transition.price && (
+                        {Boolean(transition.price) && (
                           <Typography component="span" variant="body2" color="text.secondary" sx={{ ml: 1 }}>
                             ({transition.price} sats)
                           </Typography>
