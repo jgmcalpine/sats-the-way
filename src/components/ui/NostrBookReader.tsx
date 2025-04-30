@@ -178,7 +178,7 @@ const NostrBookReader: React.FC<NostrBookReaderProps> = ({
                       The End
                     </Typography>
                     <Typography variant="body2">
-                      You've reached the end of this story.
+                      You&apos;ve reached the end of this story.
                     </Typography>
                   </CardContent>
                 </Card>
