@@ -28,11 +28,11 @@ export default function BookReaderPage() {
         fetchBookData({bookId, authorPubkey});
     }
     // Optional: Add cleanup or handle identifier changes if needed
-}, [bookId, fetchBookData]);
+  }, [bookId, fetchBookData]);
 
-const handleChapterNav = ({ id } : { id: string }) => {
-  goToChapterByChoice(id);
-}
+  const handleChapterNav = ({ id } : { id: string }) => {
+    goToChapterByChoice(id);
+  }
 
   if (isLoading || error) {
     return (

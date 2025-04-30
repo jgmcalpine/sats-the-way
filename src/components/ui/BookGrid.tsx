@@ -38,10 +38,10 @@ const BookGrid: React.FC<BookGridProps> = ({ filter, onSelectBook }) => {
     initialFetch: false,
   });
 
-  const { status } = filter || {};
+  const { status, limit } = filter || {};
 
   useEffect(() => {
-		fetchBooks('all');
+		fetchBooks('all', limit);
 	}, [fetchBooks]);
 
   if (isLoading) {
@@ -70,7 +70,7 @@ const BookGrid: React.FC<BookGridProps> = ({ filter, onSelectBook }) => {
   const filteredBooks = status ? books.filter((book) => {
     return book.status === status
   }) : books;
-
+  
   return (
     <Box className="p-4">
       <Grid container spacing={2}>

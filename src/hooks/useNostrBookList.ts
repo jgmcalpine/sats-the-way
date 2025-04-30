@@ -31,7 +31,7 @@ interface UseNostrBookListResult {
 	books: BookListItem[];
 	isLoading: boolean;
 	error: string | null;
-	fetchBooks: (statusFilter?: 'all' | 'draft' | 'published') => Promise<void>;
+	fetchBooks: (statusFilter?: 'all' | 'draft' | 'published', limit?: number) => Promise<void>;
 }
 
 // ────────────────────────────────────────────────────────────────────────────────
@@ -55,7 +55,7 @@ export const useNostrBookList = ({
 	};
 
 	const fetchBooks = useCallback(
-		async (statusFilter: 'all' | 'draft' | 'published' = 'all') => {
+		async (statusFilter: 'all' | 'draft' | 'published' = 'all', limit?: number) => {
 			if (!ndk) {
 				setError('NDK not ready');
 				return;
@@ -65,7 +65,7 @@ export const useNostrBookList = ({
 			setError(null);
 
 			try {
-				const filter: NDKFilter = { kinds: [BOOK_KIND] };
+				const filter: NDKFilter = { kinds: [BOOK_KIND], limit };
 				if (authorPubkey) filter.authors = [authorPubkey];
 
 				const relaySet = buildRelaySet();
