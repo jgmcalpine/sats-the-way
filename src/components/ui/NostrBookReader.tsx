@@ -18,7 +18,7 @@ import { State, Transition } from '@/hooks/useFsm';
 
 export interface BookMetadata {
   title: string;
-  author?: string;
+  authorPubkey?: string;
   coverImage?: string;
   description?: string;
   genre?: string;
@@ -116,7 +116,7 @@ const NostrBookReader: React.FC<NostrBookReaderProps> = ({
                 {bookMetadata.title}
               </Typography>
               <Typography variant="subtitle1" color="text.secondary" gutterBottom>
-                by {bookMetadata.author}
+                by {bookMetadata.authorPubkey}
               </Typography>
               
               {bookMetadata.description && (
