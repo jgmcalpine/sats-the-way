@@ -25,6 +25,7 @@ export interface FsmData {
   title: string;
   states: Record<string, State>;
   startStateId: string | null;
+  lnurl?: string;
   description?: string;
 }
 
@@ -32,7 +33,7 @@ export interface FsmData {
 
 type Action =
   | { type: "init"; payload: FsmData }
-  | { type: "update-meta"; patch: Partial<Pick<FsmData,"title"|"description">> }
+  | { type: "update-meta"; patch: Partial<Pick<FsmData,"title"|"description"|"lnurl">> }
   | { type: "add-state" }
   | { type: "delete-state"; id: string }
   | { type: "update-state"; id: string; patch: Partial<State> }
@@ -168,7 +169,7 @@ export function useFsm(initial: FsmData) {
     /* single-entry wrapper so the builder can call fsm.actions.* */
     const actions = {
       /* meta */
-      updateMeta: (p: Partial<Pick<FsmData, "title" | "description">>) =>
+      updateMeta: (p: Partial<Pick<FsmData, "title" | "description" | "lnurl">>) =>
                         dispatch({ type: "update-meta", patch: p }),
   
       /* selection */

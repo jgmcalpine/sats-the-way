@@ -66,14 +66,14 @@ export const useNostrBookEditor = (
 	// Metadata & chapter builders
 	const buildMetadataEvent = useCallback(
 		(
+            fsm: FsmData,
 			bookId: string,
-			startStateId: string | null,
 			authorPubkey: string,
 			status: 'draft' | 'published',
-			title?: string,
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
 			merge?: Record<string, any>,
 		): NDKEvent => {
+            const { title, description, lnurl, startStateId } = fsm;
 			const ev = new NDKEvent(ndk);
 			ev.kind = BOOK_KIND;
 			ev.tags = [['d', bookId]];
@@ -83,6 +83,8 @@ export const useNostrBookEditor = (
 				bookId,
 				title: title ?? merge?.title ?? 'Untitled Book',
 				status,
+                description,
+                lnurl,
 				startStateId,
 				authorPubkey,
 				...(status === 'published' && { publishedAt: merge?.publishedAt ?? Math.floor(Date.now() / 1000) }),
@@ -143,17 +145,20 @@ export const useNostrBookEditor = (
 				transitions: [],
 			};
 
-			const metadataEv = buildMetadataEvent(bookId, startChapterId, currentUserPubkey, 'draft', 'Untitled Book');
+			const fsmData: FsmData = {
+				states: { [startChapterId]: initialChapter },
+				startStateId: startChapterId,
+                title: '',
+                description: '',
+                lnurl: ''
+			};
+
+			const metadataEv = buildMetadataEvent(fsmData, bookId, currentUserPubkey, 'draft');
 			const chapterEv = buildChapterEvent(initialChapter, bookId, currentUserPubkey);
 
 			const [metaOk, chapOk] = await Promise.all([signAndPublish(metadataEv), signAndPublish(chapterEv)]);
 			if (!metaOk || !chapOk) throw new Error('Failed to publish initial events');
 
-			const fsmData: FsmData = {
-				states: { [startChapterId]: initialChapter },
-				startStateId: startChapterId,
-                title: '',
-			};
 			return { bookId, initialFsmData: fsmData };
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
 		} catch (e: any) {
@@ -201,7 +206,7 @@ export const useNostrBookEditor = (
 		setError(null);
 
 		try {
-			const meta = buildMetadataEvent(bookId, fsmData.startStateId, authorPubkey, 'draft', bookTitle);
+			const meta = buildMetadataEvent(fsmData, bookId, authorPubkey, 'draft');
 			const chapters = Object.values(fsmData.states).map(s => buildChapterEvent(s, bookId, authorPubkey));
 			const results = await Promise.allSettled([
 				signAndPublish(meta),
@@ -239,7 +244,7 @@ export const useNostrBookEditor = (
 			} as NDKFilter);
 
 			const merge = existing ? JSON.parse(existing.content) : undefined;
-			const meta = buildMetadataEvent(bookId, fsmData.startStateId, authorPubkey, 'published', bookTitle, merge);
+			const meta = buildMetadataEvent(fsmData, bookId, authorPubkey, 'published', merge);
 			return !!(await signAndPublish(meta));
 		} finally {
 			setProcessing(false);

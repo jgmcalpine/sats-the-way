@@ -53,12 +53,14 @@ export const FsmBuilder: React.FC<Props> = ({ initialData, onSaveProgress, onPub
     <Box className="p-4">
       <HeaderBar
         title={fsm.data.title}
+        lnurl={fsm.data.lnurl || ''}
         description={fsm.data.description || ''}
         isSaving={isSaving}
         isPublishing={isPublishing}
         onSave={handleSave}
         onPublish={handlePublish}
         setTitle={(t) => fsm.actions.updateMeta({ title: t })}
+        setLNUrl={(t) => fsm.actions.updateMeta({ lnurl: t })}
         setDescription={(d) => fsm.actions.updateMeta({ description: d })}
       />
       <SummaryBar

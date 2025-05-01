@@ -4,8 +4,10 @@ import React from "react";
 
 interface Props {
   title: string;
+  lnurl: string;
   description: string;
   setTitle: (t: string) => void;
+  setLNUrl: (a: string) => void;
   setDescription: (d: string) => void;
   onSave?: () => void;
   onPublish?: () => void;
@@ -15,9 +17,11 @@ interface Props {
 
 export const HeaderBar: React.FC<Props> = ({
   title,
+  lnurl,
   description,
   setTitle,
   setDescription,
+  setLNUrl,
   onSave,
   onPublish,
   isSaving,
@@ -28,7 +32,14 @@ export const HeaderBar: React.FC<Props> = ({
       <TextField
         value={title}
         onChange={(e) => setTitle(e.target.value)}
-        placeholder="Book title…"
+        placeholder="Book title"
+        fullWidth
+        variant="standard"
+      />
+      <TextField
+        value={lnurl}
+        onChange={(e) => setLNUrl(e.target.value)}
+        placeholder="LNURL (if you are setting prices)"
         fullWidth
         variant="standard"
       />
