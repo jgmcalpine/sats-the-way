@@ -17,7 +17,7 @@ export default function Home() {
     <div className="p-8">
       <h1 className="text-3xl font-bold text-center mb-8">NostrBooks</h1>
       <div className="bg-amber-300 shadow-lg shadow-amber-900/30 rounded-md p-4">
-        <BookGrid filter={{ limit: 4 }} onSelectBook={(bookId, authorPubkey) => handleReadBook(bookId, authorPubkey)} />
+        <BookGrid filter={{ limit: 8 }} onSelectBook={(bookId, authorPubkey) => handleReadBook(bookId, authorPubkey)} />
       </div>
     </div>
   );
