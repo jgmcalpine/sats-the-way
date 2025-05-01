@@ -182,9 +182,11 @@ const NostrBookReader: React.FC<NostrBookReaderProps> = ({
                 </Card>
               ) : (
                 <>
-                  <Typography variant="subtitle1" gutterBottom>
-                    What will you do next?
-                  </Typography>
+                  {currentChapter.transitions.length !== 0 && (
+                    <Typography variant="subtitle1" gutterBottom>
+                      What will you do next?
+                    </Typography>
+                  )}
                   {currentChapter.transitions.map((transition) => (
                     <ChoiceButton
                       key={transition.id}
