@@ -49,7 +49,6 @@ export const useNostrBookEditor = (
 
 	const signAndPublish = useCallback(async (ev: NDKEvent): Promise<NDKEvent | null> => {
 		try {
-            console.log("sign and publish")
 			await ensureSigner();
 			await ev.sign();
 			const publishedEvent = await ev.publish();
@@ -108,6 +107,7 @@ export const useNostrBookEditor = (
 				name: chapter.name,
 				content: chapter.content,
 				isEndState: chapter.isEndState,
+                previousChapterId: chapter.previousChapterId,
 				transitions: chapter.transitions.map(t => ({
 					id: t.id,
 					choiceText: t.choiceText,

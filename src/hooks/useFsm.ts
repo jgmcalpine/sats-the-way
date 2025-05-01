@@ -17,6 +17,7 @@ export interface State {
   isStartState: boolean;
   isEndState: boolean;
   transitions: Transition[];
+  previousChapterId?: string;
   entryFee?: string;
 }
 
@@ -108,18 +109,41 @@ function reducer(state: FsmData, action: Action): FsmData {
       });
     }
 
-    case "update-transition":
+    case "update-transition": {
       const stBase = state.states[action.stateId];
       if (!stBase) return state;
-      return reducer(state,{
-        type : "update-state",
-        id   : action.stateId,
+      
+      // First, update the transition in the current state
+      const updatedState = reducer(state, {
+        type: "update-state",
+        id: action.stateId,
         patch: {
           transitions: stBase.transitions.map(t =>
             t.id === action.trId ? { ...t, ...action.patch } : t
           ),
         },
       });
+      
+      // If the target state ID is being updated, update the previousChapterId of the target state
+      if (action.patch.targetStateId) {
+        const targetState = updatedState.states[action.patch.targetStateId];
+        
+        // Only proceed if the target state exists
+        if (targetState) {
+          // Update the target state with the previousChapterId
+          return reducer(updatedState, {
+            type: "update-state",
+            id: action.patch.targetStateId,
+            patch: {
+              previousChapterId: action.stateId
+            },
+          });
+        }
+      }
+      
+      // Return the updated state if there's no target state ID change or if target state doesn't exist
+      return updatedState;
+    }
 
     default:
       return state;

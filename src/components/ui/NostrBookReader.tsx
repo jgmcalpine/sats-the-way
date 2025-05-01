@@ -30,8 +30,7 @@ export interface NostrBookReaderProps {
   currentChapter: State;
   bookMetadata: BookMetadata;
   onTransitionSelect: (transition: Transition) => void;
-  onPreviousChapter?: () => void;
-  hasPreviousChapter?: boolean;
+  onPreviousChapter?: (chapterId: string) => void;
 }
 
 // Styled components for the book pages
@@ -99,7 +98,6 @@ const NostrBookReader: React.FC<NostrBookReaderProps> = ({
   bookMetadata,
   onTransitionSelect,
   onPreviousChapter,
-  hasPreviousChapter = false,
 }) => {
   const handleTransitionClick = useCallback((transition: Transition) => {
     onTransitionSelect(transition);
@@ -145,11 +143,11 @@ const NostrBookReader: React.FC<NostrBookReaderProps> = ({
             </Box>
             
             {/* Previous Chapter Button */}
-            {hasPreviousChapter && onPreviousChapter && (
+            {currentChapter.previousChapterId && onPreviousChapter &&  (
               <Button 
                 variant="outlined" 
                 startIcon={<ArrowBackIcon />}
-                onClick={onPreviousChapter}
+                onClick={() => onPreviousChapter(currentChapter?.previousChapterId || '')}
                 sx={{ mt: 2, alignSelf: 'flex-start' }}
               >
                 Previous Chapter

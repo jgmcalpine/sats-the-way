@@ -161,11 +161,11 @@ export const useNostrBookReader = (): NostrBookReaderUtils => {
                         price: t.price ?? 0,
                     })).filter((t: Transition) => t.targetStateId); // Filter out transitions without a target
 
-
 					fetchedStates[stateId] = {
 						id: stateId, // This is the chapter's unique ID (d tag / stateId)
 						name: chapterContent.name ?? 'Untitled Chapter',
 						content: chapterContent.content ?? '',
+						previousChapterId: chapterContent.previousChapterId ?? undefined,
 						isEndState: chapterContent.isEndState ?? false,
 						isStartState: stateId === parsedMeta.startStateId,
                         transitions: transitions,
