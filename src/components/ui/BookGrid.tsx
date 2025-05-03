@@ -25,9 +25,10 @@ interface BooksFilter {
 interface BookGridProps {
   filter?: BooksFilter;
   onSelectBook?: (bookId: string, authorPubkey: string) => void;
+  sectionTitle?: string;
 }
 
-const BookGrid: React.FC<BookGridProps> = ({ filter, onSelectBook }) => {
+const BookGrid: React.FC<BookGridProps> = ({ filter, onSelectBook, sectionTitle }) => {
   const {
     books,
     isLoading,
@@ -72,7 +73,12 @@ const BookGrid: React.FC<BookGridProps> = ({ filter, onSelectBook }) => {
   }) : books;
   
   return (
-    <Box className="p-4">
+    <Box className="p-4 bg-[#8b6914]">
+      {sectionTitle && (
+        <Box className="bg-[#eae86f] min-h-20 max-w-80 flex justify-center items-center rounded-md flex-col my-8">
+          <Typography color="black" variant="h3" component="h3">{sectionTitle}</Typography>
+        </Box>
+      )}
       <Grid container spacing={2}>
         {filteredBooks.map((book) => {
           const { title, description, authorPubkey, bookId, coverImage } = book;
