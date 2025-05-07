@@ -89,6 +89,7 @@ export const FsmBuilder: React.FC<Props> = ({ initialData, onSaveProgress, onPub
                 states={fsm.data.states}
                 onAdd={() => fsm.actions.addTransition(fsm.selected!.id)}
                 onUpdate={(tid, u) => fsm.actions.updateTransition(fsm.selected!.id, tid, u)}
+                onUpdateChapter={(targetId, u) => fsm.actions.updateState(targetId, u)}
                 onDelete={(tid) => fsm.actions.deleteTransition(fsm.selected!.id, tid)}
               />
               {onSaveChapter && (

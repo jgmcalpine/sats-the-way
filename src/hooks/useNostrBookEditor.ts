@@ -2,10 +2,16 @@ import { useCallback, useMemo, useState } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 import { nip19 } from 'nostr-tools'; // Only for address decoding – NDK has no helper yet.
 import { NDKEvent, type NDKFilter } from '@nostr-dev-kit/ndk';
+import { sha256 as jsSha256 } from '@noble/hashes/sha256';
+
+import { generateChapterKey, aesEncrypt, EncryptedBlob } from '@/utils/crypto';
 
 import { useNdk } from '@/components/NdkProvider';
-import type { State, FsmData } from '@/hooks/useFsm';
+
+import type { State, FsmData, Transition } from '@/hooks/useFsm';
 import { BOOK_KIND, NODE_KIND } from '@/lib/nostr/constants';
+
+const sha256Hex = (hex: string): string => Buffer.from(jsSha256(Buffer.from(hex, 'hex'))).toString('hex');
 
 // ––––– Types –––––
 interface NostrBookEditorUtils {
@@ -95,32 +101,64 @@ export const useNostrBookEditor = (
 	);
 
 	const buildChapterEvent = useCallback(
-		(chapter: State, bookId: string, authorPubkey: string): NDKEvent => {
+		async (
+			chapter: State,
+			bookId: string,
+			authorPubkey: string,
+			isPublish: boolean = false
+		): Promise<NDKEvent> => {
+			if (!ndk) throw new Error('NDK not ready');
+
 			const ev = new NDKEvent(ndk);
 			ev.kind = NODE_KIND;
 			ev.tags = [
 				['d', chapter.id],
-                ['a', `${NODE_KIND}:${authorPubkey}:${chapter.id}`],
-                ['a', `${BOOK_KIND}:${authorPubkey}:${bookId}`, "", "root"],
+    		['a', `${NODE_KIND}:${authorPubkey}:${chapter.id}`],
+    		['a', `${BOOK_KIND}:${authorPubkey}:${bookId}`, '', 'root'],
 			];
-			ev.content = JSON.stringify({
+
+			// Base payload with all fields
+			const payload: any = {
 				stateId: chapter.id,
 				bookId,
 				name: chapter.name,
+				price: chapter.price,
 				content: chapter.content,
 				isEndState: chapter.isEndState,
-                previousChapterId: chapter.previousChapterId,
-				transitions: chapter.transitions.map(t => ({
+				previousChapterId: chapter.previousChapterId,
+				transitions: chapter.transitions.map((t: Transition) => ({
 					id: t.id,
 					choiceText: t.choiceText,
 					targetStateId: t.targetStateId,
 					price: t.price ?? 0,
 				})),
-			});
+			};
+
+			// Encrypt only content if publishing and price > 0
+			if (isPublish && chapter.price && chapter.price > 0) {
+				const key = generateChapterKey();
+				const enc: EncryptedBlob = aesEncrypt(chapter.content, key);
+				// Replace plaintext with encrypted blob
+				payload.content = enc;
+
+				// Payment tags
+				ev.tags.push(['amount', chapter.price.toString()]);
+				ev.tags.push(['s', sha256Hex(key)]);
+
+				// Persist preimage for LNURL handler
+				await fetch('/api/chapter-key', {
+					method: 'POST',
+					headers: { 'Content-Type': 'application/json' },
+					body: JSON.stringify({ bookId, chapId: chapter.id, key }),
+				});
+			}
+
+			// Attach final payload
+			ev.content = JSON.stringify(payload);
 			return ev;
 		},
-		[ndk],
-	);
+		[ndk]
+		);
 
 	// ––––– CRUD actions –––––
 	const createAndLoadNewBook = useCallback(async () => {
@@ -154,7 +192,7 @@ export const useNostrBookEditor = (
 			};
 
 			const metadataEv = buildMetadataEvent(fsmData, bookId, currentUserPubkey, 'draft');
-			const chapterEv = buildChapterEvent(initialChapter, bookId, currentUserPubkey);
+			const chapterEv = await buildChapterEvent(initialChapter, bookId, currentUserPubkey);
 
 			const [metaOk, chapOk] = await Promise.all([signAndPublish(metadataEv), signAndPublish(chapterEv)]);
 			if (!metaOk || !chapOk) throw new Error('Failed to publish initial events');
@@ -181,7 +219,7 @@ export const useNostrBookEditor = (
 		setProcessing(true);
 		setError(null);
 		try {
-			const ev = buildChapterEvent(chapter, bookId, authorPubkey);
+			const ev = await buildChapterEvent(chapter, bookId, authorPubkey);
 			return !!(await signAndPublish(ev));
 		} finally {
 			setProcessing(false);
@@ -207,10 +245,11 @@ export const useNostrBookEditor = (
 
 		try {
 			const meta = buildMetadataEvent(fsmData, bookId, authorPubkey, 'draft');
-			const chapters = Object.values(fsmData.states).map(s => buildChapterEvent(s, bookId, authorPubkey));
+			const chapterPromises = Object.values(fsmData.states).map(s => buildChapterEvent(s, bookId, authorPubkey));
+			const chapterEvents = await Promise.all(chapterPromises);
 			const results = await Promise.allSettled([
 				signAndPublish(meta),
-				...chapters.map(ev => signAndPublish(ev)),
+				...chapterEvents.map(ev => signAndPublish(ev)),
 			]);
 			return results.every(r => r.status === 'fulfilled' && r.value);
 		} finally {
@@ -244,8 +283,15 @@ export const useNostrBookEditor = (
 			} as NDKFilter);
 
 			const merge = existing ? JSON.parse(existing.content) : undefined;
+            console.log("what state:/ssm ", fsmData.states)
+            const chapterPromises = Object.values(fsmData.states).map(s => buildChapterEvent(s, bookId, authorPubkey, true));
+			const chapterEvents = await Promise.all(chapterPromises);
 			const meta = buildMetadataEvent(fsmData, bookId, authorPubkey, 'published', merge);
-			return !!(await signAndPublish(meta));
+			const results = await Promise.allSettled([
+				signAndPublish(meta),
+				...chapterEvents.map(ev => signAndPublish(ev)),
+			]);
+			return results.every(r => r.status === 'fulfilled' && r.value);
 		} finally {
 			setProcessing(false);
 		}
@@ -278,7 +324,7 @@ export const useNostrBookEditor = (
 						id: c.stateId,
 						name: c.name ?? '?',
 						content: c.content ?? '',
-						entryFee: c.entryFee ?? 0,
+						price: c.price ?? 0,
 						isEndState: c.isEndState ?? false,
 						isStartState: false,
 						transitions: c.transitions ?? [],

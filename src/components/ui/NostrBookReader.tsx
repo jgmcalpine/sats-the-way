@@ -135,9 +135,9 @@ const NostrBookReader: React.FC<NostrBookReaderProps> = ({
                 </Typography>
               )}
               
-              {Boolean(currentChapter.entryFee) && (
+              {Boolean(currentChapter.price) && (
                 <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
-                  Entry Fee: {currentChapter.entryFee}
+                  Entry Fee: {currentChapter.price}
                 </Typography>
               )}
             </Box>

@@ -8,10 +8,11 @@ interface Props {
   states: Record<string, State>;
   onAdd: () => void;
   onUpdate: (tid: string, updates: Partial<Transition>) => void;
+  onUpdateChapter: (targetStateId: string, update: Partial<State>) => void;
   onDelete: (tid: string) => void;
 }
 
-export const ChoicesEditor: React.FC<Props> = ({ state, states, onAdd, onUpdate, onDelete }) => (
+export const ChoicesEditor: React.FC<Props> = ({ state, states, onAdd, onUpdate, onDelete, onUpdateChapter }) => (
   <>
     <Button size="small" startIcon={<AddCircleOutline />} disabled={state.isEndState} onClick={onAdd} className="mb-2">
       Add Choice
@@ -54,7 +55,10 @@ export const ChoicesEditor: React.FC<Props> = ({ state, states, onAdd, onUpdate,
               label="Price (sats)"
               type="number"
               value={t.price ?? 0}
-              onChange={(e) => onUpdate(t.id, { price: Number(e.target.value) })}
+              onChange={(e) => {
+                onUpdateChapter(t.targetStateId, { price: Number(e.target.value) })
+                onUpdate(t.id, { price: Number(e.target.value) })
+              }}
               variant="standard"
               InputProps={{
                 startAdornment: <InputAdornment position="start">₿</InputAdornment>,

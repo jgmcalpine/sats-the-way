@@ -18,7 +18,7 @@ export interface State {
   isEndState: boolean;
   transitions: Transition[];
   previousChapterId?: string;
-  entryFee?: string;
+  price?: number;
 }
 
 export interface FsmData {
@@ -124,7 +124,7 @@ function reducer(state: FsmData, action: Action): FsmData {
           ),
         },
       });
-      
+
       // If the target state ID is being updated, update the previousChapterId of the target state
       if (action.patch.targetStateId) {
         const targetState = updatedState.states[action.patch.targetStateId];
