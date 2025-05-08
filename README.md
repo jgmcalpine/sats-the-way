@@ -17,7 +17,7 @@ Defines the metadata for a published Finite State Machine (FSM) instance.
 
 **Content JSON Format:**
 
-\`\`\`json
+```json
 {
   "fsm_type": "book",
   "fsm_id": "9296c3e6-05cb-472c-b548-46857f3b8182",
@@ -29,7 +29,7 @@ Defines the metadata for a published Finite State Machine (FSM) instance.
   "min_cost": 1500,
   "lifecycle": "published" 
 }
-\`\`\`
+```
 
 **Required Tags:**
 
@@ -58,7 +58,7 @@ Defines a single node (state) inside an FSM, including text content and transiti
 
 **Content JSON Format:**
 
-\`\`\`json
+```json
 {
   "state_id": "some-uuid",
   "fsm_id": "linked-fsm-id",
@@ -81,7 +81,7 @@ Defines a single node (state) inside an FSM, including text content and transiti
     }
   ]
 }
-\`\`\`
+```
 
 **Required Tags:**
 
@@ -104,7 +104,7 @@ Defines a single node (state) inside an FSM, including text content and transiti
 
 ---
 
-# 📋 Notes on Usage
+## 📋 Notes on Usage
 
 - FSM Metadata (30077) must be published before related State Nodes (30078).
 - Transitions may include optional prices (sats) if using paid branching paths.
