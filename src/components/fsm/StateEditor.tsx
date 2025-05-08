@@ -1,11 +1,11 @@
 import React from "react";
 import { Grid, TextField, Checkbox, FormControlLabel } from "@mui/material";
 import { PlayCircleOutline, StopCircleOutlined } from "@mui/icons-material";
-import { State } from "../../hooks/useFsm";
+import { FsmState } from "@/types/fsm";
 
 interface Props {
-  state: State;
-  onChange: (updates: Partial<State>) => void;
+  state: FsmState;
+  onChange: (updates: Partial<FsmState>) => void;
 }
 
 export const StateEditor: React.FC<Props> = ({ state, onChange }) => (

@@ -5,7 +5,7 @@ import type { NDKFilter, NDKEvent } from '@nostr-dev-kit/ndk';
 import { NDKRelaySet } from '@nostr-dev-kit/ndk';
 
 import { useNdk } from '@/components/NdkProvider';
-import type { State, Transition } from '@/hooks/useFsm';
+import type { FsmState, Transition } from '@/types/fsm';
 import { BOOK_KIND, NODE_KIND } from '@/lib/nostr/constants';
 
 interface BookMetadataContent {
@@ -24,9 +24,9 @@ interface NostrBookReaderUtils {
 	error: string | null;
 	bookMetadata: BookMetadataContent | null;
 	bookEvent: NDKEvent | null;
-	chapters: Record<string, State>;
+	chapters: Record<string, FsmState>;
 	currentChapterId: string | null;
-	currentChapter: State | null;
+	currentChapter: FsmState | null;
 	fetchBookData: (identifier: string | { bookId: string; authorPubkey: string }) => Promise<void>;
 	setCurrentChapterById: (chapterId: string) => boolean;
 	goToChapterByChoice: (choiceTextOrId: string) => boolean;
@@ -39,7 +39,7 @@ export const useNostrBookReader = (): NostrBookReaderUtils => {
 	const [error, setError] = useState<string | null>(null);
 	const [bookEvent, setBookEvent] = useState<NDKEvent | null>(null);
 	const [bookMetadata, setBookMetadata] = useState<BookMetadataContent | null>(null);
-	const [chapters, setChapters] = useState<Record<string, State>>({});
+	const [chapters, setChapters] = useState<Record<string, FsmState>>({});
 	const [currentChapterId, setCurrentChapterId] = useState<string | null>(null);
     const [currentBookId, setCurrentBookId] = useState<string | null>(null);
     const [currentAuthorPubkey, setCurrentAuthorPubkey] = useState<string | null>(null);
@@ -141,7 +141,7 @@ export const useNostrBookReader = (): NostrBookReaderUtils => {
 
 
 			// 5. Parse and Store Chapter States
-			const fetchedStates: Record<string, State> = {};
+			const fetchedStates: Record<string, FsmState> = {};
 			for (const ev of chapterEventSet) {
 				try {
 					const chapterContent = JSON.parse(ev.content);
@@ -166,7 +166,7 @@ export const useNostrBookReader = (): NostrBookReaderUtils => {
 						id: stateId, // This is the chapter's unique ID (d tag / stateId)
 						name: chapterContent.name ?? 'Untitled Chapter',
 						content: chapterContent.content ?? '',
-						previousChapterId: chapterContent.previousChapterId ?? undefined,
+						previousStateId: chapterContent.previousStateId ?? undefined,
 						isEndState: chapterContent.isEndState ?? false,
 						isStartState: stateId === parsedMeta.startStateId,
                         transitions: transitions,
@@ -246,7 +246,7 @@ export const useNostrBookReader = (): NostrBookReaderUtils => {
 
     // --- Derived State ---
 
-    const currentChapter = useMemo((): State | null => {
+    const currentChapter = useMemo((): FsmState | null => {
         if (!currentChapterId || !chapters[currentChapterId]) {
             return null;
         }
@@ -261,7 +261,7 @@ export const useNostrBookReader = (): NostrBookReaderUtils => {
      * @param chapterId The 'd' tag of the chapter to fetch.
      * @returns The fetched State object or null if not found or error occurs.
      */
-    const fetchChapterById = useCallback(async (chapterId: string): Promise<State | null> => {
+    const fetchChapterById = useCallback(async (chapterId: string): Promise<FsmState | null> => {
         if (!ndk || !currentAuthorPubkey || !currentBookId) {
             setError("Cannot fetch chapter: Book context not loaded.");
             return null;
@@ -300,7 +300,7 @@ export const useNostrBookReader = (): NostrBookReaderUtils => {
                 price: t.price ?? 0,
             })).filter((t: Transition) => t.targetStateId);
 
-            const newState: State = {
+            const newState: FsmState = {
                 id: stateId,
                 name: chapterContent.name ?? 'Untitled Chapter',
                 content: chapterContent.content ?? '',

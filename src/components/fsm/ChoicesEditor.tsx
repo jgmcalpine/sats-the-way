@@ -1,14 +1,14 @@
 import React from "react";
 import { Paper, Grid, TextField, IconButton, FormControl, InputLabel, Select, MenuItem, InputAdornment, Tooltip, Button } from "@mui/material";
 import { AddCircleOutline, DeleteOutline } from "@mui/icons-material";
-import { Transition, State } from "../../hooks/useFsm";
+import { Transition, FsmState } from "@/types/fsm";
 
 interface Props {
-  state: State;
-  states: Record<string, State>;
+  state: FsmState;
+  states: Record<string, FsmState>;
   onAdd: () => void;
   onUpdate: (tid: string, updates: Partial<Transition>) => void;
-  onUpdateChapter: (targetStateId: string, update: Partial<State>) => void;
+  onUpdateChapter: (targetStateId: string, update: Partial<FsmState>) => void;
   onDelete: (tid: string) => void;
 }
 

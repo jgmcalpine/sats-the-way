@@ -1,11 +1,11 @@
-import type { State } from "@/hooks/useFsm";
+import type { FsmState } from "@/types/fsm";
 
 /**
  * Returns the cheapest‑cost (sum of transition.price) path from start to **any** end node.
  * If no reachable end node, returns null.
  */
 export function cheapestPath(
-  states: Record<string, State>,
+  states: Record<string, FsmState>,
   startId: string | null
 ): { cost: number; path: string[] } | null {
   if (!startId || !states[startId]) return null;

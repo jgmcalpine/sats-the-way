@@ -5,7 +5,7 @@ import { NDKEvent, type NDKFilter } from '@nostr-dev-kit/ndk';
 
 import { useNdk } from '@/components/NdkProvider';
 
-import type { State, FsmData, Transition } from '@/hooks/useFsm';
+import type { FsmState, FsmData, Transition } from '@/types/fsm';
 import { BOOK_KIND, NODE_KIND } from '@/lib/nostr/constants';
 
 // ––––– Types –––––
@@ -15,7 +15,7 @@ interface NostrBookEditorUtils {
 	error: string | null;
 	createAndLoadNewBook: () => Promise<{ bookId: string; initialFsmData: FsmData } | null>;
 	loadBook: (nip19Identifier: string) => Promise<{ bookId: string; fsmData: FsmData } | null>;
-	saveChapter: (chapterData: State, bookId: string, authorPubkey: string) => Promise<boolean>;
+	saveChapter: (chapterData: FsmState, bookId: string, authorPubkey: string) => Promise<boolean>;
 	saveAllProgress: (
 		fsmData: FsmData,
 		bookId: string,
@@ -97,7 +97,7 @@ export const useNostrBookEditor = (
 
 	const buildChapterEvent = useCallback(
 		async (
-			chapter: State,
+			chapter: FsmState,
 			bookId: string,
 			authorPubkey: string,
 		): Promise<NDKEvent> => {
@@ -119,7 +119,7 @@ export const useNostrBookEditor = (
 				price: chapter.price,
 				content: chapter.content,
 				isEndState: chapter.isEndState,
-				previousChapterId: chapter.previousChapterId,
+				previousStateId: chapter.previousStateId,
 				transitions: chapter.transitions.map((t: Transition) => ({
 					id: t.id,
 					choiceText: t.choiceText,
@@ -184,7 +184,7 @@ export const useNostrBookEditor = (
 			const bookId = uuidv4();
 			const startChapterId = uuidv4();
 
-			const initialChapter: State = {
+			const initialChapter: FsmState = {
 				id: startChapterId,
 				name: 'Chapter 1',
 				content: '',
@@ -199,7 +199,9 @@ export const useNostrBookEditor = (
 				startStateId: startChapterId,
                 title: '',
                 description: '',
-                lnurlp: ''
+                lnurlp: '',
+                fsmType: 'book',
+                fsmId: bookId
 			};
 
 			const metadataEv = buildMetadataEvent(fsmData, bookId, currentUserPubkey, 'draft');
@@ -219,7 +221,7 @@ export const useNostrBookEditor = (
 	}, [currentUserPubkey, buildMetadataEvent, buildChapterEvent, signAndPublish]);
 
 	const saveChapter = useCallback(async (
-		chapter: State,
+		chapter: FsmState,
 		bookId: string,
 		authorPubkey: string,
 	) => {
@@ -327,7 +329,7 @@ export const useNostrBookEditor = (
 			const chapterSet = await ndk.fetchEvents({ kinds: [NODE_KIND], '#a': [addrTag] } as NDKFilter);
 			const chapters = Array.from(chapterSet);
 
-			const states: Record<string, State> = {};
+			const states: Record<string, FsmState> = {};
 			chapters.forEach(ev => {
 				try {
 					const c = JSON.parse(ev.content);
@@ -347,7 +349,7 @@ export const useNostrBookEditor = (
 			if (metaContent.startStateId && states[metaContent.startStateId]) {
 				states[metaContent.startStateId].isStartState = true;
 			}
-			return { bookId, fsmData: { states, startStateId: metaContent.startStateId, title: metaContent.title, authorPubkey } };
+			return { bookId, fsmData: { states, startStateId: metaContent.startStateId, title: metaContent.title, authorPubkey, fsmId: bookId, fsmType: 'book' } };
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
 		} catch (e: any) {
 			setError(e.message ?? 'Load failed');

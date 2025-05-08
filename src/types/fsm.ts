@@ -1,64 +1,28 @@
-export type FSMChapterTag =
-	| ["id", string]
-	| ["title", string]
-	| ["next", string] // linear next step
-	| ["next", string, "choice", string] // choice fork
-	| ["paywall", "true", "lnurl", string] // paywall via lnurl
-	| ["end", "true"]
-	| ["condition", "id", string] // conditional visibility
-	| ["prompt", string]
-	| ["content-type", string];
-
-export type FSMChapterEvent = {
-	kind: 40001;
-	pubkey: string;
-	created_at: number;
-	tags: FSMChapterTag[];
-	content: string; // encrypted base64 string
+export interface Transition {
 	id: string;
-	sig: string;
-};
-
-export type FSMChoice = {
-	nextId: string;
-	label?: string;
-	conditionId?: string;
-};
-
-export type FSMChapter = {
-	id: string;
-	title?: string;
-	content: string;
-	choices: FSMChoice[];
-	paywall?: string; // lnurl
-	isEnd?: boolean;
-	prompt?: string;
-	contentType?: string;
-	previousId?: string; // for back navigation
-};
-
-export interface FSMMetadataEvent {
-	kind: 30077;
-	pubkey: string;
-	created_at: number;
-	tags: Array<[string, ...string[]]>;
-	content: string;
-	id: string;
-	sig: string;
+	choiceText: string;
+	targetStateId: string;
+	price?: number; // in satoshis
 }
 
-export interface ParsedFSMMetadata {
+export interface FsmState {
 	id: string;
-	pubkey: string;
+	name: string;
+	content: string;
+	isStartState: boolean;
+	isEndState: boolean;
+	transitions: Transition[];
+	previousStateId?: string;
+	price?: number; // in satoshis
+}
+
+export interface FsmData {
+	fsmType: string; // "book", "game", etc.
+	fsmId: string;
 	title: string;
-	summary?: string;
-	cover?: string;
-	genre?: string;
-	language?: string;
-	start: string;
-	chapterCount?: number;
-	minCost?: number;
-	paywalled: boolean;
-	createdAt: number;
+	description?: string;
+	authorPubkey: string;
+	startStateId: string | null;
+	lnurlp?: string;
+	states: Record<string, FsmState>;
 }
-

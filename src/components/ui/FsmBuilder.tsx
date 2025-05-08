@@ -1,7 +1,8 @@
 import React, { useState } from "react";
 import { Box, Grid, Paper, CircularProgress, Button, Tooltip } from "@mui/material";
 import { SaveAlt } from "@mui/icons-material";
-import { useFsm, FsmData, State } from "@/hooks/useFsm";
+import { FsmData, FsmState } from "@/types/fsm";
+import { useFsm } from "@/hooks/useFsm";
 import { HeaderBar } from "@/components/fsm/HeaderBar";
 import { SummaryBar } from "@/components/fsm/SummaryBar";
 import { StateSidebar } from "@/components/fsm/StateSidebar";
@@ -12,7 +13,7 @@ interface Props {
   initialData: FsmData;
   onSaveProgress?: (d: FsmData) => Promise<void>;
   onPublish?: (d: FsmData) => Promise<void>;
-  onSaveChapter?: (s: State) => Promise<void>;
+  onSaveChapter?: (s: FsmState) => Promise<void>;
 }
 
 export const FsmBuilder: React.FC<Props> = ({ initialData, onSaveProgress, onPublish, onSaveChapter }) => {

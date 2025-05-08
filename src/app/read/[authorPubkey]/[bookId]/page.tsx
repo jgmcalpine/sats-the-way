@@ -6,7 +6,7 @@ import { CircularProgress, Typography } from "@mui/material";
 import NostrBookReader from "@/components/ui/NostrBookReader";
 
 import { useNostrBookReader } from "@/hooks/useNostrBookReader";
-import { Transition } from "@/hooks/useFsm";
+import { Transition } from "@/types/fsm";
 
 export default function BookReaderPage() {
   const params = useParams();

@@ -6,7 +6,7 @@ import { CircularProgress, Box, Typography } from '@mui/material';
 import { useAuth } from "@/components/AuthProvider";
 import FsmBuilder from "@/components/ui/FsmBuilder";
 import WriteHeader from "@/components/ui/WriteHeader";
-import type { State, FsmData } from '@/hooks/useFsm';
+import type { FsmState, FsmData } from '@/types/fsm';
 import BookGrid from "@/components/ui/BookGrid";
 
 import { useNostrBookEditor } from '@/hooks/useNostrBookEditor';
@@ -53,7 +53,7 @@ export default function WritePage() {
     };
 
      // These handlers now directly call the hook methods
-     const handleSaveChapter = async (chapterData: State) => {
+     const handleSaveChapter = async (chapterData: FsmState) => {
         if (!currentBookId || !currentUserPubkey || isProcessing) return;
         await saveChapter(chapterData, currentBookId, currentUserPubkey);
         // Optionally show success feedback (e.g., snackbar)

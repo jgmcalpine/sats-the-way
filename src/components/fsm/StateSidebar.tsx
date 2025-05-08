@@ -1,10 +1,10 @@
 import React from "react";
 import { List, ListItemButton, ListItemText, Paper, Button, Tooltip, Box, IconButton } from "@mui/material";
 import { AddCircleOutline, DeleteOutline, PlayCircleOutline, StopCircleOutlined, CurrencyBitcoin } from "@mui/icons-material";
-import { State } from "../../hooks/useFsm";
+import { FsmState } from "@/types/fsm";
 
 interface Props {
-  states: Record<string, State>;
+  states: Record<string, FsmState>;
   selectedId: string | null;
   onSelect: (id: string) => void;
   onAdd: () => void;

@@ -19,7 +19,7 @@ import { styled } from '@mui/material/styles';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 
-import { State, Transition } from '@/hooks/useFsm';
+import { Transition, FsmState } from "@/types/fsm";
 import { useNip07 } from '@/hooks/nostr/useNip07';
 import { getPayUrl, fetchLnurlPayParams, fetchLnurlInvoice } from '@/lib/lightning/helpers';
 
@@ -35,7 +35,7 @@ export interface BookMetadata {
 }
 
 export interface NostrBookReaderProps {
-  currentChapter: State;
+  currentChapter: FsmState;
   bookMetadata: BookMetadata;
   onTransitionSelect: (transition: Transition) => void;
   onPreviousChapter?: (chapterId: string) => void;
@@ -269,11 +269,11 @@ const NostrBookReader: React.FC<NostrBookReaderProps> = ({
               </Box>
               
               {/* Previous Chapter Button */}
-              {currentChapter.previousChapterId && onPreviousChapter &&  (
+              {currentChapter.previousStateId && onPreviousChapter &&  (
                 <Button 
                   variant="outlined" 
                   startIcon={<ArrowBackIcon />}
-                  onClick={() => onPreviousChapter(currentChapter?.previousChapterId || '')}
+                  onClick={() => onPreviousChapter(currentChapter?.previousStateId || '')}
                   sx={{ mt: 2, alignSelf: 'flex-start' }}
                 >
                   Previous Chapter

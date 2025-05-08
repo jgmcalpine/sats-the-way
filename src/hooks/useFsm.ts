@@ -1,34 +1,8 @@
 import { useReducer, useMemo, useState } from "react";
-import { cheapestPath } from "@/utils/graph";
 import { v4 as uuid } from "uuid";
 
-export interface Transition {
-  id: string;
-  choiceText: string;
-  targetStateId: string;
-  /** price in satoshis */
-  price?: number;
-}
-
-export interface State {
-  id: string;
-  name: string;
-  content: string;
-  isStartState: boolean;
-  isEndState: boolean;
-  transitions: Transition[];
-  previousChapterId?: string;
-  price?: number;
-}
-
-export interface FsmData {
-  title: string;
-  states: Record<string, State>;
-  startStateId: string | null;
-  authorPubkey: string;
-  lnurlp?: string;
-  description?: string;
-}
+import { cheapestPath } from "@/utils/graph";
+import { Transition, FsmState, FsmData } from "@/types/fsm";
 
 // ─────────────── Reducer ───────────────
 
@@ -37,7 +11,7 @@ type Action =
   | { type: "update-meta"; patch: Partial<Pick<FsmData,"title"|"description"|"lnurlp">> }
   | { type: "add-state" }
   | { type: "delete-state"; id: string }
-  | { type: "update-state"; id: string; patch: Partial<State> }
+  | { type: "update-state"; id: string; patch: Partial<FsmState> }
   | { type: "add-transition"; stateId: string }
   | { type: "delete-transition"; stateId: string; trId: string }
   | { type: "update-transition"; stateId: string; trId: string; patch: Partial<Transition> };
@@ -126,18 +100,18 @@ function reducer(state: FsmData, action: Action): FsmData {
         },
       });
 
-      // If the target state ID is being updated, update the previousChapterId of the target state
+      // If the target state ID is being updated, update the previousStateId of the target state
       if (action.patch.targetStateId) {
         const targetState = updatedState.states[action.patch.targetStateId];
         
         // Only proceed if the target state exists
         if (targetState) {
-          // Update the target state with the previousChapterId
+          // Update the target state with the previousStateId
           return reducer(updatedState, {
             type: "update-state",
             id: action.patch.targetStateId,
             patch: {
-              previousChapterId: action.stateId
+              previousStateId: action.stateId
             },
           });
         }
@@ -179,7 +153,7 @@ export function useFsm(initial: FsmData) {
       /* state CRUD */
       addState: () => dispatch({ type: "add-state" }),
       deleteState: (id: string) => dispatch({ type: "delete-state", id }),
-      updateState: (id: string, p: Partial<State>) =>
+      updateState: (id: string, p: Partial<FsmState>) =>
                         dispatch({ type: "update-state", id, patch: p }),
   
       /* transition CRUD */
