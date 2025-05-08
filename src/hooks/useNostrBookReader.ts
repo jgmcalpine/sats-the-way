@@ -16,6 +16,7 @@ interface BookMetadataContent {
 	authorPubkey: string;
 	description?: string;
 	publishedAt?: number;
+	lnurlp?: string;
 }
 
 interface NostrBookReaderUtils {
@@ -170,7 +171,7 @@ export const useNostrBookReader = (): NostrBookReaderUtils => {
 						isStartState: stateId === parsedMeta.startStateId,
                         transitions: transitions,
 						// Add any other relevant fields from your State type definition
-						entryFee: chapterContent.entryFee ?? 0,
+						price: chapterContent.price ?? 0,
 					};
 				} catch (e) {
 					console.error(`Failed to parse chapter event ${ev.id} content:`, e);
@@ -233,7 +234,6 @@ export const useNostrBookReader = (): NostrBookReaderUtils => {
 
 		const current = chapters[currentChapterId];
 		const transition = current.transitions.find(t => t.choiceText === choiceTextOrId || t.id === choiceTextOrId);
-
 		if (transition && transition.targetStateId) {
 			return setCurrentChapterById(transition.targetStateId);
 		} else {

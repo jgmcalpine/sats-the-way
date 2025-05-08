@@ -43,7 +43,7 @@ const BookGrid: React.FC<BookGridProps> = ({ filter, onSelectBook, sectionTitle 
 
   useEffect(() => {
 		fetchBooks('all', limit);
-	}, [fetchBooks]);
+	}, [fetchBooks, limit]);
 
   if (isLoading) {
     return (

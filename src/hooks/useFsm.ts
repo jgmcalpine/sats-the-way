@@ -25,7 +25,8 @@ export interface FsmData {
   title: string;
   states: Record<string, State>;
   startStateId: string | null;
-  lnurl?: string;
+  authorPubkey: string;
+  lnurlp?: string;
   description?: string;
 }
 
@@ -33,7 +34,7 @@ export interface FsmData {
 
 type Action =
   | { type: "init"; payload: FsmData }
-  | { type: "update-meta"; patch: Partial<Pick<FsmData,"title"|"description"|"lnurl">> }
+  | { type: "update-meta"; patch: Partial<Pick<FsmData,"title"|"description"|"lnurlp">> }
   | { type: "add-state" }
   | { type: "delete-state"; id: string }
   | { type: "update-state"; id: string; patch: Partial<State> }
@@ -113,7 +114,7 @@ function reducer(state: FsmData, action: Action): FsmData {
     case "update-transition": {
       const stBase = state.states[action.stateId];
       if (!stBase) return state;
-      
+
       // First, update the transition in the current state
       const updatedState = reducer(state, {
         type: "update-state",
@@ -169,7 +170,7 @@ export function useFsm(initial: FsmData) {
     /* single-entry wrapper so the builder can call fsm.actions.* */
     const actions = {
       /* meta */
-      updateMeta: (p: Partial<Pick<FsmData, "title" | "description" | "lnurl">>) =>
+      updateMeta: (p: Partial<Pick<FsmData, "title" | "description" | "lnurlp">>) =>
                         dispatch({ type: "update-meta", patch: p }),
   
       /* selection */

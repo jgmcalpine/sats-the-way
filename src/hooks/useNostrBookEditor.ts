@@ -2,16 +2,11 @@ import { useCallback, useMemo, useState } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 import { nip19 } from 'nostr-tools'; // Only for address decoding – NDK has no helper yet.
 import { NDKEvent, type NDKFilter } from '@nostr-dev-kit/ndk';
-import { sha256 as jsSha256 } from '@noble/hashes/sha256';
-
-import { generateChapterKey, aesEncrypt, EncryptedBlob } from '@/utils/crypto';
 
 import { useNdk } from '@/components/NdkProvider';
 
 import type { State, FsmData, Transition } from '@/hooks/useFsm';
 import { BOOK_KIND, NODE_KIND } from '@/lib/nostr/constants';
-
-const sha256Hex = (hex: string): string => Buffer.from(jsSha256(Buffer.from(hex, 'hex'))).toString('hex');
 
 // ––––– Types –––––
 interface NostrBookEditorUtils {
@@ -79,7 +74,7 @@ export const useNostrBookEditor = (
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
 			merge?: Record<string, any>,
 		): NDKEvent => {
-            const { title, description, lnurl, startStateId } = fsm;
+            const { title, description, lnurlp, startStateId } = fsm;
 			const ev = new NDKEvent(ndk);
 			ev.kind = BOOK_KIND;
 			ev.tags = [['d', bookId]];
@@ -90,7 +85,7 @@ export const useNostrBookEditor = (
 				title: title ?? merge?.title ?? 'Untitled Book',
 				status,
                 description,
-                lnurl,
+                lnurlp,
 				startStateId,
 				authorPubkey,
 				...(status === 'published' && { publishedAt: merge?.publishedAt ?? Math.floor(Date.now() / 1000) }),
@@ -105,7 +100,6 @@ export const useNostrBookEditor = (
 			chapter: State,
 			bookId: string,
 			authorPubkey: string,
-			isPublish: boolean = false
 		): Promise<NDKEvent> => {
 			if (!ndk) throw new Error('NDK not ready');
 
@@ -113,12 +107,12 @@ export const useNostrBookEditor = (
 			ev.kind = NODE_KIND;
 			ev.tags = [
 				['d', chapter.id],
-    		['a', `${NODE_KIND}:${authorPubkey}:${chapter.id}`],
-    		['a', `${BOOK_KIND}:${authorPubkey}:${bookId}`, '', 'root'],
+                ['a', `${NODE_KIND}:${authorPubkey}:${chapter.id}`],
+                ['a', `${BOOK_KIND}:${authorPubkey}:${bookId}`, '', 'root'],
 			];
 
 			// Base payload with all fields
-			const payload: any = {
+			const chapterContent = {
 				stateId: chapter.id,
 				bookId,
 				name: chapter.name,
@@ -135,30 +129,46 @@ export const useNostrBookEditor = (
 			};
 
 			// Encrypt only content if publishing and price > 0
-			if (isPublish && chapter.price && chapter.price > 0) {
-				const key = generateChapterKey();
-				const enc: EncryptedBlob = aesEncrypt(chapter.content, key);
-				// Replace plaintext with encrypted blob
-				payload.content = enc;
+			// if (isPublish && chapter.price && chapter.price > 0) {
+            //     // 1. generate random chapter key
+            //     const key = generateChapterKey(); // hex string, 32 bytes
+            //     const payload = JSON.stringify({
+            //         name: chapter.name,
+            //         content: chapter.content,
+            //     });
+    
+            //     const enc: EncryptedBlob = aesEncrypt(payload, key);
+    
+            //     // 2. replace content
+            //     chapterContent = {
+            //         ...chapterContent,
+            //         content: enc,
+            //         preimage: key, // 🔥 store preimage (unencrypted for now)
+            //     };
+    
+            //     // 3. tag event with payment hash
+            //     ev.tags.push(['s', sha256Hex(key)]);
+            //     ev.tags.push(['amount', chapter.price.toString()]);
+            // }
 
-				// Payment tags
-				ev.tags.push(['amount', chapter.price.toString()]);
-				ev.tags.push(['s', sha256Hex(key)]);
-
-				// Persist preimage for LNURL handler
-				await fetch('/api/chapter-key', {
-					method: 'POST',
-					headers: { 'Content-Type': 'application/json' },
-					body: JSON.stringify({ bookId, chapId: chapter.id, key }),
-				});
-			}
+            // chapterContent.transitions = chapterContent.transitions.map((t: any) => {
+            //     if (t.price && t.price > 0) {
+            //         // Generate a preimage for this transition's target chapter
+            //         const transitionKey = generateChapterKey();
+            //         return {
+            //             ...t,
+            //             preimage: transitionKey,
+            //         };
+            //     }
+            //     return t;
+            // });
 
 			// Attach final payload
-			ev.content = JSON.stringify(payload);
+			ev.content = JSON.stringify(chapterContent);
 			return ev;
 		},
 		[ndk]
-		);
+    );
 
 	// ––––– CRUD actions –––––
 	const createAndLoadNewBook = useCallback(async () => {
@@ -185,10 +195,11 @@ export const useNostrBookEditor = (
 
 			const fsmData: FsmData = {
 				states: { [startChapterId]: initialChapter },
+                authorPubkey: currentUserPubkey,
 				startStateId: startChapterId,
                 title: '',
                 description: '',
-                lnurl: ''
+                lnurlp: ''
 			};
 
 			const metadataEv = buildMetadataEvent(fsmData, bookId, currentUserPubkey, 'draft');
@@ -284,7 +295,7 @@ export const useNostrBookEditor = (
 
 			const merge = existing ? JSON.parse(existing.content) : undefined;
             console.log("what state:/ssm ", fsmData.states)
-            const chapterPromises = Object.values(fsmData.states).map(s => buildChapterEvent(s, bookId, authorPubkey, true));
+            const chapterPromises = Object.values(fsmData.states).map(s => buildChapterEvent(s, bookId, authorPubkey));
 			const chapterEvents = await Promise.all(chapterPromises);
 			const meta = buildMetadataEvent(fsmData, bookId, authorPubkey, 'published', merge);
 			const results = await Promise.allSettled([
@@ -336,7 +347,7 @@ export const useNostrBookEditor = (
 			if (metaContent.startStateId && states[metaContent.startStateId]) {
 				states[metaContent.startStateId].isStartState = true;
 			}
-			return { bookId, fsmData: { states, startStateId: metaContent.startStateId, title: metaContent.title } };
+			return { bookId, fsmData: { states, startStateId: metaContent.startStateId, title: metaContent.title, authorPubkey } };
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
 		} catch (e: any) {
 			setError(e.message ?? 'Load failed');

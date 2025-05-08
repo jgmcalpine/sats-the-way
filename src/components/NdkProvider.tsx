@@ -94,7 +94,7 @@ export function NdkProvider({ children, instance = defaultNdk }: Props) {
 
   const value: NdkCtx = useMemo(
     () => ({ ndk, isConnected, connect, addSigner }),
-    [ndk, isConnected]
+    [ndk, isConnected, connect, addSigner]
   );
 
   return <NdkContext.Provider value={value}>{children}</NdkContext.Provider>;

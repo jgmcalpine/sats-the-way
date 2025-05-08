@@ -6,6 +6,7 @@ import { CircularProgress, Typography } from "@mui/material";
 import NostrBookReader from "@/components/ui/NostrBookReader";
 
 import { useNostrBookReader } from "@/hooks/useNostrBookReader";
+import { Transition } from "@/hooks/useFsm";
 
 export default function BookReaderPage() {
   const params = useParams();
@@ -29,10 +30,10 @@ export default function BookReaderPage() {
         fetchBookData({bookId, authorPubkey});
     }
     // Optional: Add cleanup or handle identifier changes if needed
-  }, [bookId, fetchBookData]);
+  }, [bookId, fetchBookData, authorPubkey]);
 
-  const handleChapterNav = ({ id } : { id: string }) => {
-    goToChapterByChoice(id);
+  const handleChapterNav = async (transition: Transition) => {
+    goToChapterByChoice(transition.id);
   }
 
   const handlePreviousChapter = (chapterId: string) => {
