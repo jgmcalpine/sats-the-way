@@ -4,6 +4,23 @@
 
 This project aims to create an open standard for nostr, allowing for execution of finite state machines. It includes an example implementation, a platform for writing and reading choose-your-own-adventure stories. Authors can set paywalls for specific choices throughout the story which readers must pay (currently using QR codes generated from an lnurlp address, future upgrade will use NWC) in order to advance.
 
+## 🧰 Tech Stack
+
+This project is built with the following technologies:
+
+- **Framework**: Next.js (App Router, TypeScript)
+- **Styling**: Tailwind CSS
+- **State Management**: React Hooks
+- **Nostr Protocol**:
+  - NDK (Nostr Development Kit)
+  - NIP-07 (Browser extension signing)
+  - Custom Kinds: `30077` (FSM metadata), `30078` (FSM node)
+- **Lightning Integration**:
+  - LNURL-pay (via author's `lnurlp`)
+  - Nostr Wallet Connect (NWC) – to be added
+- **Deployment**: Vercel
+
+
 ## 📚 Custom Nostr Event Kinds — FSM (Finite State Machine) Protocol
 
 This project defines two custom Nostr event kinds to support decentralized Finite State Machine (FSM) structures, useful for interactive books, games, courses, or any branching narrative content.
