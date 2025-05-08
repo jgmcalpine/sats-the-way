@@ -17,7 +17,6 @@ export default function WritePage() {
     const [showEditor, setShowEditor] = useState(false);
     const [fsmData, setFsmData] = useState<FsmData | null>(null);
     const [currentBookId, setCurrentBookId] = useState<string | null>(null);
-    const [currentBookTitle, setCurrentBookTitle] = useState<string | undefined>(undefined);
 
     const {
         isConnecting,
@@ -47,7 +46,6 @@ export default function WritePage() {
         if (result) {
             setFsmData(result.initialFsmData);
             setCurrentBookId(result.bookId);
-            setCurrentBookTitle('Untitled Adventure'); // Default title
             setShowEditor(true);
         }
     };

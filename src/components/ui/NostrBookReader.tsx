@@ -120,39 +120,39 @@ const NostrBookReader: React.FC<NostrBookReaderProps> = ({
     console.log("pendingTransition updated:", pendingTransition);
   }, [pendingTransition]);
 
-  function startPollingForPayment(invoice: string) {
-    if (paymentPolling) clearInterval(paymentPolling);
+  // function startPollingForPayment(invoice: string) {
+  //   if (paymentPolling) clearInterval(paymentPolling);
 
-    const interval = setInterval(async () => {
-        try {
-            const paid = await checkInvoicePaid(invoice);
-            console.log("is it paid: ", paid)
-            if (paid) {
-                clearInterval(interval);
-                setPaymentPolling(null);
-                setPaymentModalOpen(false);
-                console.log("what is pending transition: ", pendingTransitionRef.current)
-                if (pendingTransitionRef.current) {
-                    console.log("We are here in pending transition", pendingTransitionRef.current)
-                    onTransitionSelect(pendingTransitionRef.current);
-                    setPendingTransition(null);
-                }
-            }
-        } catch (err) {
-            console.error('Polling error:', err);
-        }
-    }, 5000); // check every 5 seconds
+  //   const interval = setInterval(async () => {
+  //       try {
+  //           const paid = await checkInvoicePaid(invoice);
+  //           console.log("is it paid: ", paid)
+  //           if (paid) {
+  //               clearInterval(interval);
+  //               setPaymentPolling(null);
+  //               setPaymentModalOpen(false);
+  //               console.log("what is pending transition: ", pendingTransitionRef.current)
+  //               if (pendingTransitionRef.current) {
+  //                   console.log("We are here in pending transition", pendingTransitionRef.current)
+  //                   onTransitionSelect(pendingTransitionRef.current);
+  //                   setPendingTransition(null);
+  //               }
+  //           }
+  //       } catch (err) {
+  //           console.error('Polling error:', err);
+  //       }
+  //   }, 5000); // check every 5 seconds
 
-    setPaymentPolling(interval);
-  }
+  //   setPaymentPolling(interval);
+  // }
 
-  async function checkInvoicePaid(invoice: string): Promise<boolean> {
-    // Call LNURL-pay service / invoice checker
-    // OR monitor via own service
-    console.log("invoice: ", invoice)
-    // For now, let's simulate always true after delay
-    return true; 
-  }
+  // async function checkInvoicePaid(invoice: string): Promise<boolean> {
+  //   // Call LNURL-pay service / invoice checker
+  //   // OR monitor via own service
+  //   console.log("invoice: ", invoice)
+  //   // For now, let's simulate always true after delay
+  //   return true; 
+  // }
 
 
   const fetchInvoice = useCallback(async (transition: Transition) => {
