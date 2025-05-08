@@ -56,15 +56,15 @@ Defines the metadata for a published Finite State Machine (FSM) instance.
 
 | Field | Meaning |
 | :--- | :--- |
-| \`fsm_type\` | General classification (e.g., "book", "game", "workflow") |
-| \`fsm_id\` | Unique UUID for the FSM |
-| \`title\` | Title of the FSM |
-| \`author_pubkey\` | Nostr pubkey of the FSM creator |
-| \`start_state_id\` | ID of the starting node |
-| \`lifecycle\` | 'draft' or 'published' — current publishing status |
-| \`description\` | (Optional) Description or summary |
-| \`lnurlp\` | (Optional) Lightning address for handling paid transitions |
-| \`min_cost\` | (Optional) Minimum sats needed to complete FSM (from first step to first ending step) |
+| fsm_type | General classification (e.g., "book", "game", "workflow") |
+| fsm_id | Unique UUID for the FSM |
+| title | Title of the FSM |
+| author_pubkey | Nostr pubkey of the FSM creator |
+| start_state_id | ID of the starting node |
+| lifecycle | 'draft' or 'published' — current publishing status |
+| description | (Optional) Description or summary |
+| lnurlp | (Optional) Lightning address for handling paid transitions |
+| min_cost | (Optional) Minimum sats needed to complete FSM (from first step to first ending step) |
 
 ---
 
@@ -102,22 +102,22 @@ Defines a single node (state) inside an FSM, including text content and transiti
 
 **Required Tags:**
 
-- \`["d", "<state_id>"]\` — Unique identifier for the FSM node (state).
-- \`["a", "<kind>:<author_pubkey>:<state_id>"]\` — Standard address for the node.
-- \`["a", "<fsm_kind>:<author_pubkey>:<fsm_id>", "", "root"]\` — Link to parent FSM metadata.
+- ["d", "<state_id>"] — Unique identifier for the FSM node (state).
+- ["a", "<kind>:<author_pubkey>:<state_id>"] — Standard address for the node.
+- ["a", "<fsm_kind>:<author_pubkey>:<fsm_id>", "", "root"] — Link to parent FSM metadata.
 
 **Fields Explained:**
 
 | Field | Meaning |
 | :--- | :--- |
-| \`state_id\` | Unique UUID for this state |
-| \`fsm_id\` | UUID linking to the parent FSM |
-| \`name\` | Title or label for the state |
-| \`content\` | Main body text of the chapter/node |
-| \`is_end_state\` | Boolean indicating if this is a terminal state |
-| \`previous_state_id\` | (Optional) ID of the previous state (for backtracking) |
-| \`price\` | Optional number of sats required to enter this state |
-| \`transitions\` | Array of available choices leading to other states |
+| state_id | Unique UUID for this state |
+| fsm_id | UUID linking to the parent FSM |
+| name | Title or label for the state |
+| content | Main body text of the chapter/node |
+| is_end_state | Boolean indicating if this is a terminal state |
+| previous_state_id | (Optional) ID of the previous state (for backtracking) |
+| price | Optional number of sats required to enter this state |
+| transitions | Array of available choices leading to other states |
 
 ---
 
@@ -136,8 +136,8 @@ Defines a single node (state) inside an FSM, including text content and transiti
 
 | Tag | Meaning |
 | :--- | :--- |
-| \`d\` | Document identifier (\`fsm_id\` or \`state_id\`) |
-| \`a\` | Standard addressable Nostr entity |
+| d | Document identifier (fsm_id or state_id) |
+| a | Standard addressable Nostr entity |
 
 Tags allow easy querying, filtering, and linking across FSM data structures.
 
