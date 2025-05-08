@@ -5,6 +5,7 @@ import { NDKRelaySet as RelaySet } from '@nostr-dev-kit/ndk';
 import { useNdk } from '@/components/NdkProvider';
 
 import { BOOK_KIND } from '@/lib/nostr/constants';
+import { FsmData } from '@/types/fsm'
 
 // ────────────────────────────────────────────────────────────────────────────────
 // Types
@@ -18,6 +19,7 @@ export interface BookListItem {
 	status: 'draft' | 'published' | 'unknown';
 	createdAt: number;
 	naddr: string;
+    minCost: number;
 	event: NDKEvent; 
 }
 
@@ -78,14 +80,14 @@ export const useNostrBookList = ({
 
 					let title = 'Untitled Book';
 					let description: string | undefined;
-					let image: string | undefined;
+                    let minCost: number | undefined;
 					let status: BookListItem['status'] = 'unknown';
 
 					try {
 						const c = JSON.parse(evt.content || '{}');
 						title = c.title || evt.tagValue('title') || title;
 						description = c.description || c.summary;
-						image = c.image;
+                        minCost = c.minCost || 0;
 						status = c.status === 'published' ? 'published' : c.status === 'draft' ? 'draft' : 'unknown';
 					} catch {}
 
@@ -102,9 +104,9 @@ export const useNostrBookList = ({
 						bookId,
 						title,
 						description,
-						coverImage: image,
 						authorPubkey: evt.pubkey,
 						status,
+                        minCost: minCost || 0,
 						createdAt: evt.created_at!,
 						naddr,
 						event: evt,

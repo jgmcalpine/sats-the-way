@@ -1,7 +1,7 @@
 import { useReducer, useMemo, useState } from "react";
 import { v4 as uuid } from "uuid";
 
-import { cheapestPath } from "@/utils/graph";
+import { calculateCheapestPath } from "@/utils/graph";
 import { Transition, FsmState, FsmData } from "@/types/fsm";
 
 // ─────────────── Reducer ───────────────
@@ -137,7 +137,7 @@ export function useFsm(initial: FsmData) {
     const totalStates = Object.keys(data.states).length;
     const totalTransitions = Object.values(data.states).reduce((s, st) => s + st.transitions.length, 0);
     const cheapest = useMemo(
-      () => cheapestPath(data.states, data.startStateId),
+      () => calculateCheapestPath(data.states, data.startStateId),
       [data]
     );
   

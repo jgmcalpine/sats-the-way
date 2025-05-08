@@ -12,7 +12,7 @@ import BookGrid from "@/components/ui/BookGrid";
 import { useNostrBookEditor } from '@/hooks/useNostrBookEditor';
 
 export default function WritePage() {
-    const [currentUserPubkey, setCurrentUserPubkey] = useState<string | null>(null); // Get this from your auth context/login state
+    const [currentUserPubkey, setCurrentUserPubkey] = useState<string | null>(null);
     const { currentUser, loading } = useAuth();
     const [showEditor, setShowEditor] = useState(false);
     const [fsmData, setFsmData] = useState<FsmData | null>(null);
@@ -71,8 +71,7 @@ export default function WritePage() {
 
     const handlePublish = async (data: FsmData) => {
         if (!currentBookId || !currentUserPubkey || isProcessing) return;
-        const { title } = data
-        await publishBook(data, currentBookId, title, currentUserPubkey);
+        await publishBook(data);
          // Optionally show success feedback
     };
 

@@ -6,6 +6,7 @@ import { NDKEvent, type NDKFilter } from '@nostr-dev-kit/ndk';
 import { useNdk } from '@/components/NdkProvider';
 
 import type { FsmState, FsmData, Transition } from '@/types/fsm';
+import { calculateCheapestPath } from "@/utils/graph";
 import { BOOK_KIND, NODE_KIND } from '@/lib/nostr/constants';
 
 // ––––– Types –––––
@@ -24,9 +25,6 @@ interface NostrBookEditorUtils {
 	) => Promise<boolean>;
 	publishBook: (
 		fsmData: FsmData,
-		bookId: string,
-		bookTitle: string | undefined,
-		authorPubkey: string,
 	) => Promise<boolean>;
 }
 
@@ -79,6 +77,9 @@ export const useNostrBookEditor = (
 			ev.kind = BOOK_KIND;
 			ev.tags = [['d', bookId]];
 			if (title) ev.tags.push(['title', title]);
+
+            const { cost: minCost } = calculateCheapestPath(fsm.states, fsm.startStateId) || { cost: 0 }
+            
 			ev.content = JSON.stringify({
 				...(merge ?? {}),
 				bookId,
@@ -88,6 +89,7 @@ export const useNostrBookEditor = (
                 lnurlp,
 				startStateId,
 				authorPubkey,
+                minCost,
 				...(status === 'published' && { publishedAt: merge?.publishedAt ?? Math.floor(Date.now() / 1000) }),
 			});
 			return ev;
@@ -128,42 +130,6 @@ export const useNostrBookEditor = (
 				})),
 			};
 
-			// Encrypt only content if publishing and price > 0
-			// if (isPublish && chapter.price && chapter.price > 0) {
-            //     // 1. generate random chapter key
-            //     const key = generateChapterKey(); // hex string, 32 bytes
-            //     const payload = JSON.stringify({
-            //         name: chapter.name,
-            //         content: chapter.content,
-            //     });
-    
-            //     const enc: EncryptedBlob = aesEncrypt(payload, key);
-    
-            //     // 2. replace content
-            //     chapterContent = {
-            //         ...chapterContent,
-            //         content: enc,
-            //         preimage: key, // 🔥 store preimage (unencrypted for now)
-            //     };
-    
-            //     // 3. tag event with payment hash
-            //     ev.tags.push(['s', sha256Hex(key)]);
-            //     ev.tags.push(['amount', chapter.price.toString()]);
-            // }
-
-            // chapterContent.transitions = chapterContent.transitions.map((t: any) => {
-            //     if (t.price && t.price > 0) {
-            //         // Generate a preimage for this transition's target chapter
-            //         const transitionKey = generateChapterKey();
-            //         return {
-            //             ...t,
-            //             preimage: transitionKey,
-            //         };
-            //     }
-            //     return t;
-            // });
-
-			// Attach final payload
 			ev.content = JSON.stringify(chapterContent);
 			return ev;
 		},
@@ -201,7 +167,8 @@ export const useNostrBookEditor = (
                 description: '',
                 lnurlp: '',
                 fsmType: 'book',
-                fsmId: bookId
+                fsmId: bookId,
+                minCost: 0
 			};
 
 			const metadataEv = buildMetadataEvent(fsmData, bookId, currentUserPubkey, 'draft');
@@ -272,10 +239,8 @@ export const useNostrBookEditor = (
 
 	const publishBook = useCallback(async (
 		fsmData: FsmData,
-		bookId: string,
-		bookTitle: string | undefined,
-		authorPubkey: string,
 	) => {
+        const { authorPubkey, fsmId: bookId } = fsmData;
 		if (!currentUserPubkey || currentUserPubkey !== authorPubkey) {
 			setError('Permission denied');
 			return false;
@@ -349,7 +314,21 @@ export const useNostrBookEditor = (
 			if (metaContent.startStateId && states[metaContent.startStateId]) {
 				states[metaContent.startStateId].isStartState = true;
 			}
-			return { bookId, fsmData: { states, startStateId: metaContent.startStateId, title: metaContent.title, authorPubkey, fsmId: bookId, fsmType: 'book' } };
+
+            const { startStateId, title, minCost } = metaContent;
+
+			return { 
+                bookId, 
+                fsmData: { 
+                    states, 
+                    startStateId,
+                    title, 
+                    authorPubkey, 
+                    minCost,
+                    fsmId: bookId, 
+                    fsmType: 'book', 
+                } 
+            };
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
 		} catch (e: any) {
 			setError(e.message ?? 'Load failed');

@@ -23,6 +23,7 @@ export interface FsmData {
 	description?: string;
 	authorPubkey: string;
 	startStateId: string | null;
+	minCost?: number;
 	lnurlp?: string;
 	states: Record<string, FsmState>;
 }
