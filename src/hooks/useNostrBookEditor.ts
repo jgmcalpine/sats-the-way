@@ -87,7 +87,7 @@ export const useNostrBookEditor = (
 				startStateId,
 				authorPubkey,
                 minCost,
-				...(status === 'published' && { publishedAt: merge?.publishedAt ?? Math.floor(Date.now() / 1000) }),
+				...(lifecycle === 'published' && { publishedAt: merge?.publishedAt ?? Math.floor(Date.now() / 1000) }),
 			});
 			return ev;
 		},

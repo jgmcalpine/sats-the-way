@@ -1,25 +1,10 @@
 import { useState, useCallback, useEffect } from 'react';
-import { nip19 } from 'nostr-tools';
-import type { NDKEvent, NDKFilter, NDKRelaySet } from '@nostr-dev-kit/ndk';
+import type { NDKFilter, NDKRelaySet } from '@nostr-dev-kit/ndk';
 import { NDKRelaySet as RelaySet } from '@nostr-dev-kit/ndk';
 import { useNdk } from '@/components/NdkProvider';
 
 import { BOOK_KIND } from '@/lib/nostr/constants';
-// ────────────────────────────────────────────────────────────────────────────────
-// Types
-// ────────────────────────────────────────────────────────────────────────────────
-export interface BookListItem {
-	bookId: string;
-	title: string;
-	description?: string;
-	coverImage?: string; 
-	authorPubkey: string;
-	lifecycle: 'draft' | 'published';
-	createdAt: number;
-	naddr: string;
-    minCost: number;
-	event: NDKEvent; 
-}
+import { FsmData } from '@/types/fsm'
 
 interface UseNostrBookListOptions {
 	relays: string[];
@@ -28,7 +13,7 @@ interface UseNostrBookListOptions {
 }
 
 interface UseNostrBookListResult {
-	books: BookListItem[];
+	books: FsmData[];
 	isLoading: boolean;
 	error: string | null;
 	fetchBooks: (statusFilter?: 'all' | 'draft' | 'published', limit?: number) => Promise<void>;
@@ -44,7 +29,7 @@ export const useNostrBookList = ({
 }: UseNostrBookListOptions): UseNostrBookListResult => {
 	const { ndk } = useNdk();
 
-	const [books, setBooks] = useState<BookListItem[]>([]);
+	const [books, setBooks] = useState<FsmData[]>([]);
 	const [isLoading, setIsLoading] = useState(false);
 	const [error, setError] = useState<string | null>(null);
 
@@ -71,47 +56,42 @@ export const useNostrBookList = ({
 				const relaySet = buildRelaySet();
 				const events = await ndk.fetchEvents(filter, { relaySet });
 
-				const processed: BookListItem[] = [];
+				const processed: FsmData[] = [];
 				events.forEach((evt) => {
 					const bookId = evt.tagValue('d');
 					if (!bookId) return;
 
 					let title = 'Untitled Book';
-					let description: string | undefined;
-                    let minCost: number | undefined;
-					let lifecycle: BookListItem['lifecycle'] = 'draft';
+					let description;
+                    let minCost;
+					let lifecycle;
+                    let startStateId;
+                    let states;
 
 					try {
 						const c = JSON.parse(evt.content || '{}');
 						title = c.title || evt.tagValue('title') || title;
 						description = c.description || c.summary;
                         minCost = c.minCost || 0;
-						lifecycle = c.lifecycle === 'published' ? 'published' : 'draft';
+						lifecycle = c.lifecycle;
+                        startStateId = c.startStateId;
+                        states = c.states;
 					} catch {}
 
 					if (statusFilter !== 'all' && lifecycle !== statusFilter) return;
 
-					const naddr = nip19.naddrEncode({
-						identifier: bookId,
-						pubkey: evt.pubkey,
-						kind: BOOK_KIND,
-						relays: relays.length ? [relays[0]] : undefined,
-					});
-
 					processed.push({
-						bookId,
+						fsmId: bookId,
 						title,
 						description,
 						authorPubkey: evt.pubkey,
 						lifecycle,
                         minCost: minCost || 0,
-						createdAt: evt.created_at!,
-						naddr,
-						event: evt,
+                        fsmType: 'book',
+                        startStateId,
+                        states
 					});
 				});
-
-				processed.sort((a, b) => b.createdAt - a.createdAt);
 
                 // Limit manually here
                 if (limit) {

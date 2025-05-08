@@ -93,7 +93,7 @@ export default function WritePage() {
             {!showEditor || !fsmData ? (
                 <Box>
                     <WriteHeader onStartWriting={handleStartAdventure} />
-                    <BookGrid filter={{authors: currentUserPubkey ? [currentUserPubkey] : [], status: 'draft', limit: 8}} />
+                    <BookGrid filter={{authors: currentUserPubkey ? [currentUserPubkey] : [], lifecycle: 'draft', limit: 8}} />
                 </Box>
             ) : (
                 <>

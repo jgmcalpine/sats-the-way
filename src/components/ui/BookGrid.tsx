@@ -19,7 +19,7 @@ interface BooksFilter {
   authors?: string[];
   tags?: string[]; 
   limit?: number;
-  status?: string;
+  lifecycle?: string;
 }
 
 interface BookGridProps {
@@ -39,7 +39,7 @@ const BookGrid: React.FC<BookGridProps> = ({ filter, onSelectBook, sectionTitle 
     initialFetch: false,
   });
 
-  const { status, limit } = filter || {};
+  const { lifecycle, limit } = filter || {};
 
   useEffect(() => {
 		fetchBooks('all', limit);
@@ -68,8 +68,8 @@ const BookGrid: React.FC<BookGridProps> = ({ filter, onSelectBook, sectionTitle 
     );
   }
 
-  const filteredBooks = status ? books.filter((book) => {
-    return book.status === status
+  const filteredBooks = lifecycle ? books.filter((book) => {
+    return book.lifecycle === lifecycle
   }) : books;
   
   return (
@@ -81,12 +81,12 @@ const BookGrid: React.FC<BookGridProps> = ({ filter, onSelectBook, sectionTitle 
       )}
       <Grid container spacing={2}>
         {filteredBooks.map((book) => {
-          const { title, description, authorPubkey, bookId, coverImage } = book;
+          const { title, description, authorPubkey, fsmId: bookId } = book;
 
           return (
             <Grid key={bookId} size={{xs: 12, sm: 6, md: 4, lg: 3}}>
               <Button onClick={onSelectBook ? () => onSelectBook(bookId, authorPubkey) : () => {}}>
-                <BookCard id={bookId} author={authorPubkey} title={title} description={description} coverArtUrl={coverImage}  />
+                <BookCard id={bookId} author={authorPubkey} title={title} description={description} />
               </Button>
             </Grid>
           );
