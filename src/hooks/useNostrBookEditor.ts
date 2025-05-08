@@ -66,25 +66,22 @@ export const useNostrBookEditor = (
 	const buildMetadataEvent = useCallback(
 		(
             fsm: FsmData,
-			bookId: string,
-			authorPubkey: string,
-			status: 'draft' | 'published',
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
 			merge?: Record<string, any>,
 		): NDKEvent => {
-            const { title, description, lnurlp, startStateId } = fsm;
+            const { title, description, lnurlp, startStateId, fsmId: bookId, lifecycle, authorPubkey } = fsm;
 			const ev = new NDKEvent(ndk);
 			ev.kind = BOOK_KIND;
 			ev.tags = [['d', bookId]];
 			if (title) ev.tags.push(['title', title]);
 
             const { cost: minCost } = calculateCheapestPath(fsm.states, fsm.startStateId) || { cost: 0 }
-            
+
 			ev.content = JSON.stringify({
 				...(merge ?? {}),
 				bookId,
 				title: title ?? merge?.title ?? 'Untitled Book',
-				status,
+				lifecycle,
                 description,
                 lnurlp,
 				startStateId,
@@ -164,6 +161,7 @@ export const useNostrBookEditor = (
                 authorPubkey: currentUserPubkey,
 				startStateId: startChapterId,
                 title: '',
+                lifecycle: 'draft',
                 description: '',
                 lnurlp: '',
                 fsmType: 'book',
@@ -171,7 +169,7 @@ export const useNostrBookEditor = (
                 minCost: 0
 			};
 
-			const metadataEv = buildMetadataEvent(fsmData, bookId, currentUserPubkey, 'draft');
+			const metadataEv = buildMetadataEvent(fsmData);
 			const chapterEv = await buildChapterEvent(initialChapter, bookId, currentUserPubkey);
 
 			const [metaOk, chapOk] = await Promise.all([signAndPublish(metadataEv), signAndPublish(chapterEv)]);
@@ -224,7 +222,7 @@ export const useNostrBookEditor = (
 		setError(null);
 
 		try {
-			const meta = buildMetadataEvent(fsmData, bookId, authorPubkey, 'draft');
+			const meta = buildMetadataEvent(fsmData);
 			const chapterPromises = Object.values(fsmData.states).map(s => buildChapterEvent(s, bookId, authorPubkey));
 			const chapterEvents = await Promise.all(chapterPromises);
 			const results = await Promise.allSettled([
@@ -264,7 +262,8 @@ export const useNostrBookEditor = (
             console.log("what state:/ssm ", fsmData.states)
             const chapterPromises = Object.values(fsmData.states).map(s => buildChapterEvent(s, bookId, authorPubkey));
 			const chapterEvents = await Promise.all(chapterPromises);
-			const meta = buildMetadataEvent(fsmData, bookId, authorPubkey, 'published', merge);
+            fsmData.lifecycle = 'published';
+			const meta = buildMetadataEvent(fsmData, merge);
 			const results = await Promise.allSettled([
 				signAndPublish(meta),
 				...chapterEvents.map(ev => signAndPublish(ev)),
@@ -315,14 +314,15 @@ export const useNostrBookEditor = (
 				states[metaContent.startStateId].isStartState = true;
 			}
 
-            const { startStateId, title, minCost } = metaContent;
+            const { startStateId, title, minCost, lifecycle } = metaContent;
 
 			return { 
                 bookId, 
                 fsmData: { 
                     states, 
                     startStateId,
-                    title, 
+                    title,
+                    lifecycle,
                     authorPubkey, 
                     minCost,
                     fsmId: bookId, 

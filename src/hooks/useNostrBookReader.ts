@@ -11,7 +11,7 @@ import { BOOK_KIND, NODE_KIND } from '@/lib/nostr/constants';
 interface BookMetadataContent {
 	bookId: string;
 	title: string;
-	status: 'draft' | 'published';
+	lifecycle: 'draft' | 'published';
 	startStateId: string;
 	authorPubkey: string;
 	description?: string;

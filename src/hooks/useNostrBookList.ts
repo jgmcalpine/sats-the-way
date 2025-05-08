@@ -5,8 +5,6 @@ import { NDKRelaySet as RelaySet } from '@nostr-dev-kit/ndk';
 import { useNdk } from '@/components/NdkProvider';
 
 import { BOOK_KIND } from '@/lib/nostr/constants';
-import { FsmData } from '@/types/fsm'
-
 // ────────────────────────────────────────────────────────────────────────────────
 // Types
 // ────────────────────────────────────────────────────────────────────────────────
@@ -16,7 +14,7 @@ export interface BookListItem {
 	description?: string;
 	coverImage?: string; 
 	authorPubkey: string;
-	status: 'draft' | 'published' | 'unknown';
+	lifecycle: 'draft' | 'published';
 	createdAt: number;
 	naddr: string;
     minCost: number;
@@ -81,17 +79,17 @@ export const useNostrBookList = ({
 					let title = 'Untitled Book';
 					let description: string | undefined;
                     let minCost: number | undefined;
-					let status: BookListItem['status'] = 'unknown';
+					let lifecycle: BookListItem['lifecycle'] = 'draft';
 
 					try {
 						const c = JSON.parse(evt.content || '{}');
 						title = c.title || evt.tagValue('title') || title;
 						description = c.description || c.summary;
                         minCost = c.minCost || 0;
-						status = c.status === 'published' ? 'published' : c.status === 'draft' ? 'draft' : 'unknown';
+						lifecycle = c.lifecycle === 'published' ? 'published' : 'draft';
 					} catch {}
 
-					if (statusFilter !== 'all' && status !== statusFilter) return;
+					if (statusFilter !== 'all' && lifecycle !== statusFilter) return;
 
 					const naddr = nip19.naddrEncode({
 						identifier: bookId,
@@ -105,7 +103,7 @@ export const useNostrBookList = ({
 						title,
 						description,
 						authorPubkey: evt.pubkey,
-						status,
+						lifecycle,
                         minCost: minCost || 0,
 						createdAt: evt.created_at!,
 						naddr,

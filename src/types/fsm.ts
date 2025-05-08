@@ -1,3 +1,13 @@
+const FsmLifecycleStatus = {
+	Draft: 'draft',
+	Published: 'published',
+	Archived: 'archived',
+	Deleted: 'deleted',
+	Flagged: 'flagged',
+} as const;
+
+type FsmLifecycleStatus = (typeof FsmLifecycleStatus)[keyof typeof FsmLifecycleStatus];
+
 export interface Transition {
 	id: string;
 	choiceText: string;
@@ -18,6 +28,8 @@ export interface FsmState {
 
 export interface FsmData {
 	fsmType: string; // "book", "game", etc.
+	states: Record<string, FsmState>;
+	lifecycle: FsmLifecycleStatus,
 	fsmId: string;
 	title: string;
 	description?: string;
@@ -25,5 +37,4 @@ export interface FsmData {
 	startStateId: string | null;
 	minCost?: number;
 	lnurlp?: string;
-	states: Record<string, FsmState>;
 }
