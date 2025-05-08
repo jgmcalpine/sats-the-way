@@ -20,7 +20,6 @@ interface NostrBookEditorUtils {
 	saveAllProgress: (
 		fsmData: FsmData,
 		bookId: string,
-		bookTitle: string | undefined,
 		authorPubkey: string,
 	) => Promise<boolean>;
 	publishBook: (
@@ -207,7 +206,6 @@ export const useNostrBookEditor = (
 	const saveAllProgress = useCallback(async (
 		fsmData: FsmData,
 		bookId: string,
-		bookTitle: string | undefined,
 		authorPubkey: string,
 	) => {
 		if (!currentUserPubkey || currentUserPubkey !== authorPubkey) {

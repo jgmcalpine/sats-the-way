@@ -156,11 +156,10 @@ const NostrBookReader: React.FC<NostrBookReaderProps> = ({
 
 
   const fetchInvoice = useCallback(async (transition: Transition) => {
-    console.log("in the fetch: ", transition)
-    console.log("bookMetadata: ", bookMetadata)
-    console.log("readerPubkey: ", readerPubkey)
     if (!readerPubkey) return;
+    
     setLoadingInvoice(true);
+    
     try {
       if (!transition.price || transition.price <= 0 || !bookMetadata?.lnurlp) {
         // Free transition — proceed immediately
@@ -169,13 +168,10 @@ const NostrBookReader: React.FC<NostrBookReaderProps> = ({
       }
   
       const lnurlp = bookMetadata.lnurlp;
-      console.log("lnurlp: ", lnurlp)
       // 1. Decode LNURL
       const payUrl = await getPayUrl(lnurlp);
-      console.log("payUrl: ", payUrl)
       // 2. Fetch pay params
       const payParams = await fetchLnurlPayParams(payUrl);
-      console.log('payParams: ', payParams)
       // 3. Prepare comment if allowed
       let comment = undefined;
       if (payParams.commentAllowed && payParams.commentAllowed > 0) {
@@ -185,9 +181,7 @@ const NostrBookReader: React.FC<NostrBookReaderProps> = ({
   
       // 4. Fetch BOLT11 invoice
       const invoiceResponse = await fetchLnurlInvoice(payParams.callback, transition.price);
-      console.log("invoiceResponse: ", invoiceResponse)
       const bolt11 = invoiceResponse.pr;
-      console.log("bolt11: ", bolt11)
       // 5. Show payment modal with QR code
       setInvoice(bolt11);
       setPaymentModalOpen(true);
@@ -209,14 +203,11 @@ const NostrBookReader: React.FC<NostrBookReaderProps> = ({
                 return;
             }
         }
-        const invoice = await fetchInvoice(transition);
-        console.log("RETURNED invoice: ", invoice);
-        console.log("what transition to set: ", transition);
         setPendingTransition(transition);
-        console.log("wha tis pending trans: ", pendingTransition)
-        if (invoice) {
-          startPollingForPayment(invoice);
-        }
+        await fetchInvoice(transition);
+        // if (invoice) {
+        //   startPollingForPayment(invoice);
+        // }
     } else {
         onTransitionSelect(transition);
     }
@@ -357,6 +348,17 @@ const NostrBookReader: React.FC<NostrBookReaderProps> = ({
           <Button onClick={handleModalClose} disabled={loadingInvoice}>
             Cancel
           </Button>
+          {pendingTransitionRef.current && (
+            <Button variant="outlined" 
+              onClick={() => {
+                onTransitionSelect(pendingTransitionRef.current!)
+                setPaymentModalOpen(false);
+              }} 
+              disabled={loadingInvoice}
+            >
+              I paid
+            </Button>
+          )}
         </DialogActions>
       </Dialog>
     </>
