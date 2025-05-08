@@ -63,7 +63,7 @@ export default function WritePage() {
          if (!currentBookId || !currentUserPubkey || isProcessing) return;
          // Find current title from data if possible (user might have edited it in FsmBuilder if you added that field)
          // For now, using the state variable:
-         await saveAllProgress(data, currentBookId, currentBookTitle, currentUserPubkey);
+         await saveAllProgress(data, currentBookId, currentUserPubkey);
          // Update local FSM data state AFTER save? Or assume component state is source of truth?
          // setFsmData(data); // Update local state to match what was saved
          // Optionally show success feedback
