@@ -111,13 +111,12 @@ const NostrBookReader: React.FC<NostrBookReaderProps> = ({
   const [loadingInvoice, setLoadingInvoice] = useState(false);
   const [paymentModalOpen, setPaymentModalOpen] = useState(false);
   const [pendingTransition, setPendingTransition] = useState<Transition | null>(null);
-  const [paymentPolling, setPaymentPolling] = useState<NodeJS.Timeout | null>(null);
+  // const [paymentPolling, setPaymentPolling] = useState<NodeJS.Timeout | null>(null);
   const pendingTransitionRef = useRef<Transition | null>(null);
 
   // Update ref whenever pendingTransition changes
   useEffect(() => {
     pendingTransitionRef.current = pendingTransition;
-    console.log("pendingTransition updated:", pendingTransition);
   }, [pendingTransition]);
 
   // function startPollingForPayment(invoice: string) {
