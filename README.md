@@ -1,10 +1,10 @@
 # Sats the way
 
-# Overview
+## Overview
 
 This project aims to create an open standard for nostr, allowing for execution of finite state machines. It includes an example implementation, a platform for writing and reading choose-your-own-adventure stories. Authors can set paywalls for specific choices throughout the story which readers must pay (currently using QR codes generated from an lnurlp address, future upgrade will use NWC) in order to advance.
 
-# 📚 Custom Nostr Event Kinds — FSM (Finite State Machine) Protocol
+## 📚 Custom Nostr Event Kinds — FSM (Finite State Machine) Protocol
 
 This project defines two custom Nostr event kinds to support decentralized Finite State Machine (FSM) structures, useful for interactive books, games, courses, or any branching narrative content.
 
@@ -115,7 +115,7 @@ Defines a single node (state) inside an FSM, including text content and transiti
 
 ---
 
-# 📋 Reserved Tags Usage
+## 📋 Reserved Tags Usage
 
 | Tag | Meaning |
 | :--- | :--- |
@@ -126,7 +126,7 @@ Tags allow easy querying, filtering, and linking across FSM data structures.
 
 ---
 
-# 📋 Future Enhancements
+## 📋 Future Enhancements
 
 - Zap Receipts (NIP-57): Payment receipts linked to FSM transitions.
 - NWC Preimage Unlocking: Cryptographic unlocking of states via preimage proofs.
