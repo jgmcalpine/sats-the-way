@@ -112,6 +112,12 @@ export const useNostrBookList = ({
 				});
 
 				processed.sort((a, b) => b.createdAt - a.createdAt);
+
+                // Limit manually here
+                if (limit) {
+                    processed.splice(limit);
+                }
+
 				setBooks(processed);
                 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 			} catch (e: any) {
