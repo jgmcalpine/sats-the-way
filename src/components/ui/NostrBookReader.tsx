@@ -1,20 +1,28 @@
-import React, { useCallback } from 'react';
-import { 
-  Box, 
-  Typography, 
-  Paper, 
-  Button, 
-  Divider, 
+import React, { useCallback, useState, useEffect, useRef } from 'react';
+import { QRCodeSVG }  from 'qrcode.react';
+import {
+  Box,
+  Typography,
+  Paper,
+  Button,
+  Divider,
   Container,
   Card,
   CardContent,
-  Grid 
+  Grid as MuiGrid,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  CircularProgress
 } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 
 import { State, Transition } from '@/hooks/useFsm';
+import { useNip07 } from '@/hooks/nostr/useNip07';
+import { getPayUrl, fetchLnurlPayParams, fetchLnurlInvoice } from '@/lib/lightning/helpers';
 
 export interface BookMetadata {
   title: string;
@@ -23,9 +31,10 @@ export interface BookMetadata {
   description?: string;
   genre?: string;
   publishDate?: string;
+  lnurlp?: string;
+  bookId: string; // for invoice endpoint
 }
 
-// Props interface for the component
 export interface NostrBookReaderProps {
   currentChapter: State;
   bookMetadata: BookMetadata;
@@ -33,7 +42,6 @@ export interface NostrBookReaderProps {
   onPreviousChapter?: (chapterId: string) => void;
 }
 
-// Styled components for the book pages
 const BookContainer = styled(Container)(({ theme }) => ({
   display: 'flex',
   margin: theme.spacing(4, 'auto'),
@@ -87,130 +95,272 @@ const ChoiceButton = styled(Button)(({ theme }) => ({
   width: '100%',
 }));
 
-/**
- * NostrBookReader Component
- * 
- * A component that displays an interactive book with chapters and choices
- * that allow navigation between different states (chapters).
- */
+const LoadingBox = styled(Box)(({ theme }) => ({
+  display: 'flex',
+  justifyContent: 'center',
+  padding: theme.spacing(2),
+}));
+
 const NostrBookReader: React.FC<NostrBookReaderProps> = ({
   currentChapter,
   bookMetadata,
   onTransitionSelect,
   onPreviousChapter,
 }) => {
-  const handleTransitionClick = useCallback((transition: Transition) => {
-    onTransitionSelect(transition);
-  }, [onTransitionSelect]);
+  const { pubkey: readerPubkey, connect } = useNip07();
+  const [invoice, setInvoice] = useState<string>('');
+  const [loadingInvoice, setLoadingInvoice] = useState(false);
+  const [paymentModalOpen, setPaymentModalOpen] = useState(false);
+  const [pendingTransition, setPendingTransition] = useState<Transition | null>(null);
+  const [paymentPolling, setPaymentPolling] = useState<NodeJS.Timeout | null>(null);
+  const pendingTransitionRef = useRef<Transition | null>(null);
 
+  // Update ref whenever pendingTransition changes
+  useEffect(() => {
+    pendingTransitionRef.current = pendingTransition;
+    console.log("pendingTransition updated:", pendingTransition);
+  }, [pendingTransition]);
+
+  function startPollingForPayment(invoice: string) {
+    if (paymentPolling) clearInterval(paymentPolling);
+
+    const interval = setInterval(async () => {
+        try {
+            const paid = await checkInvoicePaid(invoice);
+            console.log("is it paid: ", paid)
+            if (paid) {
+                clearInterval(interval);
+                setPaymentPolling(null);
+                setPaymentModalOpen(false);
+                console.log("what is pending transition: ", pendingTransitionRef.current)
+                if (pendingTransitionRef.current) {
+                    console.log("We are here in pending transition", pendingTransitionRef.current)
+                    onTransitionSelect(pendingTransitionRef.current);
+                    setPendingTransition(null);
+                }
+            }
+        } catch (err) {
+            console.error('Polling error:', err);
+        }
+    }, 5000); // check every 5 seconds
+
+    setPaymentPolling(interval);
+  }
+
+  async function checkInvoicePaid(invoice: string): Promise<boolean> {
+    // Call LNURL-pay service / invoice checker
+    // OR monitor via own service
+    console.log("invoice: ", invoice)
+    // For now, let's simulate always true after delay
+    return true; 
+  }
+
+
+  const fetchInvoice = useCallback(async (transition: Transition) => {
+    console.log("in the fetch: ", transition)
+    console.log("bookMetadata: ", bookMetadata)
+    console.log("readerPubkey: ", readerPubkey)
+    if (!readerPubkey) return;
+    setLoadingInvoice(true);
+    try {
+      if (!transition.price || transition.price <= 0 || !bookMetadata?.lnurlp) {
+        // Free transition — proceed immediately
+        onTransitionSelect(transition);
+        return;
+      }
+  
+      const lnurlp = bookMetadata.lnurlp;
+      console.log("lnurlp: ", lnurlp)
+      // 1. Decode LNURL
+      const payUrl = await getPayUrl(lnurlp);
+      console.log("payUrl: ", payUrl)
+      // 2. Fetch pay params
+      const payParams = await fetchLnurlPayParams(payUrl);
+      console.log('payParams: ', payParams)
+      // 3. Prepare comment if allowed
+      let comment = undefined;
+      if (payParams.commentAllowed && payParams.commentAllowed > 0) {
+        comment = `${bookMetadata.bookId}:${transition.targetStateId}`;
+        console.log("What to do with comment: ", comment)
+      }
+  
+      // 4. Fetch BOLT11 invoice
+      const invoiceResponse = await fetchLnurlInvoice(payParams.callback, transition.price);
+      console.log("invoiceResponse: ", invoiceResponse)
+      const bolt11 = invoiceResponse.pr;
+      console.log("bolt11: ", bolt11)
+      // 5. Show payment modal with QR code
+      setInvoice(bolt11);
+      setPaymentModalOpen(true);
+      return bolt11;
+    } catch (err) {
+      console.error('Error during transition payment flow:', err);
+    } finally {
+      setLoadingInvoice(false);
+    }
+  }, [bookMetadata.bookId, readerPubkey]);
+
+  const onChoiceClick = useCallback(async (transition: Transition) => {
+    if (transition.price && transition.price > 0) {
+        if (!readerPubkey) {
+            try {
+                await connect();
+            } catch (err) {
+                console.error('NIP-07 connect failed', err);
+                return;
+            }
+        }
+        const invoice = await fetchInvoice(transition);
+        console.log("RETURNED invoice: ", invoice);
+        console.log("what transition to set: ", transition);
+        setPendingTransition(transition);
+        console.log("wha tis pending trans: ", pendingTransition)
+        if (invoice) {
+          startPollingForPayment(invoice);
+        }
+    } else {
+        onTransitionSelect(transition);
+    }
+}, [fetchInvoice, onTransitionSelect, readerPubkey, connect]);
+
+
+  const handleModalClose = () => {
+    setPaymentModalOpen(false);
+    setInvoice('');
+  };
+
+  console.log("currentChapter123222: ", currentChapter)
   return (
-    <BookContainer>
-      <Grid container spacing={0} sx={{ height: '100%', width: '100%', boxShadow: 4 }}>
-        {/* Left Page - Book Metadata and Chapter Info */}
-        <Grid size={{xs: 12, md: 4}}>
-          <LeftPage elevation={3}>
-            <Box>
-              <Typography variant="h4" gutterBottom>
-                {bookMetadata.title}
-              </Typography>
-              <Typography variant="subtitle1" color="text.secondary" gutterBottom>
-                by {bookMetadata.authorPubkey}
-              </Typography>
-              
-              {bookMetadata.description && (
-                <Typography variant="body2" paragraph sx={{ mt: 2 }}>
-                  {bookMetadata.description}
+    <>
+      <BookContainer>
+        <Box sx={{ display: 'flex', height: '100%', width: '100%', boxShadow: 4 }}>
+          <Box sx={{ width: '33.33%', height: '100%' }}>
+            <LeftPage elevation={3}>
+              <Box>
+                <Typography variant="h4" gutterBottom>
+                  {bookMetadata.title}
                 </Typography>
-              )}
-              
-              <Divider sx={{ my: 3 }} />
-              
-              <Typography variant="h5" sx={{ mb: 2 }}>
-                {currentChapter.name}
-              </Typography>
-              
-              {bookMetadata.genre && (
-                <Typography variant="body2" color="text.secondary">
-                  Genre: {bookMetadata.genre}
+                <Typography variant="subtitle1" color="text.secondary" gutterBottom>
+                  by {bookMetadata.authorPubkey}
                 </Typography>
-              )}
-              
-              {Boolean(currentChapter.price) && (
-                <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
-                  Entry Fee: {currentChapter.price}
+                
+                {bookMetadata.description && (
+                  <Typography variant="body2" paragraph sx={{ mt: 2 }}>
+                    {bookMetadata.description}
+                  </Typography>
+                )}
+                
+                <Divider sx={{ my: 3 }} />
+                
+                <Typography variant="h5" sx={{ mb: 2 }}>
+                  {currentChapter.name}
                 </Typography>
+                
+                {bookMetadata.genre && (
+                  <Typography variant="body2" color="text.secondary">
+                    Genre: {bookMetadata.genre}
+                  </Typography>
+                )}
+                
+                {Boolean(currentChapter.price) && (
+                  <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
+                    Entry Fee: {currentChapter.price}
+                  </Typography>
+                )}
+              </Box>
+              
+              {/* Previous Chapter Button */}
+              {currentChapter.previousChapterId && onPreviousChapter &&  (
+                <Button 
+                  variant="outlined" 
+                  startIcon={<ArrowBackIcon />}
+                  onClick={() => onPreviousChapter(currentChapter?.previousChapterId || '')}
+                  sx={{ mt: 2, alignSelf: 'flex-start' }}
+                >
+                  Previous Chapter
+                </Button>
               )}
-            </Box>
-            
-            {/* Previous Chapter Button */}
-            {currentChapter.previousChapterId && onPreviousChapter &&  (
-              <Button 
-                variant="outlined" 
-                startIcon={<ArrowBackIcon />}
-                onClick={() => onPreviousChapter(currentChapter?.previousChapterId || '')}
-                sx={{ mt: 2, alignSelf: 'flex-start' }}
-              >
-                Previous Chapter
-              </Button>
-            )}
-          </LeftPage>
-        </Grid>
-        
-        {/* Right Page - Chapter Content and Choices */}
-        <Grid size={{xs: 12, md: 8}}>
-          <RightPage elevation={3}>
-            <ChapterContent>
-              <Typography variant="body1" component="div">
-                {currentChapter.content}
-              </Typography>
-            </ChapterContent>
-            
-            <Divider sx={{ my: 2 }} />
-            
-            {/* Choices for Next Chapter */}
-            <Box>
-              {currentChapter.isEndState ? (
-                <Card variant="outlined" sx={{ mb: 2, bgcolor: 'rgba(0, 0, 0, 0.03)' }}>
-                  <CardContent>
-                    <Typography variant="h6" color="text.secondary">
-                      The End
-                    </Typography>
-                    <Typography variant="body2">
-                      You&apos;ve reached the end of this story.
-                    </Typography>
-                  </CardContent>
-                </Card>
-              ) : (
-                <>
-                  {currentChapter.transitions.length !== 0 && (
-                    <Typography variant="subtitle1" gutterBottom>
-                      What will you do next?
-                    </Typography>
-                  )}
-                  {currentChapter.transitions.map((transition) => (
-                    <ChoiceButton
-                      key={transition.id}
-                      variant="outlined"
-                      onClick={() => handleTransitionClick(transition)}
-                      endIcon={<ArrowForwardIcon />}
-                    >
-                      <Typography variant="body1">
-                        {transition.choiceText}
-                        {Boolean(transition.price) && (
-                          <Typography component="span" variant="body2" color="text.secondary" sx={{ ml: 1 }}>
-                            ({transition.price} sats)
-                          </Typography>
-                        )}
+            </LeftPage>
+          </Box>
+
+          <Box sx={{ width: '66.67%', height: '100%' }}>
+            <RightPage elevation={3}>
+              <ChapterContent>
+                <Typography variant="body1" component="div">
+                  {currentChapter.content}
+                </Typography>
+              </ChapterContent>
+              
+              <Divider sx={{ my: 2 }} />
+              
+              {/* Choices for Next Chapter */}
+              <Box>
+                {currentChapter.isEndState ? (
+                  <Card variant="outlined" sx={{ mb: 2, bgcolor: 'rgba(0, 0, 0, 0.03)' }}>
+                    <CardContent>
+                      <Typography variant="h6" color="text.secondary">
+                        The End
                       </Typography>
-                    </ChoiceButton>
-                  ))}
-                </>
-              )}
-            </Box>
-          </RightPage>
-        </Grid>
-      </Grid>
-    </BookContainer>
+                      <Typography variant="body2">
+                        You&apos;ve reached the end of this story.
+                      </Typography>
+                    </CardContent>
+                  </Card>
+                ) : (
+                  <>
+                    {currentChapter.transitions.length !== 0 && (
+                      <Typography variant="subtitle1" gutterBottom>
+                        What will you do next?
+                      </Typography>
+                    )}
+                    {currentChapter.transitions.map((transition) => (
+                      <ChoiceButton
+                        key={transition.id}
+                        variant="outlined"
+                        onClick={() => onChoiceClick(transition)}
+                        endIcon={<ArrowForwardIcon />}
+                      >
+                        <Typography variant="body1">
+                          {transition.choiceText}
+                          {Boolean(transition.price) && (
+                            <Typography component="span" variant="body2" color="text.secondary" sx={{ ml: 1 }}>
+                              ({transition.price} sats)
+                            </Typography>
+                          )}
+                        </Typography>
+                      </ChoiceButton>
+                    ))}
+                  </>
+                )}
+              </Box>
+            </RightPage>
+          </Box>
+        </Box>
+      </BookContainer>
+
+      {/* Payment Modal */}
+      <Dialog open={paymentModalOpen} onClose={handleModalClose} maxWidth="sm" fullWidth>
+        <DialogTitle>Pay to Unlock Chapter</DialogTitle>
+        <DialogContent>
+          {loadingInvoice ? (
+            <LoadingBox>
+              <CircularProgress />
+            </LoadingBox>
+          ) : (
+            <>
+              <p>Scan with your Lightning Wallet:</p>
+              <QRCodeSVG value={invoice} size={256} />
+              <p className="bolt11-string">{invoice}</p>
+            </>
+          )}
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleModalClose} disabled={loadingInvoice}>
+            Cancel
+          </Button>
+        </DialogActions>
+      </Dialog>
+    </>
   );
 };
 
