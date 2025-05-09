@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import { Box, Grid, Paper, CircularProgress, Button, Tooltip } from "@mui/material";
 import { SaveAlt } from "@mui/icons-material";
 import { FsmData, FsmState } from "@/types/fsm";
@@ -8,6 +8,8 @@ import { SummaryBar } from "@/components/fsm/SummaryBar";
 import { StateSidebar } from "@/components/fsm/StateSidebar";
 import { StateEditor } from "@/components/fsm/StateEditor";
 import { ChoicesEditor } from "@/components/fsm/ChoicesEditor";
+
+import { validateFsmForPublish } from '@/utils/validateFsm';
 
 interface Props {
   initialData: FsmData;
@@ -22,6 +24,8 @@ export const FsmBuilder: React.FC<Props> = ({ initialData, onSaveProgress, onPub
   const [isPublishing, setIsPublishing] = useState(false);
   const [isSavingChapter, setIsSavingChapter] = useState(false);
 
+  const validationErrors = useMemo(() => validateFsmForPublish(fsm.data), [fsm.data]);
+  
   const handleSave = async () => {
     if (!onSaveProgress) return;
     setIsSaving(true);
@@ -63,6 +67,7 @@ export const FsmBuilder: React.FC<Props> = ({ initialData, onSaveProgress, onPub
         setTitle={(t) => fsm.actions.updateMeta({ title: t })}
         setLNUrlp={(t: string) => fsm.actions.updateMeta({ lnurlp: t })}
         setDescription={(d) => fsm.actions.updateMeta({ description: d })}
+        validationErrors={validationErrors}
       />
       <SummaryBar
         stats={{totalStates: fsm.totalStates, totalTransitions: fsm.totalTransitions, cheapest: fsm.cheapest}}

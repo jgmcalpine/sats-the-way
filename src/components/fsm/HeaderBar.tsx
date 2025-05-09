@@ -1,4 +1,4 @@
-import { Box, Button, CircularProgress, TextField, Tooltip } from "@mui/material";
+import { Box, Button, CircularProgress, TextField, Tooltip, Alert } from "@mui/material";
 import { Save, Publish } from "@mui/icons-material";
 import React from "react";
 
@@ -13,6 +13,7 @@ interface Props {
   onPublish?: () => void;
   isSaving: boolean;
   isPublishing: boolean;
+  validationErrors: string[];
 }
 
 export const HeaderBar: React.FC<Props> = ({
@@ -26,6 +27,7 @@ export const HeaderBar: React.FC<Props> = ({
   onPublish,
   isSaving,
   isPublishing,
+  validationErrors
 }) => (
   <Box bgcolor="white" className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
     <Box className="flex-1 flex flex-col gap-2">
@@ -53,37 +55,42 @@ export const HeaderBar: React.FC<Props> = ({
         maxRows={3}
       />
     </Box>
-    <Box className="flex gap-2 self-start sm:self-auto">
-      {onSave && (
-        <Tooltip title="Save draft">
-          <span>
-            <Button
-              variant="outlined"
-              size="small"
-              startIcon={isSaving ? <CircularProgress size={18} /> : <Save />}
-              disabled={isSaving || isPublishing}
-              onClick={onSave}
-            >
-              Save
-            </Button>
-          </span>
-        </Tooltip>
+    <Box className="flex flex-col gap-2 self-start sm:self-auto py-2">
+      {validationErrors.length > 0 && (
+        <Alert severity="warning" className="mb-4">
+          <ul className="list-disc list-inside text-sm text-gray-800">
+            {validationErrors.map((err, i) => (
+              <li key={i}>{err}</li>
+            ))}
+          </ul>
+        </Alert>
       )}
-      {onPublish && (
-        <Tooltip title="Publish book">
-          <span>
+      <Box className="flex gap-2 justify-end px-4">
+        {onSave && (
+          <Button
+            variant="outlined"
+            size="small"
+            startIcon={isSaving ? <CircularProgress size={18} /> : <Save />}
+            disabled={isSaving || isPublishing}
+            onClick={onSave}
+            fullWidth
+          >
+            Save
+          </Button>
+        )}
+        {onPublish && (
             <Button
               variant="contained"
               size="small"
               startIcon={isPublishing ? <CircularProgress size={18} /> : <Publish />}
-              disabled={isSaving || isPublishing}
+              disabled={isSaving || isPublishing || validationErrors.length > 0}
               onClick={onPublish}
-            >
+              fullWidth
+              >
               Publish
             </Button>
-          </span>
-        </Tooltip>
-      )}
+        )}
+      </Box>
     </Box>
   </Box>
 );
