@@ -1,4 +1,3 @@
-// components/TopNav.tsx
 'use client';
 
 import { useEffect, useState } from 'react';
@@ -32,6 +31,11 @@ export default function TopNav() {
   const { ndk } = useNdk();
   const { pubkey, isAvailable, connect, disconnect } = useNip07();
   const [profile, setProfile] = useState<Profile | null>(null);
+  const [isMounted, setIsMounted] = useState(false);
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
 
   /* fetch Kind-0 metadata when connected */
   useEffect(() => {
@@ -49,6 +53,10 @@ export default function TopNav() {
     { href: '/write', label: 'Write' },
   ];
   const isActive = (href: string) => pathname?.startsWith(href);
+
+  if (!isMounted) {
+    return null;
+  }
 
   /* ---- JSX ---- */
   return (
