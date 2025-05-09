@@ -1,5 +1,6 @@
 import React, { useCallback, useState, useEffect, useRef } from 'react';
 import { QRCodeSVG }  from 'qrcode.react';
+
 import {
   Box,
   Typography,
@@ -175,7 +176,7 @@ const NostrBookReader: React.FC<NostrBookReaderProps> = ({
       let comment = undefined;
       if (payParams.commentAllowed && payParams.commentAllowed > 0) {
         comment = `${bookMetadata.bookId}:${transition.targetStateId}`;
-        console.log("What to do with comment: ", comment)
+        console.warn("What to do with comment: ", comment)
       }
   
       // 4. Fetch BOLT11 invoice
@@ -217,8 +218,7 @@ const NostrBookReader: React.FC<NostrBookReaderProps> = ({
     setPaymentModalOpen(false);
     setInvoice('');
   };
-
-  console.log("currentChapter123222: ", currentChapter)
+  
   return (
     <>
       <BookContainer>
@@ -275,9 +275,9 @@ const NostrBookReader: React.FC<NostrBookReaderProps> = ({
           <Box sx={{ width: '66.67%', height: '100%' }}>
             <RightPage elevation={3}>
               <ChapterContent>
-                <Typography variant="body1" component="div">
-                  {currentChapter.content}
-                </Typography>
+              <Box className="whitespace-pre-wrap text-base leading-relaxed">
+                {currentChapter.content}
+              </Box>
               </ChapterContent>
               
               <Divider sx={{ my: 2 }} />
