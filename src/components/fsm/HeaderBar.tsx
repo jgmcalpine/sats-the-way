@@ -1,4 +1,4 @@
-import { Box, Button, CircularProgress, TextField, Tooltip, Alert } from "@mui/material";
+import { Box, Button, CircularProgress, TextField, Alert } from "@mui/material";
 import { Save, Publish } from "@mui/icons-material";
 import React from "react";
 
@@ -6,21 +6,25 @@ interface Props {
   title: string;
   lnurlp: string;
   description: string;
+  authorName: string;
   setTitle: (t: string) => void;
   setLNUrlp: (a: string) => void;
   setDescription: (d: string) => void;
-  onSave?: () => void;
-  onPublish?: () => void;
+  setAuthorName: (name: string) => void;
   isSaving: boolean;
   isPublishing: boolean;
   validationErrors: string[];
+  onSave?: () => void;
+  onPublish?: () => void;
 }
 
 export const HeaderBar: React.FC<Props> = ({
   title,
   lnurlp,
+  authorName,
   description,
   setTitle,
+  setAuthorName,
   setDescription,
   setLNUrlp,
   onSave,
@@ -29,12 +33,19 @@ export const HeaderBar: React.FC<Props> = ({
   isPublishing,
   validationErrors
 }) => (
-  <Box bgcolor="white" className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-    <Box className="flex-1 flex flex-col gap-2">
+  <Box bgcolor="white" className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between px-4">
+    <Box className="flex-1 flex flex-col gap-4 p-4">
       <TextField
         value={title}
         onChange={(e) => setTitle(e.target.value)}
         placeholder="Book title"
+        fullWidth
+        variant="outlined"
+      />
+      <TextField
+        value={authorName}
+        onChange={(e) => setAuthorName(e.target.value)}
+        placeholder="Author name"
         fullWidth
         variant="standard"
       />
@@ -57,7 +68,7 @@ export const HeaderBar: React.FC<Props> = ({
     </Box>
     <Box className="flex flex-col gap-2 self-start sm:self-auto py-2">
       {validationErrors.length > 0 && (
-        <Alert severity="warning" className="mb-4">
+        <Alert severity="warning" className="mb-4 flex justify-center items-center">
           <ul className="list-disc list-inside text-sm text-gray-800">
             {validationErrors.map((err, i) => (
               <li key={i}>{err}</li>

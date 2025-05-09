@@ -32,9 +32,10 @@ export interface FsmData {
 	lifecycle: FsmLifecycleStatus,
 	fsmId: string;
 	title: string;
-	description?: string;
 	authorPubkey: string;
 	startStateId: string | null;
+	authorName?: string;
+	description?: string;
 	minCost?: number;
 	lnurlp?: string;
 }

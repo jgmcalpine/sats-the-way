@@ -25,7 +25,7 @@ export const FsmBuilder: React.FC<Props> = ({ initialData, onSaveProgress, onPub
   const [isSavingChapter, setIsSavingChapter] = useState(false);
 
   const validationErrors = useMemo(() => validateFsmForPublish(fsm.data), [fsm.data]);
-  
+
   const handleSave = async () => {
     if (!onSaveProgress) return;
     setIsSaving(true);
@@ -58,12 +58,14 @@ export const FsmBuilder: React.FC<Props> = ({ initialData, onSaveProgress, onPub
     <Box className="p-4">
       <HeaderBar
         title={fsm.data.title}
+        authorName={fsm.data.authorName || ''}
         lnurlp={fsm.data.lnurlp || ''}
         description={fsm.data.description || ''}
         isSaving={isSaving}
         isPublishing={isPublishing}
         onSave={handleSave}
         onPublish={handlePublish}
+        setAuthorName={(name) => fsm.actions.updateMeta({ authorName: name })}
         setTitle={(t) => fsm.actions.updateMeta({ title: t })}
         setLNUrlp={(t: string) => fsm.actions.updateMeta({ lnurlp: t })}
         setDescription={(d) => fsm.actions.updateMeta({ description: d })}

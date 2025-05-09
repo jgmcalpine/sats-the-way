@@ -81,12 +81,12 @@ const BookGrid: React.FC<BookGridProps> = ({ filter, onSelectBook, sectionTitle 
       )}
       <Grid container spacing={2}>
         {filteredBooks.map((book) => {
-          const { title, description, authorPubkey, fsmId: bookId } = book;
+          const { title, description, authorPubkey, fsmId: bookId, authorName } = book;
 
           return (
             <Grid key={bookId} size={{xs: 12, sm: 6, md: 4, lg: 3}}>
               <Button onClick={onSelectBook ? () => onSelectBook(bookId, authorPubkey) : () => {}}>
-                <BookCard id={bookId} author={authorPubkey} title={title} description={description} />
+                <BookCard id={bookId} authorName={authorName} authorPubkey={authorPubkey} title={title} description={description} />
               </Button>
             </Grid>
           );

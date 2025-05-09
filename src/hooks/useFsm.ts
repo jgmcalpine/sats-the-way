@@ -144,7 +144,7 @@ export function useFsm(initial: FsmData) {
     /* single-entry wrapper so the builder can call fsm.actions.* */
     const actions = {
       /* meta */
-      updateMeta: (p: Partial<Pick<FsmData, "title" | "description" | "lnurlp">>) =>
+      updateMeta: (p: Partial<Pick<FsmData, "title" | "description" | "lnurlp" | "authorName">>) =>
                         dispatch({ type: "update-meta", patch: p }),
   
       /* selection */

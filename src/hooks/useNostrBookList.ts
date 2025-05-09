@@ -65,6 +65,7 @@ export const useNostrBookList = ({
 					let description;
                     let minCost;
 					let lifecycle;
+                    let authorName;
                     let startStateId;
                     let states;
 
@@ -74,6 +75,7 @@ export const useNostrBookList = ({
 						description = c.description || c.summary;
                         minCost = c.minCost || 0;
 						lifecycle = c.lifecycle;
+                        authorName = c.authorName;
                         startStateId = c.startStateId;
                         states = c.states;
 					} catch {}
@@ -86,6 +88,7 @@ export const useNostrBookList = ({
 						description,
 						authorPubkey: evt.pubkey,
 						lifecycle,
+                        authorName,
                         minCost: minCost || 0,
                         fsmType: 'book',
                         startStateId,

@@ -5,7 +5,8 @@ import { Card, Typography, Box } from '@mui/material';
 interface BookCardProps {
   id: string | number;
   title: string;
-  author?: string;
+  authorPubkey?: string;
+  authorName?: string;
   description?: string;
   coverArtUrl?: string;
   width?: number;
@@ -24,8 +25,9 @@ const getRandomLightColor = (): string => {
 
 const BookCard: React.FC<BookCardProps> = ({
   title,
-  author,
+  authorPubkey,
   description,
+  authorName,
   coverArtUrl,
   width = 200,
   height = 300,
@@ -101,7 +103,7 @@ const BookCard: React.FC<BookCardProps> = ({
           {/* Bottom content area */}
           <Box className="flex-grow-0">
             {/* Author if provided */}
-            {author && (
+            {(authorPubkey || authorName) && (
               <Typography 
                 variant="subtitle1" 
                 className="text-center italic mb-1"
@@ -110,7 +112,7 @@ const BookCard: React.FC<BookCardProps> = ({
                   fontSize: '0.9rem'
                 }}
               >
-                by {author}
+                by {authorName || `${authorPubkey?.slice(0, 5)}...${authorPubkey?.slice(-3)}`}
               </Typography>
             )}
             

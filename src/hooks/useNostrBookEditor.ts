@@ -68,7 +68,7 @@ export const useNostrBookEditor = (
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
 			merge?: Record<string, any>,
 		): NDKEvent => {
-            const { title, description, lnurlp, startStateId, fsmId: bookId, lifecycle, authorPubkey } = fsm;
+            const { title, description, lnurlp, startStateId, fsmId: bookId, lifecycle, authorPubkey, authorName } = fsm;
 			const ev = new NDKEvent(ndk);
 			ev.kind = BOOK_KIND;
 			ev.tags = [['d', bookId]];
@@ -85,6 +85,7 @@ export const useNostrBookEditor = (
                 lnurlp,
 				startStateId,
 				authorPubkey,
+                authorName,
                 minCost,
 				...(lifecycle === 'published' && { publishedAt: merge?.publishedAt ?? Math.floor(Date.now() / 1000) }),
 			});
