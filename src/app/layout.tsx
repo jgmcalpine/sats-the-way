@@ -13,7 +13,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             <Suspense fallback={<div style={{ height: 64 }} />} >
               <NavigationWrapper />
             </Suspense>
-            <main>{children}</main>
+            <main className="bg-[#E8D9C3] text-[#444444] font-sans min-h-screen mx-auto px-12 py-8">{children}</main>
           </NdkProvider>
         </AuthProvider>
       </body>

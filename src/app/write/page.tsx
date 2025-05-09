@@ -87,9 +87,9 @@ export default function WritePage() {
     }
     
     return (
-        <div className="flex flex-col justify-center items-center h-full min-h-screen pb-48">
+        <div className="flex flex-col justify-center items-center h-full min-h-screen pb-48 w-full">
             {!showEditor || !fsmData ? (
-                <Box>
+                <Box className="w-full">
                     <WriteHeader onStartWriting={handleStartAdventure} />
                     <BookGrid filter={{authors: currentUserPubkey ? [currentUserPubkey] : [], lifecycle: 'draft', limit: 8}} />
                 </Box>

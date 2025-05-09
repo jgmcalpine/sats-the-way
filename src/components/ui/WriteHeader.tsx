@@ -24,9 +24,9 @@ const AdventureHeader: React.FC<AdventureHeaderProps> = ({
     onStartWriting
 }) => {
     return (
-        <Box className="bg-white py-16 md:py-24 px-6 md:px-10 rounded-lg shadow-sm border border-gray-100 overflow-hidden relative">
+        <Box className="bg-white py-16 md:py-24 px-6 shadow-sm border border-gray-100 overflow-hidden relative">
 
-            <Grid container spacing={6} alignItems="center" className="relative z-10"> {/* Ensure content is above pattern */}
+            <Grid container spacing={6} alignItems="center" className="relative z-10">
 
                 {/* Left Column: Headline, Sub-headline, CTA */}
                 <Grid size={{xs: 12, md: 6}} className="flex flex-col justify-center text-center md:text-left">
@@ -83,7 +83,7 @@ const AdventureHeader: React.FC<AdventureHeaderProps> = ({
                                     <CheckCircleOutline fontSize="small" className="text-indigo-500" />
                                 </ListItemIcon>
                                 <ListItemText
-                                    primary="Add 'Steps' to create chapters or story beats."
+                                    primary="Add 'Steps' to create chapters."
                                     primaryTypographyProps={{ variant: 'body1', className: 'text-gray-700' }}
                                 />
                             </ListItem>

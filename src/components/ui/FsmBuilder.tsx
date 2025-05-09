@@ -55,7 +55,7 @@ export const FsmBuilder: React.FC<Props> = ({ initialData, onSaveProgress, onPub
   };
 
   return (
-    <Box className="p-4">
+    <Box className="py-4 w-full">
       <HeaderBar
         title={fsm.data.title}
         authorName={fsm.data.authorName || ''}
