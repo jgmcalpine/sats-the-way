@@ -15,7 +15,7 @@ export default function Home() {
 
   return (
     <div className="p-8">
-      <h1 className="text-3xl font-bold text-center mb-8">NostrBooks</h1>
+      <h1 className="text-3xl font-bold text-center mb-8">SatsTheWay</h1>
         <BookGrid sectionTitle='All Books' filter={{ limit: 8 }} onSelectBook={(bookId, authorPubkey) => handleReadBook(bookId, authorPubkey)} />
     </div>
   );

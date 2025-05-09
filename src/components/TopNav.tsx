@@ -75,7 +75,7 @@ export default function TopNav() {
 
           {/* logo / brand */}
           <Link href="/" className="font-semibold text-lg md:text-xl">
-            NostrBooks
+            SatsTheWay
           </Link>
 
           {/* desktop nav */}
