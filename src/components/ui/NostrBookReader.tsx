@@ -27,6 +27,7 @@ import { getPayUrl, fetchLnurlPayParams, fetchLnurlInvoice } from '@/lib/lightni
 export interface BookMetadata {
   title: string;
   authorPubkey?: string;
+  authorName?: string;
   coverImage?: string;
   description?: string;
   genre?: string;
@@ -230,7 +231,7 @@ const NostrBookReader: React.FC<NostrBookReaderProps> = ({
                   {bookMetadata.title}
                 </Typography>
                 <Typography variant="subtitle1" color="text.secondary" gutterBottom>
-                  by {bookMetadata.authorPubkey}
+                  by {bookMetadata.authorName || bookMetadata.authorPubkey}
                 </Typography>
                 
                 {bookMetadata.description && (
