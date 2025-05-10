@@ -42,7 +42,8 @@ function reducer(state: FsmData, action: Action): FsmData {
     }
 
     case "delete-state": {
-      const { [action.id]: deleted, ...rest } = state.states;
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const { [action.id]: _, ...rest } = state.states;
       for (const st of Object.values(rest)) {
         st.transitions = st.transitions.filter(t => t.targetStateId !== action.id);
       }
