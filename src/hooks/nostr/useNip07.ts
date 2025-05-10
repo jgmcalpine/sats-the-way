@@ -47,7 +47,7 @@ export function useNip07(): Nip07State {
   /* connect */
   const connect = useCallback(async () => {
     if (!isAvailable) {
-      alert('No NIP-07 wallet/extension detected.');
+      alert('No NIP-07 wallet/extension detected. This is a paid chapter and requires payment.');
       return;
     }
     try {

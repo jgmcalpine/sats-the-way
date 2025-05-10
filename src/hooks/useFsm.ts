@@ -42,7 +42,7 @@ function reducer(state: FsmData, action: Action): FsmData {
     }
 
     case "delete-state": {
-      const { ...rest } = state.states;
+      const { [action.id]: deleted, ...rest } = state.states;
       for (const st of Object.values(rest)) {
         st.transitions = st.transitions.filter(t => t.targetStateId !== action.id);
       }
