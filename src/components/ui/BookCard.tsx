@@ -7,7 +7,7 @@ interface BookCardProps {
   title: string;
   authorPubkey?: string;
   authorName?: string;
-  description?: string;
+  minCost?: number;
   coverArtUrl?: string;
   width?: number;
   height?: number;
@@ -26,7 +26,7 @@ const getRandomLightColor = (): string => {
 const BookCard: React.FC<BookCardProps> = ({
   title,
   authorPubkey,
-  description,
+  minCost,
   authorName,
   coverArtUrl,
   width = 200,
@@ -117,7 +117,7 @@ const BookCard: React.FC<BookCardProps> = ({
             )}
             
             {/* Description if provided */}
-            {description && typeof description === 'string' && (
+            {Boolean(minCost) && (
               <Typography 
                 variant="body2" 
                 className="text-center mt-2"
@@ -131,7 +131,7 @@ const BookCard: React.FC<BookCardProps> = ({
                   textOverflow: 'ellipsis'
                 }}
               >
-                {description}
+                {`Min Cost: ${minCost}`}
               </Typography>
             )}
           </Box>

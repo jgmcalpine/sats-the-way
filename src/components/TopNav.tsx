@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import Image from 'next/image'
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import {
@@ -13,7 +14,8 @@ import {
   Avatar,
   Tooltip,
   Menu, 
-  MenuItem 
+  MenuItem,
+  Typography
 } from '@mui/material';
 import { Logout as LogoutIcon, AccountCircle as AccountCircleIcon, Menu as MenuIcon } from '@mui/icons-material';
 
@@ -74,8 +76,16 @@ export default function TopNav() {
           </IconButton>
 
           {/* logo / brand */}
-          <Link href="/" className="font-semibold text-lg md:text-xl">
-            SatsTheWay
+          <Link href="/" className="font-semibold text-lg md:text-xl flex justify-center items-center">
+            <Image
+              src="/logo.webp"
+              alt="Open Path"
+              width={40}
+              height={40}
+              className="h-10 w-10"
+              priority
+            />
+            <Typography color="#B8860B">SatsTheWay</Typography>
           </Link>
 
           {/* desktop nav */}
