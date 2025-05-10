@@ -1,4 +1,4 @@
-import { Box, Button, CircularProgress, TextField, Alert } from "@mui/material";
+import { Box, Button, CircularProgress, TextField, Alert, Paper } from "@mui/material";
 import { Save, Publish } from "@mui/icons-material";
 import React from "react";
 
@@ -33,7 +33,7 @@ export const HeaderBar: React.FC<Props> = ({
   isPublishing,
   validationErrors
 }) => (
-  <Box bgcolor="white" className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between px-4">
+  <Paper className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between px-4">
     <Box className="flex-1 flex flex-col gap-4 p-4">
       <TextField
         value={title}
@@ -103,5 +103,5 @@ export const HeaderBar: React.FC<Props> = ({
         )}
       </Box>
     </Box>
-  </Box>
+  </Paper>
 );

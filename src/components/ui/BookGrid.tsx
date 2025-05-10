@@ -6,7 +6,8 @@ import {
   CircularProgress,
   Box,
   Grid,
-  Button
+  Button,
+  Paper
 } from '@mui/material';
 
 import { useNostrBookList } from '@/hooks/useNostrBookList';
@@ -73,7 +74,7 @@ const BookGrid: React.FC<BookGridProps> = ({ filter, onSelectBook, sectionTitle 
   }) : books;
   
   return (
-    <Box className="p-4 bg-[#8b6914]">
+    <Paper elevation={24} sx={{backgroundColor: '#8b6914', padding: 4}}>
       {sectionTitle && (
         <Box className="bg-[#eae86f] min-h-20 max-w-80 flex justify-center items-center rounded-md flex-col my-8">
           <Typography color="black" variant="h3" component="h3">{sectionTitle}</Typography>
@@ -92,7 +93,7 @@ const BookGrid: React.FC<BookGridProps> = ({ filter, onSelectBook, sectionTitle 
           );
         })}
       </Grid>
-    </Box>
+    </Paper>
   );
 };
 
