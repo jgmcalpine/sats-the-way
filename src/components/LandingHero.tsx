@@ -76,7 +76,7 @@ export default function LandingHero() {
 						textShadow: '1px 1px 4px rgba(0,0,0,0.5)',
 					}}
 				>
-					Explore infinite stories and choose your path through the infinite library.
+					Explore stories and choose your path through the infinite library.
 				</Typography>
 			</Box>
 		</Box>
