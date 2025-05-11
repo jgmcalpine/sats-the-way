@@ -52,6 +52,7 @@ export default function TopNav() {
 
   /* helpers */
   const navItems = [
+    { href: '/read', label: 'Read' },
     { href: '/write', label: 'Write' },
   ];
   const isActive = (href: string) => pathname?.startsWith(href);
