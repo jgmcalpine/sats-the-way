@@ -63,7 +63,7 @@ export default function TopNav() {
   /* ---- JSX ---- */
   return (
     <>
-      <AppBar position="static" color="default" className="shadow-none">
+      <AppBar position="fixed" color="default" className="shadow-none">
         <Toolbar className="px-4 md:px-8">
           {/* mobile burger */}
           <IconButton
