@@ -103,7 +103,7 @@ export default function TopNav() {
                 {label}
                 {/* glow highlight */}
                 {isActive(href) && (
-                  <span className="absolute -inset-1 rounded-lg shadow-[0_0_8px_theme(colors.blue.500)] pointer-events-none" />
+                  <span className="absolute -inset-1 rounded-lg shadow-[0_0_8px_theme(colors.orange.500)] pointer-events-none" />
                 )}
               </Link>
             ))}
