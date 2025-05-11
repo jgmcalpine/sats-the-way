@@ -8,6 +8,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en">
       <head>
+        <title>SatsTheWay - Decentralized Storytelling Platform</title>
         <link
           rel="preload"
           href="/hero-library.webp"
@@ -21,7 +22,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             <Suspense fallback={<div style={{ height: 64 }} />} >
               <NavigationWrapper />
             </Suspense>
-            <main className="bg-[#E8D9C3] text-[#444444] font-sans min-h-screen mx-auto">{children}</main>
+            <main className="bg-[#E8D9C3] text-[#8B6914] font-sans min-h-screen mx-auto">{children}</main>
           </NdkProvider>
         </AuthProvider>
       </body>
