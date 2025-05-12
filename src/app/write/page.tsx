@@ -1,7 +1,7 @@
 'use client';
 
 import { useState , useEffect} from "react";
-import { CircularProgress, Box, Typography } from '@mui/material';
+import { CircularProgress, Box, Typography, Snackbar, Alert } from '@mui/material';
 
 import { useAuth } from "@/components/AuthProvider";
 import FsmBuilder from "@/components/ui/FsmBuilder";
@@ -15,6 +15,7 @@ export default function WritePage() {
     const [currentUserPubkey, setCurrentUserPubkey] = useState<string | null>(null);
     const { currentUser, loading } = useAuth();
     const [showEditor, setShowEditor] = useState(false);
+    const [saveSuccess, setSaveSuccess] = useState(false);
     const [fsmData, setFsmData] = useState<FsmData | null>(null);
     const [currentBookId, setCurrentBookId] = useState<string | null>(null);
     const {
@@ -54,7 +55,7 @@ export default function WritePage() {
      const handleSaveChapter = async (chapterData: FsmState) => {
         if (!currentBookId || !currentUserPubkey || isProcessing) return;
         await saveChapter(chapterData, currentBookId, currentUserPubkey);
-        // Optionally show success feedback (e.g., snackbar)
+        setSaveSuccess(true);
     };
 
     const handleLoadBook = async (bookId: string, authorPubkey: string) => {
@@ -69,7 +70,7 @@ export default function WritePage() {
          if (isProcessing) return;
          await saveAllProgress(book);
          setFsmData(book);
-         // show success feedback
+         setSaveSuccess(true);
     };
 
     const handlePublish = async (data: FsmData) => {
@@ -108,6 +109,20 @@ export default function WritePage() {
                     />
                 </>
             )}
+            <Snackbar 
+                open={saveSuccess} 
+                autoHideDuration={3000} 
+                onClose={() => setSaveSuccess(false)}
+                anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+            >
+                <Alert 
+                    onClose={() => setSaveSuccess(false)} 
+                    severity="success" 
+                    sx={{ width: '100%' }}
+                >
+                    Progress saved successfully!
+                </Alert>
+            </Snackbar>
         </div>
     )
 }
