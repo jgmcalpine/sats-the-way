@@ -1,70 +1,79 @@
-'use client';
+'use client'
 
-import { useEffect, useState } from 'react';
-import Image from 'next/image'
-import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import {
+  AccountCircle as AccountCircleIcon,
+  Logout as LogoutIcon,
+  Menu as MenuIcon,
+} from '@mui/icons-material'
 import {
   AppBar,
-  Toolbar,
-  IconButton,
+  Avatar,
   Drawer,
+  IconButton,
   List,
   ListItemButton,
-  Avatar,
-  Tooltip,
-  Menu, 
+  Menu,
   MenuItem,
-  Typography
-} from '@mui/material';
-import { Logout as LogoutIcon, AccountCircle as AccountCircleIcon, Menu as MenuIcon } from '@mui/icons-material';
+  Toolbar,
+  Tooltip,
+  Typography,
+} from '@mui/material'
+import Image from 'next/image'
+import Link from 'next/link'
+import { usePathname } from 'next/navigation'
+import { useEffect, useState } from 'react'
 
-import { useNdk } from '@/components/NdkProvider';
-import { useNip07 } from '@/hooks/nostr/useNip07';
+import { useNdk } from '@/components/NdkProvider'
+import { useNip07 } from '@/hooks/nostr/useNip07'
 
-type Profile = { picture?: string; name?: string };
+type Profile = { picture?: string; name?: string }
 
 export default function TopNav() {
-  const pathname = usePathname();
-  const [drawer, setDrawer] = useState(false);
-  const [anchorEl, setAnchorEl] = useState<Element | null>(null);
+  const pathname = usePathname()
+  const [drawer, setDrawer] = useState(false)
+  const [anchorEl, setAnchorEl] = useState<Element | null>(null)
 
   /* nostr */
-  const { ndk } = useNdk();
-  const { pubkey, isAvailable, connect, disconnect } = useNip07();
-  const [profile, setProfile] = useState<Profile | null>(null);
-  const [isMounted, setIsMounted] = useState(false);
+  const { ndk } = useNdk()
+  const { pubkey, isAvailable, connect, disconnect } = useNip07()
+  const [profile, setProfile] = useState<Profile | null>(null)
+  const [isMounted, setIsMounted] = useState(false)
 
   useEffect(() => {
-    setIsMounted(true);
-  }, []);
+    setIsMounted(true)
+  }, [])
 
   /* fetch Kind-0 metadata when connected */
   useEffect(() => {
-    if (!pubkey) return;
+    if (!pubkey) return
 
-    const user = ndk.getUser({ pubkey });
+    const user = ndk.getUser({ pubkey })
     user.fetchProfile().then(() => {
-      const { image, picture, name } = user.profile || {};
-      setProfile({ picture: image || picture, name });
-    });
-  }, [ndk, pubkey]);
+      const { image, picture, name } = user.profile || {}
+      setProfile({ picture: image || picture, name })
+    })
+  }, [ndk, pubkey])
 
   /* helpers */
   const navItems = [
     { href: '/read', label: 'Read' },
     { href: '/write', label: 'Write' },
-  ];
-  const isActive = (href: string) => pathname?.startsWith(href);
+  ]
+  const isActive = (href: string) => pathname?.startsWith(href)
 
   if (!isMounted) {
-    return null;
+    return null
   }
 
   /* ---- JSX ---- */
   return (
     <>
-      <AppBar position="fixed" color="default" className="shadow-none">
+      <AppBar
+        position="fixed"
+        color="default"
+        className="top-0 left-0 right-0 h-16 bg-white shadow-sm z-50"
+        elevation={0}
+      >
         <Toolbar className="px-4 md:px-8">
           {/* mobile burger */}
           <IconButton
@@ -77,7 +86,10 @@ export default function TopNav() {
           </IconButton>
 
           {/* logo / brand */}
-          <Link href="/" className="font-semibold text-lg md:text-xl flex justify-center items-center">
+          <Link
+            href="/"
+            className="font-semibold text-lg md:text-xl flex justify-center items-center"
+          >
             <Image
               src="/logo.webp"
               alt="Open Path"
@@ -125,15 +137,11 @@ export default function TopNav() {
                 </Avatar>
               </Tooltip>
 
-              <Menu
-                anchorEl={anchorEl}
-                open={Boolean(anchorEl)}
-                onClose={() => setAnchorEl(null)}
-              >
+              <Menu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={() => setAnchorEl(null)}>
                 <MenuItem
                   onClick={() => {
-                    setAnchorEl(null);
-                    disconnect();        // <- from useNip07()
+                    setAnchorEl(null)
+                    disconnect() // <- from useNip07()
                   }}
                 >
                   <LogoutIcon fontSize="small" className="mr-2" />
@@ -174,37 +182,37 @@ export default function TopNav() {
         </List>
 
         <div className="mt-auto px-4 pb-4">
-        {pubkey ? (
-          <>
-            <div className="flex items-center gap-2">
-              <Avatar src={profile?.picture} />
-              <span className="truncate">{profile?.name ?? 'Anon'}</span>
-            </div>
+          {pubkey ? (
+            <>
+              <div className="flex items-center gap-2">
+                <Avatar src={profile?.picture} />
+                <span className="truncate">{profile?.name ?? 'Anon'}</span>
+              </div>
 
+              <button
+                className="flex w-full items-center justify-center gap-1 rounded-md bg-gray-200 py-2 text-sm text-gray-700 hover:bg-gray-300"
+                onClick={() => {
+                  setDrawer(false)
+                  disconnect()
+                }}
+              >
+                <LogoutIcon fontSize="small" />
+                Disconnect
+              </button>
+            </>
+          ) : (
             <button
-              className="flex w-full items-center justify-center gap-1 rounded-md bg-gray-200 py-2 text-sm text-gray-700 hover:bg-gray-300"
+              className="rounded-md w-full bg-blue-600 text-white py-2 hover:bg-blue-700"
               onClick={() => {
-                setDrawer(false);
-                disconnect();
+                setDrawer(false)
+                connect()
               }}
             >
-              <LogoutIcon fontSize="small" />
-              Disconnect
+              {isAvailable ? 'Connect Wallet' : 'Install Wallet'}
             </button>
-          </>
-        ) : (
-          <button
-            className="rounded-md w-full bg-blue-600 text-white py-2 hover:bg-blue-700"
-            onClick={() => {
-              setDrawer(false);
-              connect();
-            }}
-          >
-            {isAvailable ? 'Connect Wallet' : 'Install Wallet'}
-          </button>
-        )}
+          )}
         </div>
       </Drawer>
     </>
-  );
+  )
 }

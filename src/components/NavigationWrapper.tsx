@@ -1,14 +1,14 @@
-'use client';
+'use client'
 
-import { useAuth } from "@/components/AuthProvider";
-import TopNav from "@/components/TopNav";
+import { useAuth } from '@/components/AuthProvider'
+import TopNav from '@/components/TopNav'
 
 export default function NavigationWrapper() {
-  const {  loading } = useAuth();
+  const { loading } = useAuth()
 
   if (loading) {
-    console.log("show loading");
-    return null;
+    console.log('show loading')
+    return null
   }
-  return <TopNav  />
+  return <TopNav />
 }
