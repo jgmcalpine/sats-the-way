@@ -65,7 +65,7 @@ export default function LandingHero() {
 				}}
 			>
 				<Typography variant="h2" component="h1" sx={{ fontWeight: 'bold', textShadow: '2px 2px 6px rgba(0,0,0,0.7)' }}>
-					Tell every story
+					Tell every tale
 				</Typography>
 				<Typography
 					variant="h6"
