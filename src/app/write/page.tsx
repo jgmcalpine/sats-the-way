@@ -25,8 +25,10 @@ export default function WritePage() {
         saveChapter,
         saveAllProgress,
         publishBook,
+        loadBook
     } = useNostrBookEditor(currentUserPubkey);
 
+    console.log("what is fsm data: ", fsmData)
     useEffect(() => {
         const getPubkey = async () => {
             if (window.nostr) {
@@ -56,6 +58,14 @@ export default function WritePage() {
         await saveChapter(chapterData, currentBookId, currentUserPubkey);
         // Optionally show success feedback (e.g., snackbar)
     };
+
+    const handleLoadBook = async (bookId: string, authorPubkey: string) => {
+        const loadedBook = await loadBook(bookId, authorPubkey);
+        if (loadedBook?.fsmData) {
+            setFsmData(loadedBook.fsmData);
+            setShowEditor(true);
+        }
+    }
 
     const handleSaveAll = async (data: FsmData) => {
          if (!currentBookId || !currentUserPubkey || isProcessing) return;
@@ -91,7 +101,7 @@ export default function WritePage() {
             {!showEditor || !fsmData ? (
                 <Box className="w-full">
                     <WriteHeader onStartWriting={handleStartAdventure} />
-                    <BookGrid filter={{authors: currentUserPubkey ? [currentUserPubkey] : [], lifecycle: 'draft', limit: 8}} />
+                    <BookGrid onSelectBook={(id, authorPubkey) => handleLoadBook(id, authorPubkey)} filter={{authors: currentUserPubkey ? [currentUserPubkey] : [], lifecycle: 'draft', limit: 8}} />
                 </Box>
             ) : (
                 <>

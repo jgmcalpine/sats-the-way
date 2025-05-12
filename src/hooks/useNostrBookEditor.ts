@@ -1,6 +1,5 @@
 import { useCallback, useMemo, useState } from 'react';
 import { v4 as uuidv4 } from 'uuid';
-import { nip19 } from 'nostr-tools'; // Only for address decoding – NDK has no helper yet.
 import { NDKEvent, type NDKFilter } from '@nostr-dev-kit/ndk';
 
 import { useNdk } from '@/components/NdkProvider';
@@ -15,7 +14,7 @@ interface NostrBookEditorUtils {
 	isProcessing: boolean;
 	error: string | null;
 	createAndLoadNewBook: () => Promise<{ bookId: string; initialFsmData: FsmData } | null>;
-	loadBook: (nip19Identifier: string) => Promise<{ bookId: string; fsmData: FsmData } | null>;
+	loadBook: (bookId: string, authorPubkey: string | undefined) => Promise<{ bookId: string; fsmData: FsmData } | null>;
 	saveChapter: (chapterData: FsmState, bookId: string, authorPubkey: string) => Promise<boolean>;
 	saveAllProgress: (
 		fsmData: FsmData,
@@ -258,7 +257,6 @@ export const useNostrBookEditor = (
 			} as NDKFilter);
 
 			const merge = existing ? JSON.parse(existing.content) : undefined;
-            console.log("what state:/ssm ", fsmData.states)
             const chapterPromises = Object.values(fsmData.states).map(s => buildChapterEvent(s, bookId, authorPubkey));
 			const chapterEvents = await Promise.all(chapterPromises);
             fsmData.lifecycle = 'published';
@@ -273,25 +271,28 @@ export const useNostrBookEditor = (
 		}
 	}, [currentUserPubkey, ndk, buildMetadataEvent, signAndPublish]);
 
-	const loadBook = useCallback(async (addr: string) => {
+	const loadBook = useCallback(async (bookId: string, authorPubkey: string | undefined) => {
 		if (isConnecting) {
 			setError('Still connecting');
 			return null;
 		}
+        if (!authorPubkey) {
+			setError('Could not load book, no author pubkey found');
+			return null;
+        }
 		setProcessing(true);
 		setError(null);
 		try {
-			const decoded = nip19.decode(addr);
-			if (decoded.type !== 'naddr' || decoded.data.kind !== BOOK_KIND) throw new Error('Not a book address');
-
-			const { identifier: bookId, pubkey: authorPubkey } = decoded.data;
 			const meta = await ndk.fetchEvent({ kinds: [BOOK_KIND], authors: [authorPubkey], '#d': [bookId], limit: 1 } as NDKFilter);
 			if (!meta) throw new Error('Metadata not found');
 
-			const addrTag = `${BOOK_KIND}:${authorPubkey}:${bookId}`;
-			const chapterSet = await ndk.fetchEvents({ kinds: [NODE_KIND], '#a': [addrTag] } as NDKFilter);
+			const bookAddrTag = `${BOOK_KIND}:${authorPubkey}:${bookId}`;
+			const chapterSet = await ndk.fetchEvents({ 
+				kinds: [NODE_KIND], 
+				'#a': [bookAddrTag],
+				authors: [authorPubkey]
+			} as NDKFilter);
 			const chapters = Array.from(chapterSet);
-
 			const states: Record<string, FsmState> = {};
 			chapters.forEach(ev => {
 				try {
