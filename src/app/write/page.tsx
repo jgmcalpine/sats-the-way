@@ -17,7 +17,6 @@ export default function WritePage() {
     const [showEditor, setShowEditor] = useState(false);
     const [fsmData, setFsmData] = useState<FsmData | null>(null);
     const [currentBookId, setCurrentBookId] = useState<string | null>(null);
-
     const {
         isConnecting,
         isProcessing,
@@ -28,7 +27,6 @@ export default function WritePage() {
         loadBook
     } = useNostrBookEditor(currentUserPubkey);
 
-    console.log("what is fsm data: ", fsmData)
     useEffect(() => {
         const getPubkey = async () => {
             if (window.nostr) {
@@ -67,14 +65,11 @@ export default function WritePage() {
         }
     }
 
-    const handleSaveAll = async (data: FsmData) => {
-         if (!currentBookId || !currentUserPubkey || isProcessing) return;
-         // Find current title from data if possible (user might have edited it in FsmBuilder if you added that field)
-         // For now, using the state variable:
-         await saveAllProgress(data, currentBookId, currentUserPubkey);
-         // Update local FSM data state AFTER save? Or assume component state is source of truth?
-         // setFsmData(data); // Update local state to match what was saved
-         // Optionally show success feedback
+    const handleSaveAll = async (book: FsmData) => {
+         if (isProcessing) return;
+         await saveAllProgress(book);
+         setFsmData(book);
+         // show success feedback
     };
 
     const handlePublish = async (data: FsmData) => {

@@ -18,8 +18,6 @@ interface NostrBookEditorUtils {
 	saveChapter: (chapterData: FsmState, bookId: string, authorPubkey: string) => Promise<boolean>;
 	saveAllProgress: (
 		fsmData: FsmData,
-		bookId: string,
-		authorPubkey: string,
 	) => Promise<boolean>;
 	publishBook: (
 		fsmData: FsmData,
@@ -205,14 +203,14 @@ export const useNostrBookEditor = (
 
 	const saveAllProgress = useCallback(async (
 		fsmData: FsmData,
-		bookId: string,
-		authorPubkey: string,
 	) => {
+        const { authorPubkey, fsmId, startStateId, states } = fsmData;
+
 		if (!currentUserPubkey || currentUserPubkey !== authorPubkey) {
 			setError('Permission denied');
 			return false;
 		}
-		if (!fsmData.startStateId) {
+		if (!startStateId) {
 			setError('Missing start state');
 			return false;
 		}
@@ -221,7 +219,7 @@ export const useNostrBookEditor = (
 
 		try {
 			const meta = buildMetadataEvent(fsmData);
-			const chapterPromises = Object.values(fsmData.states).map(s => buildChapterEvent(s, bookId, authorPubkey));
+			const chapterPromises = Object.values(states).map(s => buildChapterEvent(s, fsmId, authorPubkey));
 			const chapterEvents = await Promise.all(chapterPromises);
 			const results = await Promise.allSettled([
 				signAndPublish(meta),
@@ -314,7 +312,7 @@ export const useNostrBookEditor = (
 				states[metaContent.startStateId].isStartState = true;
 			}
 
-            const { startStateId, title, minCost, lifecycle } = metaContent;
+            const { startStateId, title, minCost, lifecycle, authorName, lnurlp, description } = metaContent;
 
 			return { 
                 bookId, 
@@ -323,8 +321,11 @@ export const useNostrBookEditor = (
                     startStateId,
                     title,
                     lifecycle,
+                    authorName,
                     authorPubkey, 
                     minCost,
+                    lnurlp, 
+                    description,
                     fsmId: bookId, 
                     fsmType: 'book', 
                 } 
