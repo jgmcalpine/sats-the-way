@@ -1,0 +1,11 @@
+{
+  "extends": ["next/core-web-vitals"],
+  "rules": {
+    "no-unused-vars": "warn",
+    "no-console": "warn",
+    "quotes": ["error", "single"],
+    "semi": ["error", "never"],
+    "indent": ["error", 2],
+    "comma-dangle": ["error", "always-multiline"]
+  }
+}
