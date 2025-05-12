@@ -8,6 +8,7 @@ import FsmBuilder from "@/components/ui/FsmBuilder";
 import WriteHeader from "@/components/ui/WriteHeader";
 import type { FsmState, FsmData } from '@/types/fsm';
 import BookGrid from "@/components/ui/BookGrid";
+import LayoutWrapper from '@/components/LayoutWrapper';
 
 import { useNostrBookEditor } from '@/hooks/useNostrBookEditor';
 
@@ -93,36 +94,38 @@ export default function WritePage() {
     }
     
     return (
-        <div className="flex flex-col justify-center items-center h-full min-h-screen pb-48 w-full">
-            {!showEditor || !fsmData ? (
-                <Box className="w-full">
-                    <WriteHeader onStartWriting={handleStartAdventure} />
-                    <BookGrid onSelectBook={(id, authorPubkey) => handleLoadBook(id, authorPubkey)} filter={{authors: currentUserPubkey ? [currentUserPubkey] : [], lifecycle: 'draft', limit: 8}} />
-                </Box>
-            ) : (
-                <>
-                    <FsmBuilder
-                        initialData={fsmData}
-                        onSaveProgress={handleSaveAll}
-                        onPublish={handlePublish}
-                        onSaveChapter={handleSaveChapter}
-                    />
-                </>
-            )}
-            <Snackbar 
-                open={saveSuccess} 
-                autoHideDuration={3000} 
-                onClose={() => setSaveSuccess(false)}
-                anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
-            >
-                <Alert 
-                    onClose={() => setSaveSuccess(false)} 
-                    severity="success" 
-                    sx={{ width: '100%' }}
+        <LayoutWrapper>
+            <div className="flex flex-col justify-center items-center h-full min-h-screen pb-48 w-full">
+                {!showEditor || !fsmData ? (
+                    <Box className="w-full">
+                        <WriteHeader onStartWriting={handleStartAdventure} />
+                        <BookGrid onSelectBook={(id, authorPubkey) => handleLoadBook(id, authorPubkey)} filter={{authors: currentUserPubkey ? [currentUserPubkey] : [], lifecycle: 'draft', limit: 8}} />
+                    </Box>
+                ) : (
+                    <>
+                        <FsmBuilder
+                            initialData={fsmData}
+                            onSaveProgress={handleSaveAll}
+                            onPublish={handlePublish}
+                            onSaveChapter={handleSaveChapter}
+                        />
+                    </>
+                )}
+                <Snackbar 
+                    open={saveSuccess} 
+                    autoHideDuration={3000} 
+                    onClose={() => setSaveSuccess(false)}
+                    anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
                 >
-                    Progress saved successfully!
-                </Alert>
-            </Snackbar>
-        </div>
+                    <Alert 
+                        onClose={() => setSaveSuccess(false)} 
+                        severity="success" 
+                        sx={{ width: '100%' }}
+                    >
+                        Progress saved successfully!
+                    </Alert>
+                </Snackbar>
+            </div>
+        </LayoutWrapper>
     )
 }

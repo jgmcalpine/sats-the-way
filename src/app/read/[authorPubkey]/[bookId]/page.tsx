@@ -4,6 +4,7 @@ import { useParams } from 'next/navigation'
 import { CircularProgress, Typography } from "@mui/material";
 
 import NostrBookReader from "@/components/ui/NostrBookReader";
+import LayoutWrapper from '@/components/LayoutWrapper';
 
 import { useNostrBookReader } from "@/hooks/useNostrBookReader";
 import { Transition } from "@/types/fsm";
@@ -50,6 +51,10 @@ export default function BookReaderPage() {
   }
 
   if (currentChapter && bookMetadata) {
-    return <NostrBookReader onPreviousChapter={handlePreviousChapter} onTransitionSelect={handleChapterNav} currentChapter={currentChapter} bookMetadata={bookMetadata} />
+    return (
+      <LayoutWrapper>
+        <NostrBookReader onPreviousChapter={handlePreviousChapter} onTransitionSelect={handleChapterNav} currentChapter={currentChapter} bookMetadata={bookMetadata} />
+      </LayoutWrapper>
+    )
   }
 }
