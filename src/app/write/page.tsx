@@ -5,7 +5,7 @@ import { useEffect, useState } from 'react';
 
 import { useAuth } from '@/components/AuthProvider';
 import LayoutWrapper from '@/components/LayoutWrapper';
-import BookGrid from '@/components/ui/BookGrid';
+import BookShelf from '@/components/ui/BookShelf';
 import FsmBuilder from '@/components/ui/FsmBuilder';
 import WriteHeader from '@/components/ui/WriteHeader';
 import type { FsmData, FsmState } from '@/types/fsm';
@@ -102,7 +102,7 @@ export default function WritePage() {
         {!showEditor || !fsmData ? (
           <Box className="w-full">
             <WriteHeader onStartWriting={handleStartAdventure} />
-            <BookGrid
+            <BookShelf
               onSelectBook={(id, authorPubkey) => handleLoadBook(id, authorPubkey)}
               filter={{
                 authors: currentUserPubkey ? [currentUserPubkey] : [],
