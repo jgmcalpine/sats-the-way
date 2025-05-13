@@ -14,6 +14,7 @@ interface BooksFilter {
   tags?: string[];
   limit?: number;
   lifecycle?: string;
+  isFree?: boolean;
 }
 
 interface BookShelfProps {
@@ -28,7 +29,7 @@ const BookShelf: React.FC<BookShelfProps> = ({ filter, onSelectBook, sectionTitl
     initialFetch: false,
   });
 
-  const { lifecycle, limit } = filter || {};
+  const { lifecycle, limit, isFree } = filter || {};
 
   useEffect(() => {
     fetchBooks('all', limit);
@@ -57,11 +58,19 @@ const BookShelf: React.FC<BookShelfProps> = ({ filter, onSelectBook, sectionTitl
     );
   }
 
-  const filteredBooks = lifecycle
-    ? books.filter(book => {
-        return book.lifecycle === lifecycle;
-      })
-    : books;
+  let filteredBooks = books;
+
+  if (lifecycle) {
+    filteredBooks = filteredBooks.filter(book => book.lifecycle === lifecycle);
+  }
+
+  if (isFree) {
+    filteredBooks = filteredBooks.filter(book => book.minCost === 0);
+  }
+
+  if (limit) {
+    filteredBooks = filteredBooks.slice(0, limit);
+  }
 
   return (
     <Paper
@@ -73,7 +82,6 @@ const BookShelf: React.FC<BookShelfProps> = ({ filter, onSelectBook, sectionTitl
         borderRadius: '8px',
         boxShadow: '0 10px 30px rgba(0, 0, 0, 0.25), inset 0 2px 10px rgba(255, 255, 255, 0.1)',
         width: '100%',
-        maxWidth: '1200px',
         margin: '0 auto',
         overflow: 'hidden',
       }}
@@ -83,7 +91,7 @@ const BookShelf: React.FC<BookShelfProps> = ({ filter, onSelectBook, sectionTitl
           sx={{
             position: 'relative',
             maxWidth: '300px',
-            transform: 'rotate(-1deg)',
+            transform: `rotate(${Math.random() * 6 - 3}deg)`,
           }}
         >
           <Box
@@ -150,6 +158,7 @@ const BookShelf: React.FC<BookShelfProps> = ({ filter, onSelectBook, sectionTitl
             minWidth: '100%',
             pr: 4,
             pt: 4,
+            gap: 2,
             '&::after': {
               content: '""',
               display: 'block',
@@ -164,18 +173,19 @@ const BookShelf: React.FC<BookShelfProps> = ({ filter, onSelectBook, sectionTitl
             return (
               <Grid
                 key={bookId}
-                size={{ xs: 2, md: 1 }}
                 sx={{
                   display: 'flex',
                   justifyContent: 'center',
-                  minWidth: { md: '250px' },
+                  width: '250px',
                   flexShrink: 0,
+                  flexGrow: 0,
                 }}
               >
                 <Button
                   onClick={onSelectBook ? () => onSelectBook(bookId, authorPubkey) : () => {}}
                   sx={{
                     padding: 0,
+                    width: '100%',
                     transition: 'transform 0.3s ease',
                     '&:hover': {
                       transform: 'translateY(-8px)',

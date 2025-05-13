@@ -16,9 +16,14 @@ export default function ReadPage() {
 
   return (
     <LayoutWrapper>
-      <Box className="flex flex-col justify-center items-center h-full min-h-screen pb-48 w-full">
+      <Box className="flex flex-col gap-8 md:gap-24 justify-center items-center h-full min-h-screen pb-48 w-full">
         <BookShelf
-          sectionTitle="All Books"
+          sectionTitle="Free"
+          filter={{ limit: 8, isFree: true }}
+          onSelectBook={(bookId, authorPubkey) => handleReadBook(bookId, authorPubkey)}
+        />
+        <BookShelf
+          sectionTitle="All"
           filter={{ limit: 8 }}
           onSelectBook={(bookId, authorPubkey) => handleReadBook(bookId, authorPubkey)}
         />
