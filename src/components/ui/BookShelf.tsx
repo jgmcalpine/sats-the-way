@@ -136,7 +136,6 @@ const BookShelf: React.FC<BookShelfProps> = ({ filter, onSelectBook, sectionTitl
         }}
         onWheel={e => {
           if (e.deltaY !== 0) {
-            e.preventDefault();
             const container = e.currentTarget;
             container.scrollLeft += e.deltaY;
           }
