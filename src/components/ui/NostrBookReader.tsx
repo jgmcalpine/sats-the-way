@@ -77,6 +77,8 @@ const RightPage = styled(BookPage)(({ theme }) => ({
   display: 'flex',
   flexDirection: 'column',
   justifyContent: 'space-between',
+  backgroundColor: '#FDF5E6',
+  color: '#333333',
 }));
 
 const ChapterContent = styled(Box)(({ theme }) => ({
