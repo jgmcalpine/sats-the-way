@@ -67,7 +67,7 @@ const LeftPage = styled(BookPage)(({ theme }) => ({
   display: 'flex',
   flexDirection: 'column',
   justifyContent: 'space-between',
-  backgroundColor: theme.palette.grey[50],
+  backgroundColor: theme.palette.grey[100],
 }));
 
 const RightPage = styled(BookPage)(({ theme }) => ({
