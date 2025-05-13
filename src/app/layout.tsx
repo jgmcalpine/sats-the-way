@@ -1,10 +1,11 @@
-import { AuthProvider } from '@/components/AuthProvider'
-import ClientNav from '@/components/ClientNav'
-import NavigationWrapper from '@/components/NavigationWrapper'
-import { NdkProvider } from '@/components/NdkProvider'
-import TopNavSkeleton from '@/components/TopNavSkeleton'
-import { Suspense } from 'react'
-import './globals.css'
+import { AuthProvider } from '@/components/AuthProvider';
+import ClientNav from '@/components/ClientNav';
+import NavigationWrapper from '@/components/NavigationWrapper';
+import { NdkProvider } from '@/components/NdkProvider';
+import TopNavSkeleton from '@/components/TopNavSkeleton';
+
+import { Suspense } from 'react';
+import './globals.css';
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
@@ -28,5 +29,5 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         </AuthProvider>
       </body>
     </html>
-  )
+  );
 }
