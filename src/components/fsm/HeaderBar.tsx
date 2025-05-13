@@ -1,6 +1,6 @@
-import { Box, Button, CircularProgress, TextField, Alert, Paper } from "@mui/material";
-import { Save, Publish } from "@mui/icons-material";
-import React from "react";
+import { Publish, Save } from '@mui/icons-material';
+import { Alert, Box, Button, CircularProgress, Paper, TextField } from '@mui/material';
+import React from 'react';
 
 interface Props {
   title: string;
@@ -31,34 +31,34 @@ export const HeaderBar: React.FC<Props> = ({
   onPublish,
   isSaving,
   isPublishing,
-  validationErrors
+  validationErrors,
 }) => (
   <Paper className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between px-4">
     <Box className="flex-1 flex flex-col gap-4 p-4">
       <TextField
         value={title}
-        onChange={(e) => setTitle(e.target.value)}
+        onChange={e => setTitle(e.target.value)}
         placeholder="Book title"
         fullWidth
         variant="outlined"
       />
       <TextField
         value={authorName}
-        onChange={(e) => setAuthorName(e.target.value)}
+        onChange={e => setAuthorName(e.target.value)}
         placeholder="Author name"
         fullWidth
         variant="standard"
       />
       <TextField
         value={lnurlp}
-        onChange={(e) => setLNUrlp(e.target.value)}
+        onChange={e => setLNUrlp(e.target.value)}
         placeholder="LNURLp (if you are setting prices)"
         fullWidth
         variant="standard"
       />
       <TextField
         value={description}
-        onChange={(e) => setDescription(e.target.value)}
+        onChange={e => setDescription(e.target.value)}
         placeholder="Short description (optional)"
         fullWidth
         variant="standard"
@@ -90,16 +90,16 @@ export const HeaderBar: React.FC<Props> = ({
           </Button>
         )}
         {onPublish && (
-            <Button
-              variant="contained"
-              size="small"
-              startIcon={isPublishing ? <CircularProgress size={18} /> : <Publish />}
-              disabled={isSaving || isPublishing || validationErrors.length > 0}
-              onClick={onPublish}
-              fullWidth
-              >
-              Publish
-            </Button>
+          <Button
+            variant="contained"
+            size="small"
+            startIcon={isPublishing ? <CircularProgress size={18} /> : <Publish />}
+            disabled={isSaving || isPublishing || validationErrors.length > 0}
+            onClick={onPublish}
+            fullWidth
+          >
+            Publish
+          </Button>
         )}
       </Box>
     </Box>

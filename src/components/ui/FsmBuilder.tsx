@@ -1,13 +1,13 @@
-import React, { useState, useMemo } from "react";
-import { Box, Grid, Paper, CircularProgress, Button, Tooltip } from "@mui/material";
-import { SaveAlt } from "@mui/icons-material";
-import { FsmData, FsmState } from "@/types/fsm";
-import { useFsm } from "@/hooks/useFsm";
-import { HeaderBar } from "@/components/fsm/HeaderBar";
-import { SummaryBar } from "@/components/fsm/SummaryBar";
-import { StateSidebar } from "@/components/fsm/StateSidebar";
-import { StateEditor } from "@/components/fsm/StateEditor";
-import { ChoicesEditor } from "@/components/fsm/ChoicesEditor";
+import { ChoicesEditor } from '@/components/fsm/ChoicesEditor';
+import { HeaderBar } from '@/components/fsm/HeaderBar';
+import { StateEditor } from '@/components/fsm/StateEditor';
+import { StateSidebar } from '@/components/fsm/StateSidebar';
+import { SummaryBar } from '@/components/fsm/SummaryBar';
+import { useFsm } from '@/hooks/useFsm';
+import { FsmData, FsmState } from '@/types/fsm';
+import { SaveAlt } from '@mui/icons-material';
+import { Box, Button, CircularProgress, Grid, Paper, Tooltip } from '@mui/material';
+import React, { useMemo, useState } from 'react';
 
 import { validateFsmForPublish } from '@/utils/validateFsm';
 
@@ -18,7 +18,12 @@ interface Props {
   onSaveChapter?: (s: FsmState) => Promise<void>;
 }
 
-export const FsmBuilder: React.FC<Props> = ({ initialData, onSaveProgress, onPublish, onSaveChapter }) => {
+export const FsmBuilder: React.FC<Props> = ({
+  initialData,
+  onSaveProgress,
+  onPublish,
+  onSaveChapter,
+}) => {
   const fsm = useFsm(initialData);
   const [isSaving, setIsSaving] = useState(false);
   const [isPublishing, setIsPublishing] = useState(false);
@@ -65,18 +70,22 @@ export const FsmBuilder: React.FC<Props> = ({ initialData, onSaveProgress, onPub
         isPublishing={isPublishing}
         onSave={handleSave}
         onPublish={handlePublish}
-        setAuthorName={(name) => fsm.actions.updateMeta({ authorName: name })}
-        setTitle={(t) => fsm.actions.updateMeta({ title: t })}
+        setAuthorName={name => fsm.actions.updateMeta({ authorName: name })}
+        setTitle={t => fsm.actions.updateMeta({ title: t })}
         setLNUrlp={(t: string) => fsm.actions.updateMeta({ lnurlp: t })}
-        setDescription={(d) => fsm.actions.updateMeta({ description: d })}
+        setDescription={d => fsm.actions.updateMeta({ description: d })}
         validationErrors={validationErrors}
       />
       <SummaryBar
-        stats={{totalStates: fsm.totalStates, totalTransitions: fsm.totalTransitions, cheapest: fsm.cheapest}}
+        stats={{
+          totalStates: fsm.totalStates,
+          totalTransitions: fsm.totalTransitions,
+          cheapest: fsm.cheapest,
+        }}
         startName={fsm.data.startStateId ? fsm.data.states[fsm.data.startStateId]?.name : null}
       />
       <Grid container spacing={2} className="h-[70vh]">
-        <Grid size={{xs: 12, md: 4}} className="h-full">
+        <Grid size={{ xs: 12, md: 4 }} className="h-full">
           <StateSidebar
             states={fsm.data.states}
             selectedId={fsm.selectedId}
@@ -85,12 +94,12 @@ export const FsmBuilder: React.FC<Props> = ({ initialData, onSaveProgress, onPub
             onDelete={fsm.actions.deleteState}
           />
         </Grid>
-        <Grid size={{xs: 12, md: 8}} className="h-full">
+        <Grid size={{ xs: 12, md: 8 }} className="h-full">
           {fsm.selected ? (
             <Paper className="p-4 h-full overflow-y-auto" elevation={2}>
               <StateEditor
                 state={fsm.selected}
-                onChange={(u) => fsm.actions.updateState(fsm.selected!.id, u)}
+                onChange={u => fsm.actions.updateState(fsm.selected!.id, u)}
               />
               <ChoicesEditor
                 state={fsm.selected}
@@ -98,7 +107,7 @@ export const FsmBuilder: React.FC<Props> = ({ initialData, onSaveProgress, onPub
                 onAdd={() => fsm.actions.addTransition(fsm.selected!.id)}
                 onUpdate={(tid, u) => fsm.actions.updateTransition(fsm.selected!.id, tid, u)}
                 onUpdateChapter={(targetId, u) => fsm.actions.updateState(targetId, u)}
-                onDelete={(tid) => fsm.actions.deleteTransition(fsm.selected!.id, tid)}
+                onDelete={tid => fsm.actions.deleteTransition(fsm.selected!.id, tid)}
               />
               {onSaveChapter && (
                 <Box className="mt-4 text-right">

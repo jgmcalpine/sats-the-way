@@ -1,14 +1,7 @@
 'use client';
 
+import { Box, Button, CircularProgress, Grid, Paper, Typography } from '@mui/material';
 import React, { useEffect } from 'react';
-import {
-  Typography,
-  CircularProgress,
-  Box,
-  Grid,
-  Button,
-  Paper
-} from '@mui/material';
 
 import { useNostrBookList } from '@/hooks/useNostrBookList';
 
@@ -18,7 +11,7 @@ import BookCard from '@/components/ui/BookCard';
 
 interface BooksFilter {
   authors?: string[];
-  tags?: string[]; 
+  tags?: string[];
   limit?: number;
   lifecycle?: string;
 }
@@ -30,12 +23,7 @@ interface BookGridProps {
 }
 
 const BookGrid: React.FC<BookGridProps> = ({ filter, onSelectBook, sectionTitle }) => {
-  const {
-    books,
-    isLoading,
-    error,
-    fetchBooks,
-  } = useNostrBookList({
+  const { books, isLoading, error, fetchBooks } = useNostrBookList({
     relays: DEFAULT_RELAYS,
     initialFetch: false,
   });
@@ -43,8 +31,8 @@ const BookGrid: React.FC<BookGridProps> = ({ filter, onSelectBook, sectionTitle 
   const { lifecycle, limit } = filter || {};
 
   useEffect(() => {
-		fetchBooks('all', limit);
-	}, [fetchBooks, limit]);
+    fetchBooks('all', limit);
+  }, [fetchBooks, limit]);
 
   if (isLoading) {
     return (
@@ -69,25 +57,39 @@ const BookGrid: React.FC<BookGridProps> = ({ filter, onSelectBook, sectionTitle 
     );
   }
 
-  const filteredBooks = lifecycle ? books.filter((book) => {
-    return book.lifecycle === lifecycle
-  }) : books;
-  
+  const filteredBooks = lifecycle
+    ? books.filter(book => {
+        return book.lifecycle === lifecycle;
+      })
+    : books;
+
   return (
-    <Paper elevation={24} sx={{backgroundColor: '#8b6914', padding: 4}}>
+    <Paper elevation={24} sx={{ backgroundColor: '#8b6914', padding: 4 }}>
       {sectionTitle && (
         <Box className="bg-[#eae86f] min-h-20 max-w-80 flex justify-center items-center rounded-md flex-col my-8">
-          <Typography color="black" variant="h3" component="h3">{sectionTitle}</Typography>
+          <Typography color="black" variant="h3" component="h3">
+            {sectionTitle}
+          </Typography>
         </Box>
       )}
       <Grid container spacing={2}>
-        {filteredBooks.map((book) => {
+        {filteredBooks.map(book => {
           const { title, minCost, authorPubkey, fsmId: bookId, authorName } = book;
 
           return (
-            <Grid key={bookId} size={{xs: 12, sm: 6, md: 4, lg: 3}} sx={{ display: 'flex', justifyContent: 'center' }}>
+            <Grid
+              key={bookId}
+              size={{ xs: 12, sm: 6, md: 4, lg: 3 }}
+              sx={{ display: 'flex', justifyContent: 'center' }}
+            >
               <Button onClick={onSelectBook ? () => onSelectBook(bookId, authorPubkey) : () => {}}>
-                <BookCard id={bookId} authorName={authorName} authorPubkey={authorPubkey} title={title} minCost={minCost} />
+                <BookCard
+                  id={bookId}
+                  authorName={authorName}
+                  authorPubkey={authorPubkey}
+                  title={title}
+                  minCost={minCost}
+                />
               </Button>
             </Grid>
           );

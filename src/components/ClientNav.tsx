@@ -1,7 +1,7 @@
-'use client'
+'use client';
 
-import NavigationWrapper from './NavigationWrapper'
+import NavigationWrapper from './NavigationWrapper';
 
 export default function ClientNav() {
-  return <NavigationWrapper />
+  return <NavigationWrapper />;
 }

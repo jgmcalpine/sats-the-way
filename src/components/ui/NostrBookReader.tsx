@@ -1,28 +1,28 @@
-import React, { useCallback, useState, useEffect, useRef } from 'react';
-import { QRCodeSVG }  from 'qrcode.react';
+import { QRCodeSVG } from 'qrcode.react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 
-import {
-  Box,
-  Typography,
-  Paper,
-  Button,
-  Divider,
-  Container,
-  Card,
-  CardContent,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
-  CircularProgress
-} from '@mui/material';
-import { styled } from '@mui/material/styles';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
+import {
+  Box,
+  Button,
+  Card,
+  CardContent,
+  CircularProgress,
+  Container,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
+  Divider,
+  Paper,
+  Typography,
+} from '@mui/material';
+import { styled } from '@mui/material/styles';
 
-import { Transition, FsmState } from "@/types/fsm";
 import { useNip07 } from '@/hooks/nostr/useNip07';
-import { getPayUrl, fetchLnurlPayParams, fetchLnurlInvoice } from '@/lib/lightning/helpers';
+import { fetchLnurlInvoice, fetchLnurlPayParams, getPayUrl } from '@/lib/lightning/helpers';
+import { FsmState, Transition } from '@/types/fsm';
 
 export interface BookMetadata {
   title: string;
@@ -152,74 +152,78 @@ const NostrBookReader: React.FC<NostrBookReaderProps> = ({
   //   // OR monitor via own service
   //   console.log("invoice: ", invoice)
   //   // For now, let's simulate always true after delay
-  //   return true; 
+  //   return true;
   // }
 
+  const fetchInvoice = useCallback(
+    async (transition: Transition) => {
+      if (!readerPubkey) return;
 
-  const fetchInvoice = useCallback(async (transition: Transition) => {
-    if (!readerPubkey) return;
-    
-    setLoadingInvoice(true);
-    
-    try {
-      if (!transition.price || transition.price <= 0 || !bookMetadata?.lnurlp) {
-        // Free transition — proceed immediately
-        onTransitionSelect(transition);
-        return;
-      }
-  
-      const lnurlp = bookMetadata.lnurlp;
-      // 1. Decode LNURL
-      const payUrl = await getPayUrl(lnurlp);
-      // 2. Fetch pay params
-      const payParams = await fetchLnurlPayParams(payUrl);
-      // 3. Prepare comment if allowed
-      let comment = undefined;
-      if (payParams.commentAllowed && payParams.commentAllowed > 0) {
-        comment = `${bookMetadata.bookId}:${transition.targetStateId}`;
-        console.warn("What to do with comment: ", comment)
-      }
-  
-      // 4. Fetch BOLT11 invoice
-      const invoiceResponse = await fetchLnurlInvoice(payParams.callback, transition.price);
-      const bolt11 = invoiceResponse.pr;
-      // 5. Show payment modal with QR code
-      setInvoice(bolt11);
-      setPaymentModalOpen(true);
-      return bolt11;
-    } catch (err) {
-      console.error('Error during transition payment flow:', err);
-    } finally {
-      setLoadingInvoice(false);
-    }
-  }, [bookMetadata.bookId, readerPubkey]);
+      setLoadingInvoice(true);
 
-  const onChoiceClick = useCallback(async (transition: Transition) => {
-    if (transition.price && transition.price > 0) {
+      try {
+        if (!transition.price || transition.price <= 0 || !bookMetadata?.lnurlp) {
+          // Free transition — proceed immediately
+          onTransitionSelect(transition);
+          return;
+        }
+
+        const lnurlp = bookMetadata.lnurlp;
+        // 1. Decode LNURL
+        const payUrl = await getPayUrl(lnurlp);
+        // 2. Fetch pay params
+        const payParams = await fetchLnurlPayParams(payUrl);
+        // 3. Prepare comment if allowed
+        let comment = undefined;
+        if (payParams.commentAllowed && payParams.commentAllowed > 0) {
+          comment = `${bookMetadata.bookId}:${transition.targetStateId}`;
+          console.warn('What to do with comment: ', comment);
+        }
+
+        // 4. Fetch BOLT11 invoice
+        const invoiceResponse = await fetchLnurlInvoice(payParams.callback, transition.price);
+        const bolt11 = invoiceResponse.pr;
+        // 5. Show payment modal with QR code
+        setInvoice(bolt11);
+        setPaymentModalOpen(true);
+        return bolt11;
+      } catch (err) {
+        console.error('Error during transition payment flow:', err);
+      } finally {
+        setLoadingInvoice(false);
+      }
+    },
+    [bookMetadata.bookId, readerPubkey]
+  );
+
+  const onChoiceClick = useCallback(
+    async (transition: Transition) => {
+      if (transition.price && transition.price > 0) {
         if (!readerPubkey) {
-            try {
-                await connect();
-            } catch (err) {
-                console.error('NIP-07 connect failed', err);
-                return;
-            }
+          try {
+            await connect();
+          } catch (err) {
+            console.error('NIP-07 connect failed', err);
+            return;
+          }
         }
         setPendingTransition(transition);
         await fetchInvoice(transition);
         // if (invoice) {
         //   startPollingForPayment(invoice);
         // }
-    } else {
+      } else {
         onTransitionSelect(transition);
-    }
-}, [fetchInvoice, onTransitionSelect, readerPubkey, connect]);
-
+      }
+    },
+    [fetchInvoice, onTransitionSelect, readerPubkey, connect]
+  );
 
   const handleModalClose = () => {
     setPaymentModalOpen(false);
     setInvoice('');
   };
-  
+
   return (
     <>
       <BookContainer>
@@ -233,36 +237,36 @@ const NostrBookReader: React.FC<NostrBookReaderProps> = ({
                 <Typography variant="subtitle1" color="text.secondary" gutterBottom>
                   by {bookMetadata.authorName || bookMetadata.authorPubkey}
                 </Typography>
-                
+
                 {bookMetadata.description && (
                   <Typography variant="body2" paragraph sx={{ mt: 2 }}>
                     {bookMetadata.description}
                   </Typography>
                 )}
-                
+
                 <Divider sx={{ my: 3 }} />
-                
+
                 <Typography variant="h5" sx={{ mb: 2 }}>
                   {currentChapter.name}
                 </Typography>
-                
+
                 {bookMetadata.genre && (
                   <Typography variant="body2" color="text.secondary">
                     Genre: {bookMetadata.genre}
                   </Typography>
                 )}
-                
+
                 {Boolean(currentChapter.price) && (
                   <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
                     Entry Fee: {currentChapter.price}
                   </Typography>
                 )}
               </Box>
-              
+
               {/* Previous Chapter Button */}
-              {currentChapter.previousStateId && onPreviousChapter &&  (
-                <Button 
-                  variant="outlined" 
+              {currentChapter.previousStateId && onPreviousChapter && (
+                <Button
+                  variant="outlined"
                   startIcon={<ArrowBackIcon />}
                   onClick={() => onPreviousChapter(currentChapter?.previousStateId || '')}
                   sx={{ mt: 2, alignSelf: 'flex-start' }}
@@ -276,13 +280,13 @@ const NostrBookReader: React.FC<NostrBookReaderProps> = ({
           <Box sx={{ width: '66.67%', height: '100%' }}>
             <RightPage elevation={3}>
               <ChapterContent>
-              <Box className="whitespace-pre-wrap text-base leading-relaxed">
-                {currentChapter.content}
-              </Box>
+                <Box className="whitespace-pre-wrap text-base leading-relaxed">
+                  {currentChapter.content}
+                </Box>
               </ChapterContent>
-              
+
               <Divider sx={{ my: 2 }} />
-              
+
               {/* Choices for Next Chapter */}
               <Box>
                 {currentChapter.isEndState ? (
@@ -303,7 +307,7 @@ const NostrBookReader: React.FC<NostrBookReaderProps> = ({
                         What will you do next?
                       </Typography>
                     )}
-                    {currentChapter.transitions.map((transition) => (
+                    {currentChapter.transitions.map(transition => (
                       <ChoiceButton
                         key={transition.id}
                         variant="outlined"
@@ -313,7 +317,12 @@ const NostrBookReader: React.FC<NostrBookReaderProps> = ({
                         <Typography variant="body1">
                           {transition.choiceText}
                           {Boolean(transition.price) && (
-                            <Typography component="span" variant="body2" color="text.secondary" sx={{ ml: 1 }}>
+                            <Typography
+                              component="span"
+                              variant="body2"
+                              color="text.secondary"
+                              sx={{ ml: 1 }}
+                            >
                               ({transition.price} sats)
                             </Typography>
                           )}
@@ -349,11 +358,12 @@ const NostrBookReader: React.FC<NostrBookReaderProps> = ({
             Cancel
           </Button>
           {pendingTransitionRef.current && (
-            <Button variant="outlined" 
+            <Button
+              variant="outlined"
               onClick={() => {
-                onTransitionSelect(pendingTransitionRef.current!)
+                onTransitionSelect(pendingTransitionRef.current!);
                 setPaymentModalOpen(false);
-              }} 
+              }}
               disabled={loadingInvoice}
             >
               I paid

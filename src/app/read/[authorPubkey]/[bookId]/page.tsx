@@ -1,45 +1,45 @@
-"use client";
-import React, { useEffect } from "react";
-import { useParams } from 'next/navigation'
-import { CircularProgress, Typography } from "@mui/material";
+'use client';
+import { CircularProgress, Typography } from '@mui/material';
+import { useParams } from 'next/navigation';
+import { useEffect } from 'react';
 
-import NostrBookReader from "@/components/ui/NostrBookReader";
 import LayoutWrapper from '@/components/LayoutWrapper';
+import NostrBookReader from '@/components/ui/NostrBookReader';
 
-import { useNostrBookReader } from "@/hooks/useNostrBookReader";
-import { Transition } from "@/types/fsm";
+import { useNostrBookReader } from '@/hooks/useNostrBookReader';
+import { Transition } from '@/types/fsm';
 
 export default function BookReaderPage() {
   const params = useParams();
   const { authorPubkey, bookId } = params as {
-    authorPubkey: string
-    bookId: string
-  }
+    authorPubkey: string;
+    bookId: string;
+  };
 
   const {
-		isLoading,
-		error,
-		bookMetadata,
+    isLoading,
+    error,
+    bookMetadata,
     currentChapter,
-		fetchBookData,
+    fetchBookData,
     goToChapterByChoice,
-    setCurrentChapterById
-	} = useNostrBookReader();
+    setCurrentChapterById,
+  } = useNostrBookReader();
 
   useEffect(() => {
     if (bookId && authorPubkey) {
-        fetchBookData({bookId, authorPubkey});
+      fetchBookData({ bookId, authorPubkey });
     }
     // Optional: Add cleanup or handle identifier changes if needed
   }, [bookId, fetchBookData, authorPubkey]);
 
   const handleChapterNav = async (transition: Transition) => {
     goToChapterByChoice(transition.id);
-  }
+  };
 
   const handlePreviousChapter = (chapterId: string) => {
     setCurrentChapterById(chapterId);
-  }
+  };
 
   if (isLoading || error) {
     return (
@@ -53,8 +53,13 @@ export default function BookReaderPage() {
   if (currentChapter && bookMetadata) {
     return (
       <LayoutWrapper>
-        <NostrBookReader onPreviousChapter={handlePreviousChapter} onTransitionSelect={handleChapterNav} currentChapter={currentChapter} bookMetadata={bookMetadata} />
+        <NostrBookReader
+          onPreviousChapter={handlePreviousChapter}
+          onTransitionSelect={handleChapterNav}
+          currentChapter={currentChapter}
+          bookMetadata={bookMetadata}
+        />
       </LayoutWrapper>
-    )
+    );
   }
 }

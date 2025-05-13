@@ -1,19 +1,19 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
-import { 
-  Dialog, 
-  DialogContent, 
-  DialogActions, 
-  Button, 
-  IconButton, 
-  Typography, 
-  List,
-  ListItem, 
-  ListItemText, 
-  Box 
-} from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
+import {
+  Box,
+  Button,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  IconButton,
+  List,
+  ListItem,
+  ListItemText,
+  Typography,
+} from '@mui/material';
+import React, { useEffect, useState } from 'react';
 
 interface Chapter {
   fee: number | null;
@@ -27,16 +27,16 @@ interface BookBackModalProps {
   readBook: () => void;
 }
 
-const BookBackModal: React.FC<BookBackModalProps> = ({ 
-  open, 
-  onClose, 
-  description, 
-  chapters, 
-  readBook 
+const BookBackModal: React.FC<BookBackModalProps> = ({
+  open,
+  onClose,
+  description,
+  chapters,
+  readBook,
 }) => {
   // Animation state
   const [animationStage, setAnimationStage] = useState<'closed' | 'animating' | 'open'>('closed');
-  
+
   useEffect(() => {
     if (open) {
       setAnimationStage('animating');
@@ -69,7 +69,7 @@ const BookBackModal: React.FC<BookBackModalProps> = ({
           backgroundColor: 'rgba(0, 0, 0, 0.5)',
           backdropFilter: 'blur(4px)',
           transition: 'opacity 0.6s ease',
-        }
+        },
       }}
     >
       {/* Container for flip animation */}
@@ -84,28 +84,29 @@ const BookBackModal: React.FC<BookBackModalProps> = ({
         <Box
           className="w-full h-full relative bg-gradient-to-br from-blue-100 to-blue-300 rounded-lg"
           sx={{
-            transform: animationStage === 'closed' 
-              ? 'rotateY(0deg)' 
-              : animationStage === 'animating'
-                ? 'rotateY(90deg)'
-                : 'rotateY(180deg)',
+            transform:
+              animationStage === 'closed'
+                ? 'rotateY(0deg)'
+                : animationStage === 'animating'
+                  ? 'rotateY(90deg)'
+                  : 'rotateY(180deg)',
             transition: 'transform 0.8s ease-in-out',
             transformStyle: 'preserve-3d',
             transformOrigin: 'center center',
           }}
         >
           {/* Close button */}
-          <Box 
+          <Box
             className="absolute left-2 top-2 z-10"
-            sx={{ 
+            sx={{
               opacity: animationStage === 'open' ? 1 : 0,
               transition: 'opacity 0.3s ease',
               zIndex: 10,
             }}
           >
-            <IconButton 
-              onClick={onClose} 
-              size="small" 
+            <IconButton
+              onClick={onClose}
+              size="small"
               className="text-gray-600 hover:text-gray-900"
             >
               <CloseIcon fontSize="small" />
@@ -142,10 +143,10 @@ const BookBackModal: React.FC<BookBackModalProps> = ({
               <Box
                 className="absolute left-0 top-0 w-6 h-full bg-gradient-to-r from-blue-400 to-blue-200"
                 sx={{
-                  boxShadow: 'inset -2px 0 3px rgba(0,0,0,0.1)'
+                  boxShadow: 'inset -2px 0 3px rgba(0,0,0,0.1)',
                 }}
               />
-              
+
               <Box className="mb-6 p-4">
                 <Typography variant="h6" component="h3" className="text-gray-800 font-bold mb-4">
                   About this book
@@ -162,9 +163,11 @@ const BookBackModal: React.FC<BookBackModalProps> = ({
                 <List className="divide-y divide-gray-200">
                   {chapters.map((chapter, index) => (
                     <ListItem key={index} className="py-2">
-                      <ListItemText 
-                        primary={`Chapter ${index + 1}`} 
-                        secondary={Boolean(chapter.fee) ? `Fee: $${chapter.fee?.toFixed(2)}` : 'Free'}
+                      <ListItemText
+                        primary={`Chapter ${index + 1}`}
+                        secondary={
+                          Boolean(chapter.fee) ? `Fee: $${chapter.fee?.toFixed(2)}` : 'Free'
+                        }
                         className="text-gray-700"
                       />
                     </ListItem>
@@ -174,9 +177,9 @@ const BookBackModal: React.FC<BookBackModalProps> = ({
             </DialogContent>
 
             <DialogActions className="p-4 border-t border-gray-200 bg-blue-50">
-              <Button 
+              <Button
                 onClick={readBook}
-                variant="contained" 
+                variant="contained"
                 color="primary"
                 className="w-full py-2 text-white transition-all duration-300 hover:shadow-lg"
               >

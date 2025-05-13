@@ -3,22 +3,22 @@ import NDK, { NDKRelaySet, NDKSigner, NDKUserProfile } from '@nostr-dev-kit/ndk'
 
 // Define your default relays
 const defaultRelays = [
-    'wss://relay.damus.io',
-    'wss://relay.primal.net',
-    'wss://nos.lol',
-    'wss://relay.nostr.band',
-    'wss://relay.current.fyi',
-    'wss://nostr.fmt.wiz.biz',
-    // Add more or load from configuration
+  'wss://relay.damus.io',
+  'wss://relay.primal.net',
+  'wss://nos.lol',
+  'wss://relay.nostr.band',
+  'wss://relay.current.fyi',
+  'wss://nostr.fmt.wiz.biz',
+  // Add more or load from configuration
 ];
 
 /**
  * Represents the NDK singleton instance.
  */
 const ndkInstance = new NDK({
-    explicitRelayUrls: defaultRelays,
-    // REMOVED: The 'debug' option that caused the error
-    // debug: process.env.NODE_ENV === 'development',
+  explicitRelayUrls: defaultRelays,
+  // REMOVED: The 'debug' option that caused the error
+  // debug: process.env.NODE_ENV === 'development',
 });
 
 // Type assertion to ensure we export the specific NDK instance type

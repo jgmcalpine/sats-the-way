@@ -1,27 +1,27 @@
-import { useReducer, useMemo, useState } from "react";
-import { v4 as uuid } from "uuid";
+import { useMemo, useReducer, useState } from 'react';
+import { v4 as uuid } from 'uuid';
 
-import { calculateCheapestPath } from "@/utils/graph";
-import { Transition, FsmState, FsmData } from "@/types/fsm";
+import { FsmData, FsmState, Transition } from '@/types/fsm';
+import { calculateCheapestPath } from '@/utils/graph';
 
 // ─────────────── Reducer ───────────────
 
 type Action =
-  | { type: "init"; payload: FsmData }
-  | { type: "update-meta"; patch: Partial<Pick<FsmData,"title"|"description"|"lnurlp">> }
-  | { type: "add-state" }
-  | { type: "delete-state"; id: string }
-  | { type: "update-state"; id: string; patch: Partial<FsmState> }
-  | { type: "add-transition"; stateId: string }
-  | { type: "delete-transition"; stateId: string; trId: string }
-  | { type: "update-transition"; stateId: string; trId: string; patch: Partial<Transition> };
+  | { type: 'init'; payload: FsmData }
+  | { type: 'update-meta'; patch: Partial<Pick<FsmData, 'title' | 'description' | 'lnurlp'>> }
+  | { type: 'add-state' }
+  | { type: 'delete-state'; id: string }
+  | { type: 'update-state'; id: string; patch: Partial<FsmState> }
+  | { type: 'add-transition'; stateId: string }
+  | { type: 'delete-transition'; stateId: string; trId: string }
+  | { type: 'update-transition'; stateId: string; trId: string; patch: Partial<Transition> };
 
 function reducer(state: FsmData, action: Action): FsmData {
   switch (action.type) {
-    case "update-meta":
+    case 'update-meta':
       return { ...state, ...action.patch };
 
-    case "add-state": {
+    case 'add-state': {
       const id = uuid();
       const first = Object.keys(state.states).length === 0;
       return {
@@ -31,7 +31,7 @@ function reducer(state: FsmData, action: Action): FsmData {
           [id]: {
             id,
             name: `Chapter ${Object.keys(state.states).length + 1}`,
-            content: "",
+            content: '',
             isStartState: first,
             isEndState: false,
             transitions: [],
@@ -41,7 +41,7 @@ function reducer(state: FsmData, action: Action): FsmData {
       };
     }
 
-    case "delete-state": {
+    case 'delete-state': {
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const { [action.id]: _, ...rest } = state.states;
       for (const st of Object.values(rest)) {
@@ -54,7 +54,7 @@ function reducer(state: FsmData, action: Action): FsmData {
       };
     }
 
-    case "update-state":
+    case 'update-state':
       return {
         ...state,
         states: {
@@ -63,36 +63,39 @@ function reducer(state: FsmData, action: Action): FsmData {
         },
       };
 
-    case "add-transition": {
+    case 'add-transition': {
       const trId = uuid();
-      const st   = state.states[action.stateId];
+      const st = state.states[action.stateId];
       if (!st) return state;
       return reducer(state, {
-        type : "update-state",
-        id   : action.stateId,
+        type: 'update-state',
+        id: action.stateId,
         patch: {
-          transitions: [...st.transitions, { id: trId, choiceText: "", targetStateId: "", price: 0 }],
+          transitions: [
+            ...st.transitions,
+            { id: trId, choiceText: '', targetStateId: '', price: 0 },
+          ],
         },
       });
     }
 
-    case "delete-transition": {
+    case 'delete-transition': {
       const st = state.states[action.stateId];
       if (!st) return state;
       return reducer(state, {
-        type : "update-state",
-        id   : action.stateId,
+        type: 'update-state',
+        id: action.stateId,
         patch: { transitions: st.transitions.filter(t => t.id !== action.trId) },
       });
     }
 
-    case "update-transition": {
+    case 'update-transition': {
       const stBase = state.states[action.stateId];
       if (!stBase) return state;
 
       // First, update the transition in the current state
       const updatedState = reducer(state, {
-        type: "update-state",
+        type: 'update-state',
         id: action.stateId,
         patch: {
           transitions: stBase.transitions.map(t =>
@@ -104,20 +107,20 @@ function reducer(state: FsmData, action: Action): FsmData {
       // If the target state ID is being updated, update the previousStateId of the target state
       if (action.patch.targetStateId) {
         const targetState = updatedState.states[action.patch.targetStateId];
-        
+
         // Only proceed if the target state exists
         if (targetState) {
           // Update the target state with the previousStateId
           return reducer(updatedState, {
-            type: "update-state",
+            type: 'update-state',
             id: action.patch.targetStateId,
             patch: {
-              previousStateId: action.stateId
+              previousStateId: action.stateId,
             },
           });
         }
       }
-      
+
       // Return the updated state if there's no target state ID change or if target state doesn't exist
       return updatedState;
     }
@@ -130,48 +133,47 @@ function reducer(state: FsmData, action: Action): FsmData {
 // ─────────────── Hook API ───────────────
 
 export function useFsm(initial: FsmData) {
-    const [data, dispatch] = useReducer(reducer, initial);
-    const [selectedId, setSelectedId] = useState<string | null>(initial.startStateId);
+  const [data, dispatch] = useReducer(reducer, initial);
+  const [selectedId, setSelectedId] = useState<string | null>(initial.startStateId);
 
-  
-    /* derived helpers */
-    const totalStates = Object.keys(data.states).length;
-    const totalTransitions = Object.values(data.states).reduce((s, st) => s + st.transitions.length, 0);
-    const cheapest = useMemo(
-      () => calculateCheapestPath(data.states, data.startStateId),
-      [data]
-    );
-  
-    /* single-entry wrapper so the builder can call fsm.actions.* */
-    const actions = {
-      /* meta */
-      updateMeta: (p: Partial<Pick<FsmData, "title" | "description" | "lnurlp" | "authorName">>) =>
-                        dispatch({ type: "update-meta", patch: p }),
-  
-      /* selection */
-      selectState: setSelectedId,
-  
-      /* state CRUD */
-      addState: () => dispatch({ type: "add-state" }),
-      deleteState: (id: string) => dispatch({ type: "delete-state", id }),
-      updateState: (id: string, p: Partial<FsmState>) =>
-                        dispatch({ type: "update-state", id, patch: p }),
-  
-      /* transition CRUD */
-      addTransition: (sid: string) => dispatch({ type: "add-transition", stateId: sid }),
-      deleteTransition: (sid: string, tid: string) =>
-                        dispatch({ type: "delete-transition", stateId: sid, trId: tid }),
-      updateTransition: (sid: string, tid: string, p: Partial<Transition>) =>
-                        dispatch({ type: "update-transition", stateId: sid, trId: tid, patch: p }),
-    };
-  
-    return {
-      data,
-      selectedId,
-      selected: selectedId ? data.states[selectedId] ?? null : null,
-      totalStates,
-      totalTransitions,
-      cheapest,
-      actions,
-    } as const;
-  }
+  /* derived helpers */
+  const totalStates = Object.keys(data.states).length;
+  const totalTransitions = Object.values(data.states).reduce(
+    (s, st) => s + st.transitions.length,
+    0
+  );
+  const cheapest = useMemo(() => calculateCheapestPath(data.states, data.startStateId), [data]);
+
+  /* single-entry wrapper so the builder can call fsm.actions.* */
+  const actions = {
+    /* meta */
+    updateMeta: (p: Partial<Pick<FsmData, 'title' | 'description' | 'lnurlp' | 'authorName'>>) =>
+      dispatch({ type: 'update-meta', patch: p }),
+
+    /* selection */
+    selectState: setSelectedId,
+
+    /* state CRUD */
+    addState: () => dispatch({ type: 'add-state' }),
+    deleteState: (id: string) => dispatch({ type: 'delete-state', id }),
+    updateState: (id: string, p: Partial<FsmState>) =>
+      dispatch({ type: 'update-state', id, patch: p }),
+
+    /* transition CRUD */
+    addTransition: (sid: string) => dispatch({ type: 'add-transition', stateId: sid }),
+    deleteTransition: (sid: string, tid: string) =>
+      dispatch({ type: 'delete-transition', stateId: sid, trId: tid }),
+    updateTransition: (sid: string, tid: string, p: Partial<Transition>) =>
+      dispatch({ type: 'update-transition', stateId: sid, trId: tid, patch: p }),
+  };
+
+  return {
+    data,
+    selectedId,
+    selected: selectedId ? (data.states[selectedId] ?? null) : null,
+    totalStates,
+    totalTransitions,
+    cheapest,
+    actions,
+  } as const;
+}

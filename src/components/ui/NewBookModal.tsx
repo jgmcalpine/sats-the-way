@@ -1,12 +1,5 @@
+import { Box, Button, Modal, Stack, TextField, Typography } from '@mui/material';
 import React, { useState } from 'react';
-import { 
-  Modal, 
-  Box, 
-  Typography, 
-  TextField, 
-  Button, 
-  Stack
-} from '@mui/material';
 
 interface FormData {
   title: string;
@@ -24,18 +17,18 @@ const FormModal: React.FC<FormModalProps> = ({ open, onClose, onSubmit }) => {
   const [formData, setFormData] = useState<FormData>({
     title: '',
     description: '',
-    dedication: ''
+    dedication: '',
   });
-  
+
   const [titleError, setTitleError] = useState<boolean>(false);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({
       ...prev,
-      [name]: value
+      [name]: value,
     }));
-    
+
     // Clear error if title is being typed
     if (name === 'title' && value.trim() !== '') {
       setTitleError(false);
@@ -44,48 +37,46 @@ const FormModal: React.FC<FormModalProps> = ({ open, onClose, onSubmit }) => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     // Validate title
     if (formData.title.trim() === '') {
       setTitleError(true);
       return;
     }
-    
+
     // Pass data to callback
     onSubmit(formData);
-    
+
     // Reset form
     setFormData({
       title: '',
       description: '',
-      dedication: ''
+      dedication: '',
     });
-    
+
     // Close modal
     onClose();
   };
 
   return (
-    <Modal
-      open={open}
-      onClose={onClose}
-      aria-labelledby="form-modal-title"
-    >
-      <Box sx={{
-        position: 'absolute',
-        top: '50%',
-        left: '50%',
-        transform: 'translate(-50%, -50%)',
-        width: 400,
-        bgcolor: 'background.paper',
-        borderRadius: 2,
-        boxShadow: 24,
-        p: 4,
-      }}>
+    <Modal open={open} onClose={onClose} aria-labelledby="form-modal-title">
+      <Box
+        sx={{
+          position: 'absolute',
+          top: '50%',
+          left: '50%',
+          transform: 'translate(-50%, -50%)',
+          width: 400,
+          bgcolor: 'background.paper',
+          borderRadius: 2,
+          boxShadow: 24,
+          p: 4,
+        }}
+      >
         <Typography id="form-modal-title" variant="h5" component="h2" mb={2} color="primary">
           Create New Book
         </Typography>
-        
+
         <form onSubmit={handleSubmit}>
           <Stack spacing={3}>
             <TextField
@@ -96,9 +87,9 @@ const FormModal: React.FC<FormModalProps> = ({ open, onClose, onSubmit }) => {
               fullWidth
               required
               error={titleError}
-              helperText={titleError ? "Title is required" : ""}
+              helperText={titleError ? 'Title is required' : ''}
             />
-            
+
             <TextField
               label="Description"
               name="description"
@@ -108,7 +99,7 @@ const FormModal: React.FC<FormModalProps> = ({ open, onClose, onSubmit }) => {
               multiline
               rows={4}
             />
-            
+
             <TextField
               label="Dedication"
               name="dedication"
@@ -116,7 +107,7 @@ const FormModal: React.FC<FormModalProps> = ({ open, onClose, onSubmit }) => {
               onChange={handleChange}
               fullWidth
             />
-            
+
             <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 1 }}>
               <Button onClick={onClose} variant="outlined">
                 Cancel

@@ -1,10 +1,10 @@
-'use client'
+'use client';
 
 import {
   AccountCircle as AccountCircleIcon,
   Logout as LogoutIcon,
   Menu as MenuIcon,
-} from '@mui/icons-material'
+} from '@mui/icons-material';
 import {
   AppBar,
   Avatar,
@@ -17,52 +17,52 @@ import {
   Toolbar,
   Tooltip,
   Typography,
-} from '@mui/material'
-import Image from 'next/image'
-import Link from 'next/link'
-import { usePathname } from 'next/navigation'
-import { useEffect, useState } from 'react'
+} from '@mui/material';
+import Image from 'next/image';
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
+import { useEffect, useState } from 'react';
 
-import { useNdk } from '@/components/NdkProvider'
-import { useNip07 } from '@/hooks/nostr/useNip07'
+import { useNdk } from '@/components/NdkProvider';
+import { useNip07 } from '@/hooks/nostr/useNip07';
 
-type Profile = { picture?: string; name?: string }
+type Profile = { picture?: string; name?: string };
 
 export default function TopNav() {
-  const pathname = usePathname()
-  const [drawer, setDrawer] = useState(false)
-  const [anchorEl, setAnchorEl] = useState<Element | null>(null)
+  const pathname = usePathname();
+  const [drawer, setDrawer] = useState(false);
+  const [anchorEl, setAnchorEl] = useState<Element | null>(null);
 
   /* nostr */
-  const { ndk } = useNdk()
-  const { pubkey, isAvailable, connect, disconnect } = useNip07()
-  const [profile, setProfile] = useState<Profile | null>(null)
-  const [isMounted, setIsMounted] = useState(false)
+  const { ndk } = useNdk();
+  const { pubkey, isAvailable, connect, disconnect } = useNip07();
+  const [profile, setProfile] = useState<Profile | null>(null);
+  const [isMounted, setIsMounted] = useState(false);
 
   useEffect(() => {
-    setIsMounted(true)
-  }, [])
+    setIsMounted(true);
+  }, []);
 
   /* fetch Kind-0 metadata when connected */
   useEffect(() => {
-    if (!pubkey) return
+    if (!pubkey) return;
 
-    const user = ndk.getUser({ pubkey })
+    const user = ndk.getUser({ pubkey });
     user.fetchProfile().then(() => {
-      const { image, picture, name } = user.profile || {}
-      setProfile({ picture: image || picture, name })
-    })
-  }, [ndk, pubkey])
+      const { image, picture, name } = user.profile || {};
+      setProfile({ picture: image || picture, name });
+    });
+  }, [ndk, pubkey]);
 
   /* helpers */
   const navItems = [
     { href: '/read', label: 'Read' },
     { href: '/write', label: 'Write' },
-  ]
-  const isActive = (href: string) => pathname?.startsWith(href)
+  ];
+  const isActive = (href: string) => pathname?.startsWith(href);
 
   if (!isMounted) {
-    return null
+    return null;
   }
 
   /* ---- JSX ---- */
@@ -140,8 +140,8 @@ export default function TopNav() {
               <Menu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={() => setAnchorEl(null)}>
                 <MenuItem
                   onClick={() => {
-                    setAnchorEl(null)
-                    disconnect() // <- from useNip07()
+                    setAnchorEl(null);
+                    disconnect(); // <- from useNip07()
                   }}
                 >
                   <LogoutIcon fontSize="small" className="mr-2" />
@@ -192,8 +192,8 @@ export default function TopNav() {
               <button
                 className="flex w-full items-center justify-center gap-1 rounded-md bg-gray-200 py-2 text-sm text-gray-700 hover:bg-gray-300"
                 onClick={() => {
-                  setDrawer(false)
-                  disconnect()
+                  setDrawer(false);
+                  disconnect();
                 }}
               >
                 <LogoutIcon fontSize="small" />
@@ -204,8 +204,8 @@ export default function TopNav() {
             <button
               className="rounded-md w-full bg-blue-600 text-white py-2 hover:bg-blue-700"
               onClick={() => {
-                setDrawer(false)
-                connect()
+                setDrawer(false);
+                connect();
               }}
             >
               {isAvailable ? 'Connect Wallet' : 'Install Wallet'}
@@ -214,5 +214,5 @@ export default function TopNav() {
         </div>
       </Drawer>
     </>
-  )
+  );
 }

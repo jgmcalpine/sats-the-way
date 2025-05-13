@@ -1,18 +1,10 @@
 'use client';
 
-import React, {
-  createContext,
-  useContext,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-  ReactNode,
-} from 'react';
 import NDK, { NDKNip07Signer } from '@nostr-dev-kit/ndk';
+import { createContext, ReactNode, useContext, useEffect, useMemo, useRef, useState } from 'react';
 
-import defaultNdk from '@/lib/nostr/ndk';
 import { useNip07 } from '@/hooks/nostr/useNip07';
+import defaultNdk from '@/lib/nostr/ndk';
 
 interface NdkCtx {
   ndk: NDK;
@@ -66,7 +58,7 @@ export function NdkProvider({ children, instance = defaultNdk }: Props) {
       ndk.signer = new NDKNip07Signer();
     }
     // do a no-op call to trigger the permission popup:
-    await ndk.signer.user();  
+    await ndk.signer.user();
   };
 
   /** subscribe to pool status */
@@ -76,8 +68,7 @@ export function NdkProvider({ children, instance = defaultNdk }: Props) {
     const pool = ndk.pool;
     if (!pool) return;
 
-    const handleStatus = () =>
-      setConnected(pool.connectedRelays().length > 0);
+    const handleStatus = () => setConnected(pool.connectedRelays().length > 0);
 
     pool.on('relay:connect', handleStatus);
     pool.on('relay:disconnect', handleStatus);

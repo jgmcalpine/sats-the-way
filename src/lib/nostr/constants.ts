@@ -11,19 +11,18 @@
  */
 export const BOOK_KIND: number = 30077;
 export const NODE_KIND: number = 30078;
-export const PROGRESS_DM_KIND: number = 4 ;
+export const PROGRESS_DM_KIND: number = 4;
 export const ZAP_RECEIPT_KIND: number = 13194;
 
 // Tag names reused throughout the spec
 export enum NostrTag {
-	D = "d",      // Unique identifier inside a kind (NIP‑33)
-	B = "b",      // Foreign key → bookId
-	P = "p",      // Pubkey (author / co‑author)
-	T = "t",      // Topic / free‑form hashtag
-	R = "r",      // External resource (cover image, etc.)
-	PRICE = "price", // Sats to finish story (book‑level)
-	START = "start", // First nodeId in the FSM
-	PAY = "pay",  // Sats required before decrypt (node‑level)
-	ENC = "enc"   // "1" if content is encrypted
+  D = 'd', // Unique identifier inside a kind (NIP‑33)
+  B = 'b', // Foreign key → bookId
+  P = 'p', // Pubkey (author / co‑author)
+  T = 't', // Topic / free‑form hashtag
+  R = 'r', // External resource (cover image, etc.)
+  PRICE = 'price', // Sats to finish story (book‑level)
+  START = 'start', // First nodeId in the FSM
+  PAY = 'pay', // Sats required before decrypt (node‑level)
+  ENC = 'enc', // "1" if content is encrypted
 }
-

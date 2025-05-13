@@ -1,10 +1,10 @@
-import { Box, Paper, Tooltip, Typography, Chip } from "@mui/material";
 import {
   AccountTree,
+  CurrencyBitcoin,
   Description as IconDesc,
   PlayCircleOutline,
-  CurrencyBitcoin,
-} from "@mui/icons-material";
+} from '@mui/icons-material';
+import { Box, Chip, Paper, Tooltip, Typography } from '@mui/material';
 
 interface Props {
   stats: {
@@ -36,17 +36,17 @@ export const SummaryBar: React.FC<Props> = ({ stats, startName }) => {
       </Tooltip>
       <Tooltip title="Start chapter">
         <Box className="flex items-center gap-1 text-gray-600">
-          <PlayCircleOutline fontSize="inherit" color={startName ? "success" : "disabled"} />
-          <Typography variant="body2" className={!startName ? "italic" : ""}>
-            Start: {startName ?? "Not Set"}
+          <PlayCircleOutline fontSize="inherit" color={startName ? 'success' : 'disabled'} />
+          <Typography variant="body2" className={!startName ? 'italic' : ''}>
+            Start: {startName ?? 'Not Set'}
           </Typography>
         </Box>
       </Tooltip>
       <Tooltip title="Cheapest cost from start to an end chapter">
         <Chip
-          icon={<CurrencyBitcoin sx={{ fontSize: 16, ml: "4px" }} />}
+          icon={<CurrencyBitcoin sx={{ fontSize: 16, ml: '4px' }} />}
           size="small"
-          label={cheapest ? `${cheapest.cost} sats` : "No start ➜ end"}
+          label={cheapest ? `${cheapest.cost} sats` : 'No start ➜ end'}
           variant="outlined"
           className="text-xs h-5"
         />

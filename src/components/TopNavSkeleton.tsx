@@ -1,4 +1,4 @@
-import Image from 'next/image'
+import Image from 'next/image';
 
 export default function TopNavSkeleton() {
   return (
@@ -23,5 +23,5 @@ export default function TopNavSkeleton() {
         <div className="w-24 h-8 bg-gray-200 rounded" />
       </div>
     </header>
-  )
+  );
 }
