@@ -15,6 +15,7 @@ interface BooksFilter {
   limit?: number;
   lifecycle?: string;
   isFree?: boolean;
+  bookIds?: string[];
 }
 
 interface BookShelfProps {
@@ -29,11 +30,11 @@ const BookShelf: React.FC<BookShelfProps> = ({ filter, onSelectBook, sectionTitl
     initialFetch: false,
   });
 
-  const { lifecycle, limit, isFree } = filter || {};
+  const { lifecycle, limit, isFree, bookIds } = filter || {};
 
   useEffect(() => {
-    fetchBooks('all', limit);
-  }, [fetchBooks, limit]);
+    fetchBooks('all', bookIds, limit);
+  }, [fetchBooks, limit, bookIds]);
 
   if (isLoading) {
     return (
