@@ -5,6 +5,7 @@ import { useEffect } from 'react';
 
 import LayoutWrapper from '@/components/LayoutWrapper';
 import NostrBookReader from '@/components/ui/NostrBookReader';
+import WalletProvider from '@/components/WalletProvider';
 
 import { useNostrBookReader } from '@/hooks/useNostrBookReader';
 import { Transition } from '@/types/fsm';
@@ -53,12 +54,14 @@ export default function BookReaderPage() {
   if (currentChapter && bookMetadata) {
     return (
       <LayoutWrapper>
-        <NostrBookReader
-          onPreviousChapter={handlePreviousChapter}
-          onTransitionSelect={handleChapterNav}
-          currentChapter={currentChapter}
-          bookMetadata={bookMetadata}
-        />
+        <WalletProvider>
+          <NostrBookReader
+            onPreviousChapter={handlePreviousChapter}
+            onTransitionSelect={handleChapterNav}
+            currentChapter={currentChapter}
+            bookMetadata={bookMetadata}
+          />
+        </WalletProvider>
       </LayoutWrapper>
     );
   }

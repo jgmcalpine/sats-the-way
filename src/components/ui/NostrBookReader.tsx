@@ -4,6 +4,7 @@ import React, { useCallback, useEffect, useRef, useState } from 'react';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 import {
+  Alert,
   Box,
   Button,
   Card,
@@ -16,16 +17,19 @@ import {
   DialogTitle,
   Divider,
   Paper,
+  Snackbar,
   Typography,
 } from '@mui/material';
 import { styled } from '@mui/material/styles';
 
+import { useWallet } from '@/components/WalletProvider';
 import { useNip07 } from '@/hooks/nostr/useNip07';
 import { fetchLnurlInvoice, fetchLnurlPayParams, getPayUrl } from '@/lib/lightning/helpers';
 import { FsmState, Transition } from '@/types/fsm';
 
 export interface BookMetadata {
   title: string;
+  bookId: string; // for invoice endpoint
   authorPubkey?: string;
   authorName?: string;
   coverImage?: string;
@@ -33,7 +37,6 @@ export interface BookMetadata {
   genre?: string;
   publishDate?: string;
   lnurlp?: string;
-  bookId: string; // for invoice endpoint
 }
 
 export interface NostrBookReaderProps {
@@ -98,70 +101,48 @@ const ChoiceButton = styled(Button)(({ theme }) => ({
   width: '100%',
 }));
 
-const LoadingBox = styled(Box)(({ theme }) => ({
-  display: 'flex',
-  justifyContent: 'center',
-  padding: theme.spacing(2),
-}));
-
 const NostrBookReader: React.FC<NostrBookReaderProps> = ({
   currentChapter,
   bookMetadata,
   onTransitionSelect,
   onPreviousChapter,
 }) => {
-  const { pubkey: readerPubkey, connect } = useNip07();
+  const { pubkey: readerPubkey } = useNip07();
+  const { state: walletState, connect: connectWallet, payInvoice } = useWallet();
+
   const [invoice, setInvoice] = useState<string>('');
-  const [loadingInvoice, setLoadingInvoice] = useState(false);
+  const [isLoadingInvoice, setIsLoadingInvoice] = useState(false);
+  const [showNipWarning, setShowNipWarning] = useState(false);
   const [paymentModalOpen, setPaymentModalOpen] = useState(false);
   const [pendingTransition, setPendingTransition] = useState<Transition | null>(null);
-  // const [paymentPolling, setPaymentPolling] = useState<NodeJS.Timeout | null>(null);
-  const pendingTransitionRef = useRef<Transition | null>(null);
+  const pendingRef = useRef<{ bolt11: string; transition: Transition } | null>(null);
 
-  // Update ref whenever pendingTransition changes
   useEffect(() => {
-    pendingTransitionRef.current = pendingTransition;
+    if (pendingTransition && pendingRef.current) {
+      pendingRef.current.transition = pendingTransition;
+    }
   }, [pendingTransition]);
 
-  // function startPollingForPayment(invoice: string) {
-  //   if (paymentPolling) clearInterval(paymentPolling);
-
-  //   const interval = setInterval(async () => {
-  //       try {
-  //           const paid = await checkInvoicePaid(invoice);
-  //           console.log("is it paid: ", paid)
-  //           if (paid) {
-  //               clearInterval(interval);
-  //               setPaymentPolling(null);
-  //               setPaymentModalOpen(false);
-  //               console.log("what is pending transition: ", pendingTransitionRef.current)
-  //               if (pendingTransitionRef.current) {
-  //                   console.log("We are here in pending transition", pendingTransitionRef.current)
-  //                   onTransitionSelect(pendingTransitionRef.current);
-  //                   setPendingTransition(null);
-  //               }
-  //           }
-  //       } catch (err) {
-  //           console.error('Polling error:', err);
-  //       }
-  //   }, 5000); // check every 5 seconds
-
-  //   setPaymentPolling(interval);
-  // }
-
-  // async function checkInvoicePaid(invoice: string): Promise<boolean> {
-  //   // Call LNURL-pay service / invoice checker
-  //   // OR monitor via own service
-  //   console.log("invoice: ", invoice)
-  //   // For now, let's simulate always true after delay
-  //   return true;
-  // }
+  async function handlePayment() {
+    const pending = pendingRef.current!;
+    setIsLoadingInvoice(true);
+    try {
+      // 1) pay
+      await payInvoice(pending.bolt11);
+      // 2) navigate
+      onTransitionSelect(pending.transition);
+    } finally {
+      // 3) cleanup
+      pendingRef.current = null;
+      setIsLoadingInvoice(false);
+    }
+  }
 
   const fetchInvoice = useCallback(
     async (transition: Transition) => {
       if (!readerPubkey) return;
 
-      setLoadingInvoice(true);
+      setIsLoadingInvoice(true);
 
       try {
         if (!transition.price || transition.price <= 0 || !bookMetadata?.lnurlp) {
@@ -187,47 +168,56 @@ const NostrBookReader: React.FC<NostrBookReaderProps> = ({
         const bolt11 = invoiceResponse.pr;
         // 5. Show payment modal with QR code
         setInvoice(bolt11);
-        setPaymentModalOpen(true);
         return bolt11;
       } catch (err) {
         console.error('Error during transition payment flow:', err);
       } finally {
-        setLoadingInvoice(false);
+        setIsLoadingInvoice(false);
       }
     },
-    [bookMetadata.bookId, readerPubkey]
+    [bookMetadata.bookId, readerPubkey, onTransitionSelect, bookMetadata.lnurlp]
   );
 
   const onChoiceClick = useCallback(
     async (transition: Transition) => {
-      if (transition.price && transition.price > 0) {
-        if (!readerPubkey) {
-          try {
-            await connect();
-          } catch (err) {
-            console.error('NIP-07 connect failed', err);
-            return;
-          }
-        }
-        setPendingTransition(transition);
-        await fetchInvoice(transition);
-        // if (invoice) {
-        //   startPollingForPayment(invoice);
-        // }
+      if (!transition.price || transition.price === 0) {
+        return onTransitionSelect(transition);
+      }
+
+      // 1) fetch the BOLT11
+      setIsLoadingInvoice(true);
+      const bolt11 = await fetchInvoice(transition);
+      setIsLoadingInvoice(false);
+      if (!bolt11) {
+        throw new Error('error loading invoice');
+      }
+
+      // stash it for handlePayment()
+      pendingRef.current = { bolt11, transition };
+      setPendingTransition(transition);
+
+      if (walletState.status === 'ready') {
+        // auto‑pay path
+        await handlePayment();
       } else {
-        onTransitionSelect(transition);
+        // show the modal so user can connect
+        setPaymentModalOpen(true);
       }
     },
-    [fetchInvoice, onTransitionSelect, readerPubkey, connect]
+    [fetchInvoice, onTransitionSelect, walletState.status, handlePayment]
   );
-
-  const handleModalClose = () => {
-    setPaymentModalOpen(false);
-    setInvoice('');
-  };
 
   return (
     <>
+      <Snackbar
+        open={showNipWarning}
+        autoHideDuration={6000}
+        onClose={() => setShowNipWarning(false)}
+      >
+        <Alert severity="info" onClose={() => setShowNipWarning(false)}>
+          Progress won’t be saved until you connect your Nostr identity.
+        </Alert>
+      </Snackbar>
       <BookContainer>
         <Box sx={{ display: 'flex', height: '100%', width: '100%', boxShadow: 4 }}>
           <Box sx={{ width: '33.33%', height: '100%' }}>
@@ -340,37 +330,48 @@ const NostrBookReader: React.FC<NostrBookReaderProps> = ({
       </BookContainer>
 
       {/* Payment Modal */}
-      <Dialog open={paymentModalOpen} onClose={handleModalClose} maxWidth="sm" fullWidth>
-        <DialogTitle>Pay to Unlock Chapter</DialogTitle>
+      <Dialog
+        open={paymentModalOpen}
+        onClose={() => setPaymentModalOpen(false)}
+        fullWidth
+        maxWidth="sm"
+      >
+        <DialogTitle>
+          {walletState.status === 'ready' ? 'Confirm Payment' : 'Connect Wallet'}
+        </DialogTitle>
         <DialogContent>
-          {loadingInvoice ? (
-            <LoadingBox>
-              <CircularProgress />
-            </LoadingBox>
+          {isLoadingInvoice ? (
+            <CircularProgress />
+          ) : walletState.status !== 'ready' ? (
+            <Button variant="contained" onClick={connectWallet} fullWidth>
+              Connect Lightning Wallet
+            </Button>
           ) : (
             <>
-              <p>Scan with your Lightning Wallet:</p>
-              <QRCodeSVG value={invoice} size={256} />
-              <p className="bolt11-string">{invoice}</p>
+              <Typography>
+                Pay {pendingRef?.current?.transition?.price || ''} sats to unlock?
+              </Typography>
+              <QRCodeSVG value={invoice} size={200} />
             </>
           )}
         </DialogContent>
         <DialogActions>
-          <Button onClick={handleModalClose} disabled={loadingInvoice}>
+          <Button onClick={() => setPaymentModalOpen(false)} disabled={isLoadingInvoice}>
             Cancel
           </Button>
-          {pendingTransitionRef.current && (
-            <Button
-              variant="outlined"
-              onClick={() => {
-                onTransitionSelect(pendingTransitionRef.current!);
-                setPaymentModalOpen(false);
-              }}
-              disabled={loadingInvoice}
-            >
-              I paid
-            </Button>
-          )}
+          <Button
+            onClick={async () => {
+              // 1) ask wallet to connect
+              await connectWallet();
+              // 2) now walletState.status === 'ready', so pay + navigate
+              await handlePayment();
+              // 3) hide modal
+              setPaymentModalOpen(false);
+            }}
+            disabled={isLoadingInvoice || walletState.status !== 'ready'}
+          >
+            {walletState.status === 'ready' ? 'Pay Now' : 'Approve'}
+          </Button>
         </DialogActions>
       </Dialog>
     </>

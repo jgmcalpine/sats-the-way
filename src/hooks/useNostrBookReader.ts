@@ -134,9 +134,7 @@ export const useNostrBookReader = (): NostrBookReaderUtils => {
 
         const allRelays = Array.from(ndk.pool.relays.values());
         const connectedOnly = allRelays.filter(r => r.status === 5);
-        console.log('connectedOnly: ', connectedOnly);
         const chapterRelaySet = new NDKRelaySet(new Set(connectedOnly), ndk);
-        console.log('bout to fetch fetch ');
         const chapterEventSet = await ndk.fetchEvents(chapterFilter, {
           relaySet: chapterRelaySet,
           closeOnEose: true,
