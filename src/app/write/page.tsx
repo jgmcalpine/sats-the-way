@@ -14,7 +14,7 @@ import { useNostrBookEditor } from '@/hooks/useNostrBookEditor';
 
 export default function WritePage() {
   const [currentUserPubkey, setCurrentUserPubkey] = useState<string | null>(null);
-  const { currentUser, loading } = useAuth();
+  const { loading } = useAuth();
   const [showEditor, setShowEditor] = useState(false);
   const [saveSuccess, setSaveSuccess] = useState(false);
   const [fsmData, setFsmData] = useState<FsmData | null>(null);
@@ -81,7 +81,7 @@ export default function WritePage() {
     // Optionally show success feedback
   };
 
-  if (!currentUser) {
+  if (!currentUserPubkey) {
     return <div>Connect with nip-07 to create your own adventures!</div>;
   }
 
@@ -103,6 +103,7 @@ export default function WritePage() {
           <Box className="w-full">
             <WriteHeader onStartWriting={handleStartAdventure} />
             <BookShelf
+              sectionTitle="Drafts"
               onSelectBook={(id, authorPubkey) => handleLoadBook(id, authorPubkey)}
               filter={{
                 authors: currentUserPubkey ? [currentUserPubkey] : [],
