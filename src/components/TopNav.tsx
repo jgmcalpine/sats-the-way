@@ -79,7 +79,7 @@ export default function TopNav() {
           <IconButton
             edge="start"
             aria-label="menu"
-            sx={{ mr: 2, display: { md: 'none' } }}
+            className="flex md:hidden! mr-2"
             onClick={() => setDrawer(true)}
           >
             <MenuIcon />
@@ -200,7 +200,7 @@ export default function TopNav() {
                 Disconnect
               </button>
             </>
-          ) : (
+          ) : isAvailable ? (
             <button
               className="rounded-md w-full bg-blue-600 text-white py-2 hover:bg-blue-700"
               onClick={() => {
@@ -208,9 +208,9 @@ export default function TopNav() {
                 connect();
               }}
             >
-              {isAvailable ? 'Connect Wallet' : 'Install Wallet'}
+              Connect
             </button>
-          )}
+          ) : null}
         </div>
       </Drawer>
     </>
