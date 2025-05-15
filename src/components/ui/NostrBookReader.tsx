@@ -123,7 +123,7 @@ const NostrBookReader: React.FC<NostrBookReaderProps> = ({
     }
   }, [pendingTransition]);
 
-  async function handlePayment() {
+  const handlePayment = useCallback(async () => {
     const pending = pendingRef.current!;
     setIsLoadingInvoice(true);
     try {
@@ -136,7 +136,7 @@ const NostrBookReader: React.FC<NostrBookReaderProps> = ({
       pendingRef.current = null;
       setIsLoadingInvoice(false);
     }
-  }
+  }, [onTransitionSelect, payInvoice]);
 
   const fetchInvoice = useCallback(
     async (transition: Transition) => {
@@ -288,7 +288,7 @@ const NostrBookReader: React.FC<NostrBookReaderProps> = ({
                         The End
                       </Typography>
                       <Typography variant="body2">
-                        You&apos;ve reached the end of this story.
+                        Congratulations! You&apos;ve reached the end of this story.
                       </Typography>
                     </CardContent>
                   </Card>

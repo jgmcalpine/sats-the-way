@@ -10,6 +10,7 @@ import {
   Snackbar,
   Typography,
 } from '@mui/material';
+import confetti from 'canvas-confetti';
 import { useEffect, useState } from 'react';
 
 import { useAuth } from '@/components/AuthProvider';
@@ -26,6 +27,7 @@ export default function WritePage() {
   const { loading } = useAuth();
   const [showEditor, setShowEditor] = useState(false);
   const [saveSuccess, setSaveSuccess] = useState(false);
+  const [publishSuccess, setPublishSuccess] = useState(false);
   const [fsmData, setFsmData] = useState<FsmData | null>(null);
   const [currentBookId, setCurrentBookId] = useState<string | null>(null);
   const {
@@ -87,7 +89,12 @@ export default function WritePage() {
   const handlePublish = async (data: FsmData) => {
     if (!currentBookId || !currentUserPubkey || isProcessing) return;
     await publishBook(data);
-    // Optionally show success feedback
+    setPublishSuccess(true);
+    confetti({
+      particleCount: 100,
+      spread: 60,
+      origin: { x: 0.5, y: 0.5 }, // start at mid‐center
+    });
   };
 
   if (!currentUserPubkey) {
@@ -188,10 +195,28 @@ export default function WritePage() {
           open={saveSuccess}
           autoHideDuration={3000}
           onClose={() => setSaveSuccess(false)}
-          anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+          anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
+          sx={{
+            pt: theme => theme.spacing(8),
+            pr: theme => theme.spacing(2),
+          }}
         >
           <Alert onClose={() => setSaveSuccess(false)} severity="success" sx={{ width: '100%' }}>
             Progress saved successfully!
+          </Alert>
+        </Snackbar>
+        <Snackbar
+          open={publishSuccess}
+          autoHideDuration={3000}
+          onClose={() => setPublishSuccess(false)}
+          anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
+          sx={{
+            pt: theme => theme.spacing(8),
+            pr: theme => theme.spacing(2),
+          }}
+        >
+          <Alert onClose={() => setPublishSuccess(false)} severity="success" sx={{ width: '100%' }}>
+            Book published successfully!
           </Alert>
         </Snackbar>
       </div>
