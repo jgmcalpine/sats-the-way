@@ -37,6 +37,7 @@ export const HeaderBar: React.FC<Props> = ({
     <Box className="flex-1 flex flex-col gap-4 p-4">
       <TextField
         value={title}
+        label="Title"
         onChange={e => setTitle(e.target.value)}
         placeholder="Book title"
         fullWidth
@@ -47,17 +48,20 @@ export const HeaderBar: React.FC<Props> = ({
         onChange={e => setAuthorName(e.target.value)}
         placeholder="Author name"
         fullWidth
+        label="Author"
         variant="standard"
       />
       <TextField
         value={lnurlp}
         onChange={e => setLNUrlp(e.target.value)}
-        placeholder="LNURLp (if you are setting prices)"
+        placeholder="LNURL pay (if you are setting prices)"
         fullWidth
+        label="lnurl-pay"
         variant="standard"
       />
       <TextField
         value={description}
+        label="description"
         onChange={e => setDescription(e.target.value)}
         placeholder="Short description (optional)"
         fullWidth

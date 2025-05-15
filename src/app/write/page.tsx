@@ -153,7 +153,7 @@ export default function WritePage() {
     <LayoutWrapper>
       <div className="flex flex-col justify-center items-center h-full min-h-screen pb-48 w-full">
         {!showEditor || !fsmData ? (
-          <Box className="w-full">
+          <Box className="w-full flex flex-col gap-8">
             <WriteHeader onStartWriting={handleStartAdventure} />
             <BookShelf
               sectionTitle="Drafts"
@@ -161,6 +161,15 @@ export default function WritePage() {
               filter={{
                 authors: currentUserPubkey ? [currentUserPubkey] : [],
                 lifecycle: 'draft',
+                limit: 8,
+              }}
+            />
+            <BookShelf
+              sectionTitle="Published"
+              onSelectBook={(id, authorPubkey) => handleLoadBook(id, authorPubkey)}
+              filter={{
+                authors: currentUserPubkey ? [currentUserPubkey] : [],
+                lifecycle: 'published',
                 limit: 8,
               }}
             />

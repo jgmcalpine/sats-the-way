@@ -60,7 +60,7 @@ export const FsmBuilder: React.FC<Props> = ({
   };
 
   return (
-    <Box className="py-4 w-full">
+    <Box className="p-4 w-full bg-[#FDF5E6]">
       <HeaderBar
         title={fsm.data.title}
         authorName={fsm.data.authorName || ''}

@@ -7,6 +7,7 @@ import {
   ListItem,
   ListItemIcon,
   ListItemText,
+  Paper,
   Typography,
 } from '@mui/material';
 import React from 'react';
@@ -19,7 +20,10 @@ interface AdventureHeaderProps {
 // --- The Component ---
 const AdventureHeader: React.FC<AdventureHeaderProps> = ({ onStartWriting }) => {
   return (
-    <Box className="bg-white py-16 md:py-24 px-6 shadow-sm border border-gray-100 overflow-hidden relative">
+    <Paper
+      elevation={2}
+      className="bg-white py-16 md:py-24 px-6 shadow-sm border border-gray-100 overflow-hidden relative"
+    >
       <Grid container spacing={6} alignItems="center" className="relative z-10">
         {/* Left Column: Headline, Sub-headline, CTA */}
         <Grid
@@ -109,7 +113,7 @@ const AdventureHeader: React.FC<AdventureHeaderProps> = ({ onStartWriting }) => 
                   <CheckCircleOutline fontSize="small" className="text-indigo-500" />
                 </ListItemIcon>
                 <ListItemText
-                  primary="Optionally set entry fees or choice prices."
+                  primary="Optionally set entry fees."
                   primaryTypographyProps={{ variant: 'body1', className: 'text-gray-700' }}
                 />
               </ListItem>
@@ -126,7 +130,7 @@ const AdventureHeader: React.FC<AdventureHeaderProps> = ({ onStartWriting }) => 
           </Box>
         </Grid>
       </Grid>
-    </Box>
+    </Paper>
   );
 };
 
