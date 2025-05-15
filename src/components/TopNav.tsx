@@ -149,14 +149,14 @@ export default function TopNav() {
                 </MenuItem>
               </Menu>
             </>
-          ) : (
+          ) : isAvailable ? (
             <button
               className="rounded-md bg-blue-600 text-white px-3 py-1.5 text-sm hover:bg-blue-700"
               onClick={connect}
             >
-              {isAvailable ? 'Connect' : 'Install Wallet'}
+              Connect
             </button>
-          )}
+          ) : null}
         </Toolbar>
       </AppBar>
 

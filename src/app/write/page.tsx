@@ -1,6 +1,15 @@
 'use client';
 
-import { Alert, Box, CircularProgress, Snackbar, Typography } from '@mui/material';
+import {
+  Alert,
+  Box,
+  CircularProgress,
+  Link,
+  List,
+  ListItem,
+  Snackbar,
+  Typography,
+} from '@mui/material';
 import { useEffect, useState } from 'react';
 
 import { useAuth } from '@/components/AuthProvider';
@@ -82,7 +91,51 @@ export default function WritePage() {
   };
 
   if (!currentUserPubkey) {
-    return <div>Connect with nip-07 to create your own adventures!</div>;
+    return (
+      <LayoutWrapper>
+        <Box className="flex flex-col gap-8 h-full w-full">
+          <Typography className="flex justify-center items-center" variant="h4">
+            Please connect a Nostr signer
+          </Typography>
+          <Box className="flex flex-col gap-4 justify-start">
+            <Typography variant="body1">
+              Connecting with Nostr allows us to create events (data) to keep your books and
+              chapters around. We do not store any data, we simply create and broadcast events to
+              public relays (servers) and then get that data back when we need it.
+            </Typography>
+            <Typography variant="body1">
+              If you do not want to connect with Nostr, you can still read any of the free books in{' '}
+              {<Link href="/read">{` read.`}</Link>}
+            </Typography>
+          </Box>
+          <Box>
+            <Typography variant="body1">
+              Do your own research, but we have used these at times and they are open source
+            </Typography>
+            <List>
+              <ListItem>
+                <Link
+                  href="https://github.com/getAlby/lightning-browser-extension"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  Alby
+                </Link>
+              </ListItem>
+              <ListItem>
+                <Link
+                  href="https://github.com/fiatjaf/nos2x"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  Nos2x
+                </Link>
+              </ListItem>
+            </List>
+          </Box>
+        </Box>
+      </LayoutWrapper>
+    );
   }
 
   if (isConnecting || loading) {

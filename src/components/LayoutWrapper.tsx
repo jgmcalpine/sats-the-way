@@ -4,10 +4,10 @@ export default function NonRootLayout({ children }: { children: React.ReactNode 
   return (
     <main className="min-h-screen bg-[#f5f1e6] text-gray-900">
       <Container>
-        <Box py={{ xs: 4, md: 8 }}>
+        <Box py={{ xs: 4, md: 12 }}>
           <Paper
             elevation={2}
-            className="p-6 md:p-8 rounded-2xl shadow-md"
+            className="p-6 pt-8 md:p-8 md:pt-12 rounded-2xl shadow-md"
             sx={{
               backgroundColor: '#ffffffee',
               backdropFilter: 'blur(4px)',
