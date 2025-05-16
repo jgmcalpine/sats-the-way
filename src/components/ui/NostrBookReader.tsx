@@ -23,7 +23,6 @@ import {
 import { styled } from '@mui/material/styles';
 
 import { useWallet } from '@/components/WalletProvider';
-import { useNip07 } from '@/hooks/nostr/useNip07';
 import { fetchLnurlInvoice, fetchLnurlPayParams, getPayUrl } from '@/lib/lightning/helpers';
 import { FsmState, Transition } from '@/types/fsm';
 
@@ -107,7 +106,6 @@ const NostrBookReader: React.FC<NostrBookReaderProps> = ({
   onTransitionSelect,
   onPreviousChapter,
 }) => {
-  const { pubkey: readerPubkey } = useNip07();
   const { state: walletState, connect: connectWallet, payInvoice } = useWallet();
 
   const [invoice, setInvoice] = useState<string>('');
@@ -140,8 +138,6 @@ const NostrBookReader: React.FC<NostrBookReaderProps> = ({
 
   const fetchInvoice = useCallback(
     async (transition: Transition) => {
-      if (!readerPubkey) return;
-
       setIsLoadingInvoice(true);
 
       try {
@@ -175,7 +171,7 @@ const NostrBookReader: React.FC<NostrBookReaderProps> = ({
         setIsLoadingInvoice(false);
       }
     },
-    [bookMetadata.bookId, readerPubkey, onTransitionSelect, bookMetadata.lnurlp]
+    [bookMetadata.bookId, onTransitionSelect, bookMetadata.lnurlp]
   );
 
   const onChoiceClick = useCallback(
