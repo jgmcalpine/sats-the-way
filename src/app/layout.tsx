@@ -11,7 +11,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en">
       <head>
-        <title>SatsTheWay - Decentralized Storytelling Platform</title>
+        <title>SatsTheWay</title>
         <link rel="preload" href="/hero-library.webp" as="image" type="image/webp" />
       </head>
       <body>

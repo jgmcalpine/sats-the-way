@@ -76,6 +76,7 @@ export default function WritePage() {
     if (loadedBook?.fsmData) {
       setFsmData(loadedBook.fsmData);
       setShowEditor(true);
+      setCurrentBookId(loadedBook.bookId);
     }
   };
 

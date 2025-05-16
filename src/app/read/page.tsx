@@ -19,7 +19,7 @@ export default function ReadPage() {
       <Box className="flex flex-col gap-8 md:gap-24 justify-center items-center h-full min-h-screen pb-48 w-full">
         <BookShelf
           sectionTitle="Free"
-          filter={{ limit: 8, isFree: true }}
+          filter={{ limit: 8, isFree: true, bookIds: ['1d8b77da-eadf-4485-bbe4-dac624f27eae'] }}
           onSelectBook={(bookId, authorPubkey) => handleReadBook(bookId, authorPubkey)}
         />
         <BookShelf
