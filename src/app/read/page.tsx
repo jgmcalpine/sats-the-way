@@ -27,6 +27,11 @@ export default function ReadPage() {
           filter={{ limit: 8, bookIds: ['ca0248b6-d222-42fc-81e4-21bd60c07db1'] }}
           onSelectBook={(bookId, authorPubkey) => handleReadBook(bookId, authorPubkey)}
         />
+        <BookShelf
+          sectionTitle="All"
+          filter={{ limit: 8 }}
+          onSelectBook={(bookId, authorPubkey) => handleReadBook(bookId, authorPubkey)}
+        />
       </Box>
     </LayoutWrapper>
   );
