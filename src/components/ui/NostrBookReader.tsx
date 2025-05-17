@@ -216,7 +216,7 @@ const NostrBookReader: React.FC<NostrBookReaderProps> = ({
       </Snackbar>
       <BookContainer>
         <Box sx={{ display: 'flex', height: '100%', width: '100%', boxShadow: 4 }}>
-          <Box sx={{ width: '33.33%', height: '100%' }}>
+          <Box sx={{ width: { xs: '0', md: '33.33%' }, height: '100%' }}>
             <LeftPage elevation={3}>
               <Box>
                 <Typography variant="h4" gutterBottom>
@@ -265,7 +265,7 @@ const NostrBookReader: React.FC<NostrBookReaderProps> = ({
             </LeftPage>
           </Box>
 
-          <Box sx={{ width: '66.67%', height: '100%' }}>
+          <Box sx={{ width: { xs: '100%', md: '66.67%' }, height: '100%' }}>
             <RightPage elevation={3}>
               <ChapterContent>
                 <Box className="whitespace-pre-wrap text-base leading-relaxed">
