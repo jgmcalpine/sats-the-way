@@ -84,7 +84,7 @@ export const FsmBuilder: React.FC<Props> = ({
         }}
         startName={fsm.data.startStateId ? fsm.data.states[fsm.data.startStateId]?.name : null}
       />
-      <Grid container spacing={2} className="h-[70vh]">
+      <Grid container spacing={2} className="h-full">
         <Grid size={{ xs: 12, md: 4 }} className="h-full">
           <StateSidebar
             states={fsm.data.states}
