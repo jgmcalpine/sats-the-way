@@ -1,5 +1,6 @@
 import { AuthProvider } from '@/components/AuthProvider';
 import ClientNav from '@/components/ClientNav';
+import Footer from '@/components/Footer';
 import NavigationWrapper from '@/components/NavigationWrapper';
 import { NdkProvider } from '@/components/NdkProvider';
 import TopNavSkeleton from '@/components/TopNavSkeleton';
@@ -27,6 +28,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             </main>
           </NdkProvider>
         </AuthProvider>
+        <Footer />
       </body>
     </html>
   );
