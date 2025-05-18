@@ -1,5 +1,5 @@
 import { QRCodeSVG } from 'qrcode.react';
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
 
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
@@ -89,6 +89,7 @@ const ChapterContent = styled(Box)(({ theme }) => ({
   flexGrow: 1,
   fontSize: '1.1rem',
   lineHeight: '1.6',
+  maxHeight: '400px',
 }));
 
 const ChoiceButton = styled(Button)(({ theme }) => ({
@@ -114,12 +115,19 @@ const NostrBookReader: React.FC<NostrBookReaderProps> = ({
   const [paymentModalOpen, setPaymentModalOpen] = useState(false);
   const [pendingTransition, setPendingTransition] = useState<Transition | null>(null);
   const pendingRef = useRef<{ bolt11: string; transition: Transition } | null>(null);
+  const boxRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (pendingTransition && pendingRef.current) {
       pendingRef.current.transition = pendingTransition;
     }
   }, [pendingTransition]);
+
+  useLayoutEffect(() => {
+    const el = boxRef.current;
+    if (!el) return;
+    el.scrollTop = 0;
+  }, [currentChapter.id]);
 
   const handlePayment = useCallback(async () => {
     const pending = pendingRef.current!;
@@ -267,8 +275,11 @@ const NostrBookReader: React.FC<NostrBookReaderProps> = ({
 
           <Box sx={{ width: { xs: '100%', md: '66.67%' }, height: '100%' }}>
             <RightPage elevation={3}>
-              <ChapterContent>
-                <Box className="whitespace-pre-wrap text-base leading-relaxed">
+              <ChapterContent ref={boxRef}>
+                <Box
+                  key={currentChapter.id}
+                  className="whitespace-pre-wrap text-base leading-relaxed"
+                >
                   {currentChapter.content}
                 </Box>
               </ChapterContent>

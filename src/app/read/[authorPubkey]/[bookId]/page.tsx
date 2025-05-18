@@ -35,6 +35,9 @@ export default function BookReaderPage() {
   }, [bookId, fetchBookData, authorPubkey]);
 
   const handleChapterNav = async (transition: Transition) => {
+    if (typeof window === 'undefined') return;
+    // Native, async, 100 % GPU-driven animation
+    window.scrollTo({ top: 0, behavior: 'smooth' });
     goToChapterByChoice(transition.id);
   };
 
