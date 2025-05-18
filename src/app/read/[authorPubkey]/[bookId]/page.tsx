@@ -28,6 +28,7 @@ export default function BookReaderPage() {
   } = useNostrBookReader();
 
   useEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
     if (bookId && authorPubkey) {
       fetchBookData({ bookId, authorPubkey });
     }
