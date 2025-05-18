@@ -22,9 +22,10 @@ interface BookShelfProps {
   filter?: BooksFilter;
   onSelectBook?: (bookId: string, authorPubkey: string) => void;
   sectionTitle?: string;
+  id?: string;
 }
 
-const BookShelf: React.FC<BookShelfProps> = ({ filter, onSelectBook, sectionTitle }) => {
+const BookShelf: React.FC<BookShelfProps> = ({ filter, onSelectBook, sectionTitle, id }) => {
   const { books, isLoading, error, fetchBooks } = useNostrBookList({
     relays: DEFAULT_RELAYS,
     initialFetch: false,
@@ -75,6 +76,7 @@ const BookShelf: React.FC<BookShelfProps> = ({ filter, onSelectBook, sectionTitl
 
   return (
     <Paper
+      id={id}
       elevation={24}
       sx={{
         background: 'linear-gradient(to bottom, #8b5e34 0%, #6d4c28 100%)',
