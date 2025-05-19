@@ -222,7 +222,7 @@ const NostrBookReader: React.FC<NostrBookReaderProps> = ({
                 <Typography variant="h4" gutterBottom>
                   {bookMetadata.title}
                 </Typography>
-                <Typography variant="subtitle1" color="text.secondary" gutterBottom>
+                <Typography variant="subtitle1" component="p" color="text.secondary" gutterBottom>
                   by {bookMetadata.authorName || bookMetadata.authorPubkey}
                 </Typography>
 
