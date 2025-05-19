@@ -34,6 +34,12 @@ const Footer = () => {
               >
                 Write
               </Link>
+              <Link
+                href="/about"
+                className="!text-white hover:!text-amber-300 no-underline font-medium"
+              >
+                About
+              </Link>
             </Stack>
 
             <Typography variant="body2" className="text-gray-300">
