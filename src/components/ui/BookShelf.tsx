@@ -121,11 +121,13 @@ const BookShelf: React.FC<BookShelfProps> = ({ filter, onSelectBook, sectionTitl
             >
               {sectionTitle}
             </Typography>
-            <Box sx={{ height: '100%', display: 'flex', alignItems: 'flex-start' }}>
-              <Tooltip title="All prices in satoshis represent the total cost of the cheapest path from start to finish. Anyone can read free until they hit a paywall (set by the author.)">
-                <InfoOutlineIcon fontSize="small" />
-              </Tooltip>
-            </Box>
+            {sectionTitle !== 'Free' && (
+              <Box sx={{ height: '100%', display: 'flex', alignItems: 'flex-start' }}>
+                <Tooltip title="All prices in satoshis represent the total cost of the cheapest path from start to finish. Anyone can read free until they hit a paywall (set by the author.)">
+                  <InfoOutlineIcon fontSize="small" />
+                </Tooltip>
+              </Box>
+            )}
           </Box>
         </Box>
       )}
