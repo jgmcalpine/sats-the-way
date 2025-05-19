@@ -90,13 +90,13 @@ export default function ReadPage() {
         <BookShelf
           id="0"
           sectionTitle="Free"
-          filter={{ limit: 8, isFree: true, bookIds: ['1d8b77da-eadf-4485-bbe4-dac624f27eae'] }}
+          filter={{ limit: 8, isFree: true, bookIds: ['637aa093-f86d-4d7f-801d-550a3d71ab19'] }}
           onSelectBook={(bookId, authorPubkey) => handleReadBook(bookId, authorPubkey)}
         />
         <BookShelf
           id="1"
           sectionTitle="Favorites"
-          filter={{ limit: 8, bookIds: ['ca0248b6-d222-42fc-81e4-21bd60c07db1'] }}
+          filter={{ limit: 8, bookIds: ['0d17f746-ad70-42d2-8742-69c11d55cc38'] }}
           onSelectBook={(bookId, authorPubkey) => handleReadBook(bookId, authorPubkey)}
         />
         <BookShelf

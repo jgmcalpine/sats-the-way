@@ -327,6 +327,18 @@ const NostrBookReader: React.FC<NostrBookReaderProps> = ({
           </Box>
         </Box>
       </BookContainer>
+      <Box className="flex md:hidden">
+        {currentChapter.previousStateId && onPreviousChapter && (
+          <Button
+            variant="outlined"
+            startIcon={<ArrowBackIcon />}
+            onClick={() => onPreviousChapter(currentChapter?.previousStateId || '')}
+            sx={{ mt: 2, alignSelf: 'flex-start' }}
+          >
+            Previous Chapter
+          </Button>
+        )}
+      </Box>
 
       {/* Payment Modal */}
       <Dialog
