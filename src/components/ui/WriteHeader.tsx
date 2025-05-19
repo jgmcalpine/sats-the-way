@@ -46,8 +46,9 @@ const AdventureHeader: React.FC<AdventureHeaderProps> = ({ onStartWriting }) => 
             component="p"
             className="text-lg text-gray-600 mb-8 font-sans font-light max-w-lg mx-auto md:mx-0" // Limit width for readability
           >
-            Craft interactive stories or educational works where choices truly matter. Build
-            branching narratives, design unique paths, and share your world with readers.
+            Craft interactive stories, how-tos and guides, histories or any other narratives you can
+            imagine. Build branching decision trees, design unique paths, and share your world with
+            readers.
           </Typography>
 
           <Box className="mt-2 flex justify-center md:justify-start">
