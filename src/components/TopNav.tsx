@@ -150,7 +150,11 @@ export default function TopNav() {
               </Menu>
             </>
           ) : isAvailable ? (
-            <Button className="rounded-md text-white px-3 py-1.5 text-sm" onClick={connect}>
+            <Button
+              color="secondary"
+              className="rounded-md text-white px-3 py-1.5 text-sm"
+              onClick={connect}
+            >
               Connect
             </Button>
           ) : null}
@@ -199,6 +203,7 @@ export default function TopNav() {
             </>
           ) : isAvailable ? (
             <Button
+              color="secondary"
               className="rounded-md w-full py-2"
               onClick={() => {
                 setDrawer(false);
