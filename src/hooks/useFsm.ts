@@ -35,6 +35,7 @@ function reducer(state: FsmData, action: Action): FsmData {
             isStartState: first,
             isEndState: false,
             transitions: [],
+            previousStateId: first ? undefined : state.startStateId || undefined,
           },
         },
         startStateId: first ? id : state.startStateId,
@@ -46,6 +47,9 @@ function reducer(state: FsmData, action: Action): FsmData {
       const { [action.id]: _, ...rest } = state.states;
       for (const st of Object.values(rest)) {
         st.transitions = st.transitions.filter(t => t.targetStateId !== action.id);
+        if (st.previousStateId === action.id) {
+          st.previousStateId = undefined;
+        }
       }
       return {
         ...state,
@@ -82,10 +86,37 @@ function reducer(state: FsmData, action: Action): FsmData {
     case 'delete-transition': {
       const st = state.states[action.stateId];
       if (!st) return state;
+      const updatedTransitions = st.transitions.filter(t => t.id !== action.trId);
+      const targetStateId = st.transitions.find(t => t.id === action.trId)?.targetStateId;
+
+      if (targetStateId) {
+        const targetState = state.states[targetStateId];
+        if (targetState && !targetState.isStartState) {
+          const otherTransitionsToTarget = Object.values(state.states).some(
+            s =>
+              s.id !== action.stateId && s.transitions.some(t => t.targetStateId === targetStateId)
+          );
+          if (!otherTransitionsToTarget) {
+            return reducer(
+              reducer(state, {
+                type: 'update-state',
+                id: action.stateId,
+                patch: { transitions: updatedTransitions },
+              }),
+              {
+                type: 'update-state',
+                id: targetStateId,
+                patch: { previousStateId: undefined },
+              }
+            );
+          }
+        }
+      }
+
       return reducer(state, {
         type: 'update-state',
         id: action.stateId,
-        patch: { transitions: st.transitions.filter(t => t.id !== action.trId) },
+        patch: { transitions: updatedTransitions },
       });
     }
 
@@ -104,12 +135,10 @@ function reducer(state: FsmData, action: Action): FsmData {
         },
       });
 
-      // If the target state ID is being updated, update the previousStateId of the target state
+      // If the target state ID is being updated, we need to handle previousStateId
       if (action.patch.targetStateId) {
         const targetState = updatedState.states[action.patch.targetStateId];
-
-        // Only proceed if the target state exists
-        if (targetState) {
+        if (targetState && !targetState.isStartState) {
           // Update the target state with the previousStateId
           return reducer(updatedState, {
             type: 'update-state',
@@ -121,7 +150,6 @@ function reducer(state: FsmData, action: Action): FsmData {
         }
       }
 
-      // Return the updated state if there's no target state ID change or if target state doesn't exist
       return updatedState;
     }
 
