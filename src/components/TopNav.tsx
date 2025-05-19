@@ -130,6 +130,7 @@ export default function TopNav() {
             <>
               <Tooltip title={profile?.name || 'Profile'}>
                 <Avatar
+                  alt="User profile"
                   src={profile?.picture}
                   sx={{ width: 32, height: 32, cursor: 'pointer' }}
                   onClick={e => setAnchorEl(e.currentTarget)}
