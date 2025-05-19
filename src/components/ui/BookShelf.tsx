@@ -1,6 +1,7 @@
 'use client';
 
-import { Box, Button, CircularProgress, Grid, Paper, Typography } from '@mui/material';
+import InfoOutlineIcon from '@mui/icons-material/InfoOutline';
+import { Box, Button, CircularProgress, Grid, Paper, Tooltip, Typography } from '@mui/material';
 import React, { useEffect } from 'react';
 
 import { useNostrBookList } from '@/hooks/useNostrBookList';
@@ -98,7 +99,7 @@ const BookShelf: React.FC<BookShelfProps> = ({ filter, onSelectBook, sectionTitl
           }}
         >
           <Box
-            className="flex justify-center items-center rounded-lg flex-col my-8 py-3 px-4"
+            className="flex justify-center items-center rounded-lg my-8 py-3 px-4"
             sx={{
               background: 'linear-gradient(135deg, #d4be8e 0%, #e8d9a0 50%, #d4be8e 100%)',
               boxShadow: '0 4px 12px rgba(0, 0, 0, 0.3), inset 0 2px 3px rgba(255, 255, 255, 0.3)',
@@ -120,6 +121,11 @@ const BookShelf: React.FC<BookShelfProps> = ({ filter, onSelectBook, sectionTitl
             >
               {sectionTitle}
             </Typography>
+            <Box sx={{ height: '100%', display: 'flex', alignItems: 'flex-start' }}>
+              <Tooltip title="All prices in satoshis represent the total cost of the cheapest path from start to finish. Anyone can read free until they hit a paywall (set by the author.)">
+                <InfoOutlineIcon fontSize="small" />
+              </Tooltip>
+            </Box>
           </Box>
         </Box>
       )}
