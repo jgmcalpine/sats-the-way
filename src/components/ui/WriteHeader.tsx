@@ -30,7 +30,7 @@ const AdventureHeader: React.FC<AdventureHeaderProps> = ({ onStartWriting }) => 
           size={{ xs: 12, md: 6 }}
           className="flex flex-col justify-center text-center md:text-left"
         >
-          <AutoStories sx={{ fontSize: 40 }} className="text-indigo-500 mb-3 mx-auto md:mx-0" />
+          <AutoStories sx={{ fontSize: 40 }} className="mb-3 mx-auto md:mx-0" color="secondary" />
 
           <Typography
             variant="h2" // Larger heading for impact
@@ -83,7 +83,7 @@ const AdventureHeader: React.FC<AdventureHeaderProps> = ({ onStartWriting }) => 
             <List dense className="font-sans">
               <ListItem className="py-1 px-0">
                 <ListItemIcon className="min-w-0 mr-3">
-                  <CheckCircleOutline fontSize="small" className="text-indigo-500" />
+                  <CheckCircleOutline fontSize="small" color="primary" />
                 </ListItemIcon>
                 <ListItemText
                   primary="Add 'Steps' to create chapters."
@@ -92,7 +92,7 @@ const AdventureHeader: React.FC<AdventureHeaderProps> = ({ onStartWriting }) => 
               </ListItem>
               <ListItem className="py-1 px-0">
                 <ListItemIcon className="min-w-0 mr-3">
-                  <CheckCircleOutline fontSize="small" className="text-indigo-500" />
+                  <CheckCircleOutline fontSize="small" color="primary" />
                 </ListItemIcon>
                 <ListItemText
                   primary="Write content and design 'Choices' for forks."
@@ -101,7 +101,7 @@ const AdventureHeader: React.FC<AdventureHeaderProps> = ({ onStartWriting }) => 
               </ListItem>
               <ListItem className="py-1 px-0">
                 <ListItemIcon className="min-w-0 mr-3">
-                  <CheckCircleOutline fontSize="small" className="text-indigo-500" />
+                  <CheckCircleOutline fontSize="small" color="primary" />
                 </ListItemIcon>
                 <ListItemText
                   primary="Link choices to target steps, building the flow."
@@ -110,7 +110,7 @@ const AdventureHeader: React.FC<AdventureHeaderProps> = ({ onStartWriting }) => 
               </ListItem>
               <ListItem className="py-1 px-0">
                 <ListItemIcon className="min-w-0 mr-3">
-                  <CheckCircleOutline fontSize="small" className="text-indigo-500" />
+                  <CheckCircleOutline fontSize="small" color="primary" />
                 </ListItemIcon>
                 <ListItemText
                   primary="Optionally set entry fees."
@@ -119,7 +119,7 @@ const AdventureHeader: React.FC<AdventureHeaderProps> = ({ onStartWriting }) => 
               </ListItem>
               <ListItem className="py-1 px-0">
                 <ListItemIcon className="min-w-0 mr-3">
-                  <CheckCircleOutline fontSize="small" className="text-indigo-500" />
+                  <CheckCircleOutline fontSize="small" color="primary" />
                 </ListItemIcon>
                 <ListItemText
                   primary="Save progress and publish your finished tale."

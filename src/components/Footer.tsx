@@ -50,7 +50,7 @@ const Footer = () => {
         </Box>
 
         <Box className="mt-8 pt-4 border-t border-gray-700" color="text.primary">
-          <Typography variant="caption">© {new Date().getFullYear()}</Typography>
+          <Typography variant="caption">Built for Bitcoin © {new Date().getFullYear()}</Typography>
         </Box>
       </Container>
     </Box>

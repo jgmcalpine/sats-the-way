@@ -127,6 +127,7 @@ export default function TopNav() {
             <>
               <Tooltip title={profile?.name || 'Profile'}>
                 <Avatar
+                  role="img"
                   alt="User profile"
                   src={profile?.picture}
                   sx={{ width: 32, height: 32, cursor: 'pointer' }}
@@ -181,7 +182,7 @@ export default function TopNav() {
           {pubkey ? (
             <>
               <div className="flex items-center gap-2">
-                <Avatar alt="User profile" src={profile?.picture} />
+                <Avatar role="img" alt="User profile" src={profile?.picture} />
                 <span className="truncate">{profile?.name ?? 'Anon'}</span>
               </div>
 

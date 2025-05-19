@@ -206,6 +206,11 @@ const BookShelf: React.FC<BookShelfProps> = ({ filter, onSelectBook, sectionTitl
               </Grid>
             );
           })}
+          {filteredBooks.length === 0 && (
+            <Box className="w-full h-full min-h-[300px] bg-white rounded-lg flex items-center justify-center">
+              <Typography variant="body1">{`No ${sectionTitle || ''} books found. Get started above.`}</Typography>
+            </Box>
+          )}
         </Grid>
       </Box>
     </Paper>
