@@ -15,9 +15,6 @@ const Footer = () => {
               className="h-10 w-10"
               priority
             />
-            <Typography variant="body1" className="ml-2 font-bold" color="text.primary">
-              Bitcoin
-            </Typography>
           </Box>
 
           <Box className="w-full flex flex-col justify-center items-end" color="text.primary">
@@ -46,6 +43,7 @@ const Footer = () => {
             </Stack>
 
             <Typography variant="body2">Sats are just bitcoin.</Typography>
+            <Typography variant="body2">Bitcoin leads TheWay.</Typography>
           </Box>
         </Box>
 
