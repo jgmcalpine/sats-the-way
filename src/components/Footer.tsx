@@ -3,7 +3,7 @@ import Image from 'next/image';
 
 const Footer = () => {
   return (
-    <Box component="footer" className="w-full bg-slate-800 text-white py-6">
+    <Box component="footer" bgcolor="#FDF5E6" className="w-full py-6 text-black">
       <Container maxWidth="lg" className="px-4">
         <Box className="flex flex-col sm:flex-row sm:justify-between sm:items-start space-y-6 sm:space-y-0">
           <Box className="w-full sm:w-1/3 flex items-center gap-4">
@@ -15,43 +15,42 @@ const Footer = () => {
               className="h-10 w-10"
               priority
             />
-            <Typography variant="body1" className="ml-2 font-bold text-white">
+            <Typography variant="body1" className="ml-2 font-bold" color="text.primary">
               Bitcoin
             </Typography>
           </Box>
 
-          <Box className="w-full flex flex-col justify-center items-end">
+          <Box className="w-full flex flex-col justify-center items-end" color="text.primary">
             <Stack direction="row" spacing={3} className="mb-4">
               <Link
                 href="/read"
-                className="!text-white hover:!text-amber-300 no-underline font-medium"
+                underline="hover"
+                className="text-[#714F09]! no-underline font-medium"
               >
                 Read
               </Link>
               <Link
                 href="/write"
-                className="!text-white hover:!text-amber-300 no-underline font-medium"
+                underline="hover"
+                className="text-[#714F09]! no-underline font-medium"
               >
                 Write
               </Link>
               <Link
                 href="/about"
-                className="!text-white hover:!text-amber-300 no-underline font-medium"
+                underline="hover"
+                className="text-[#714F09]! no-underline font-medium"
               >
                 About
               </Link>
             </Stack>
 
-            <Typography variant="body2" className="text-gray-300">
-              Sats are just bitcoin.
-            </Typography>
+            <Typography variant="body2">Sats are just bitcoin.</Typography>
           </Box>
         </Box>
 
-        <Box className="mt-8 pt-4 border-t border-gray-700">
-          <Typography variant="caption" className="text-gray-400">
-            © {new Date().getFullYear()}
-          </Typography>
+        <Box className="mt-8 pt-4 border-t border-gray-700" color="text.primary">
+          <Typography variant="caption">© {new Date().getFullYear()}</Typography>
         </Box>
       </Container>
     </Box>

@@ -14,7 +14,7 @@ export default function Home() {
           <Box className="w-full p-4">
             <Box className="flex flex-col md:flex-row gap-8">
               <Box className="w-full md:w-1/2">
-                <Typography variant="h4" gutterBottom>
+                <Typography variant="h4" component="h2" gutterBottom>
                   Create your own adventures
                 </Typography>
                 <Typography variant="body1" gutterBottom>
@@ -57,7 +57,7 @@ export default function Home() {
               </Box>
             </Box>
             <Box className="w-full md:w-1/2">
-              <Typography variant="h4" gutterBottom>
+              <Typography variant="h4" component="h2" gutterBottom>
                 Choose your own path
               </Typography>
               <Typography variant="body1" gutterBottom>

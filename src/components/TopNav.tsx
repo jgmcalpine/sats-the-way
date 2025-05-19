@@ -8,6 +8,7 @@ import {
 import {
   AppBar,
   Avatar,
+  Button,
   Drawer,
   IconButton,
   List,
@@ -148,12 +149,9 @@ export default function TopNav() {
               </Menu>
             </>
           ) : isAvailable ? (
-            <button
-              className="rounded-md bg-blue-600 text-white px-3 py-1.5 text-sm hover:bg-blue-700"
-              onClick={connect}
-            >
+            <Button className="rounded-md text-white px-3 py-1.5 text-sm" onClick={connect}>
               Connect
-            </button>
+            </Button>
           ) : null}
         </Toolbar>
       </AppBar>
@@ -187,8 +185,8 @@ export default function TopNav() {
                 <span className="truncate">{profile?.name ?? 'Anon'}</span>
               </div>
 
-              <button
-                className="flex w-full items-center justify-center gap-1 rounded-md bg-gray-200 py-2 text-sm text-gray-700 hover:bg-gray-300"
+              <Button
+                className="flex w-full items-center justify-center gap-1 rounded-md py-2 text-sm"
                 onClick={() => {
                   setDrawer(false);
                   disconnect();
@@ -196,18 +194,18 @@ export default function TopNav() {
               >
                 <LogoutIcon fontSize="small" />
                 Disconnect
-              </button>
+              </Button>
             </>
           ) : isAvailable ? (
-            <button
-              className="rounded-md w-full bg-blue-600 text-white py-2 hover:bg-blue-700"
+            <Button
+              className="rounded-md w-full py-2"
               onClick={() => {
                 setDrawer(false);
                 connect();
               }}
             >
               Connect
-            </button>
+            </Button>
           ) : null}
         </div>
       </Drawer>
