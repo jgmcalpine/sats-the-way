@@ -1,5 +1,4 @@
-import { Box, Typography } from '@mui/material';
-import Link from 'next/link';
+import { Box, Link, Typography } from '@mui/material';
 
 import LayoutWrapper from '@/components/LayoutWrapper';
 
@@ -12,16 +11,17 @@ export default function AboutPage() {
             color="primary"
             className="grow flex justify-center items-center"
             variant="h3"
+            component="h1"
           >
             SatsTheWay
           </Typography>
-          <Typography variant="h6">
+          <Typography variant="h6" component="h2">
             A platform for publishing and reading choose-your-own-adventure stories with native
             bitcoin payments and openly available to any nostr client.
           </Typography>
           <Typography variant="body1">
             Neither bitcoin or nostr are required to{' '}
-            <Link className="text-blue-600" href="/read">
+            <Link underline="hover" color="#6303F2" href="/read">
               read
             </Link>{' '}
             free content on SatsTheWay. To fully experience the application, one can connect a nostr
@@ -30,7 +30,7 @@ export default function AboutPage() {
           </Typography>
           <Typography variant="body1">
             As always do your own research. For very quick lightning setup we have used{' '}
-            <Link className="text-blue-600" href="https://www.coinos.io">
+            <Link color="#6303F2" underline="hover" href="https://www.coinos.io">
               coinos.io
             </Link>{' '}
             and found it very user friendly. If you are just testing the application or dipping your
@@ -40,12 +40,13 @@ export default function AboutPage() {
             To publish a story, a nostr account must be connected. This is so we can create events
             (books and chapters). In order to connect, please install a browser extension that works
             as a nip-07 signer. DYOR rigby,{' '}
-            <Link className="text-blue-600" href="https://github.com/fiatjaf/nos2x">
+            <Link color="#6303F2" underline="hover" href="https://github.com/fiatjaf/nos2x">
               Nos2x
             </Link>{' '}
             and{' '}
             <Link
-              className="text-blue-600"
+              color="#6303F2"
+              underline="hover"
               href="https://github.com/getAlby/lightning-browser-extension"
             >
               Alby
