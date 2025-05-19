@@ -31,13 +31,7 @@ const AdventureHeader: React.FC<AdventureHeaderProps> = ({ onStartWriting }) => 
           gap={1}
           className="flex flex-col justify-center text-center md:text-left"
         >
-          <AutoStories sx={{ fontSize: 40 }} className="mb-3 mx-auto md:mx-0" color="secondary" />
-
-          <Typography
-            variant="h3"
-            component="h1"
-            className=" tracking-tight text-gray-800 mb-4 text-4xl sm:text-5xl leading-tight"
-          >
+          <Typography color="primary" variant="h3" component="h1" className="mb-4 leading-tight">
             Create your own.
           </Typography>
 
@@ -55,8 +49,9 @@ const AdventureHeader: React.FC<AdventureHeaderProps> = ({ onStartWriting }) => 
             {' '}
             {/* Button container */}
             <Button
-              variant="contained"
+              variant="outlined"
               size="large"
+              color="secondary"
               startIcon={<AutoStories />}
               onClick={onStartWriting}
               className="bg-indigo-600 hover:bg-indigo-700 text-white font-sans font-medium normal-case px-8 py-3 rounded-md shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all duration-200 ease-in-out"
@@ -120,7 +115,7 @@ const AdventureHeader: React.FC<AdventureHeaderProps> = ({ onStartWriting }) => 
                   <CheckCircleOutline fontSize="small" color="primary" />
                 </ListItemIcon>
                 <ListItemText
-                  primary="Save progress and publish your finished tale."
+                  primary="Save progress and publish on nostr."
                   primaryTypographyProps={{ variant: 'body1', className: 'text-gray-700' }}
                 />
               </ListItem>

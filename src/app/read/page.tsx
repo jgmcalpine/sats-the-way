@@ -56,7 +56,7 @@ export default function ReadPage() {
                         component={Link}
                         variant="outlined"
                         size="small"
-                        color="primary"
+                        color="secondary"
                         className="text-sm md:text-base"
                         aria-label={`Jump to ${section.title} section`}
                         onClick={e => {
