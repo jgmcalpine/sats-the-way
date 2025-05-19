@@ -162,11 +162,11 @@ const NostrBookReader: React.FC<NostrBookReaderProps> = ({
         // 2. Fetch pay params
         const payParams = await fetchLnurlPayParams(payUrl);
         // 3. Prepare comment if allowed
-        let comment = undefined;
-        if (payParams.commentAllowed && payParams.commentAllowed > 0) {
-          comment = `${bookMetadata.bookId}:${transition.targetStateId}`;
-          console.warn('What to do with comment: ', comment);
-        }
+        // let comment = undefined;
+        // if (payParams.commentAllowed && payParams.commentAllowed > 0) {
+        //   comment = `${bookMetadata.bookId}:${transition.targetStateId}`;
+        //   console.warn('What to do with comment: ', comment);
+        // }
 
         // 4. Fetch BOLT11 invoice
         const invoiceResponse = await fetchLnurlInvoice(payParams.callback, transition.price);
@@ -180,7 +180,7 @@ const NostrBookReader: React.FC<NostrBookReaderProps> = ({
         setIsLoadingInvoice(false);
       }
     },
-    [bookMetadata.bookId, onTransitionSelect, bookMetadata.lnurlp]
+    [onTransitionSelect, bookMetadata.lnurlp]
   );
 
   const onChoiceClick = useCallback(
@@ -255,9 +255,14 @@ const NostrBookReader: React.FC<NostrBookReaderProps> = ({
               {currentChapter.previousStateId && onPreviousChapter && (
                 <Button
                   variant="outlined"
+                  color="secondary"
                   startIcon={<ArrowBackIcon />}
                   onClick={() => onPreviousChapter(currentChapter?.previousStateId || '')}
-                  sx={{ mt: 2, alignSelf: 'flex-start' }}
+                  sx={{
+                    mt: 2,
+                    alignSelf: 'flex-start',
+                    display: { xs: 'none', md: 'inline-flex' },
+                  }}
                 >
                   Previous Chapter
                 </Button>
