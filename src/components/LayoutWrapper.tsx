@@ -7,7 +7,7 @@ export default function NonRootLayout({ children }: { children: React.ReactNode 
         <Box className="py-24">
           <Paper
             elevation={2}
-            className="p-6 pt-8 md:p-8 md:pt-12 rounded-2xl shadow-md"
+            className="p-1 pt-8 md:p-8 md:pt-12 rounded-2xl shadow-md"
             sx={{
               backgroundColor: '#ffffffee',
               backdropFilter: 'blur(4px)',

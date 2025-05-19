@@ -102,7 +102,12 @@ export default function WritePage() {
     return (
       <LayoutWrapper>
         <Box className="flex flex-col gap-8 h-full w-full">
-          <Typography className="flex justify-center items-center" variant="h4">
+          <Typography
+            className="flex justify-center items-center"
+            variant="h3"
+            component="h1"
+            color="primary"
+          >
             Please connect a Nostr signer
           </Typography>
           <Box className="flex flex-col gap-4 justify-start">

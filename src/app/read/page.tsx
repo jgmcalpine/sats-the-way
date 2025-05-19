@@ -22,21 +22,12 @@ export default function ReadPage() {
 
   return (
     <LayoutWrapper>
-      <Box component="header" className="bg-white py-6 px-4 md:px-8 w-full" sx={{ boxShadow: 1 }}>
+      <Typography variant="h3" component="h1" color="primary" className="text-center" gutterBottom>
+        Find your own adventure
+      </Typography>
+      <Box component="header" className="bg-white py-6 md:px-8 w-full" sx={{ boxShadow: 1 }}>
         <Container maxWidth="lg" className="mx-auto">
-          {/* Main heading with proper contrast and spacing */}
-          <Typography
-            variant="h4"
-            component="h1"
-            className="text-center font-bold text-2xl md:text-3xl lg:text-4xl"
-            gutterBottom
-            sx={{ color: 'primary.main' }}
-          >
-            Find your own adventure
-          </Typography>
-
           <Box className="flex flex-col md:flex-row md:items-start gap-6 md:gap-8">
-            {/* Descriptive text with improved readability */}
             <Box className="w-full md:w-1/2">
               <Typography variant="body1" className="text-gray-800 text-base md:text-lg" paragraph>
                 We (will one day) have lots of stories to choose from. For now, you can scroll down
@@ -44,7 +35,6 @@ export default function ReadPage() {
               </Typography>
             </Box>
 
-            {/* Section navigation with improved accessibility */}
             <Box className="w-full md:w-1/2">
               <Typography
                 variant="body1"

@@ -5,7 +5,7 @@ import LayoutWrapper from '@/components/LayoutWrapper';
 export default function AboutPage() {
   return (
     <LayoutWrapper>
-      <Box className="flex flex-col w-full">
+      <Box className="flex flex-col w-full p-4">
         <Box className="flex flex-col gap-8">
           <Typography
             color="primary"

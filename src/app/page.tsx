@@ -44,7 +44,7 @@ export default function Home() {
               </Box>
             </Box>
           </Box>
-          <Box className="flex flex-col md:flex-row gap-8">
+          <Box className="flex flex-col md:flex-row gap-8 p-4">
             <Box className="w-full md:w-1/2 flex justify-center items-center mt-4 md:mt-0">
               <Box className="relative w-full h-64 md:h-80">
                 <Image
