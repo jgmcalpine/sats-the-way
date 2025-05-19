@@ -110,7 +110,7 @@ export default function TopNav() {
                 key={href}
                 href={href}
                 className={`relative transition
-                  ${isActive(href) ? 'text-primary border-b-2 border-[#714F09]' : 'text-gray-600'}
+                  ${isActive(href) ? 'text-primary border-b-2 border-[#8A3FFC]' : 'text-gray-600'}
                   hover:text-primary
                 `}
               >
