@@ -20,7 +20,6 @@ This project is built with the following technologies:
   - Nostr Wallet Connect (NWC) – to be added
 - **Deployment**: Vercel
 
-
 ## 📚 Custom Nostr Event Kinds — FSM (Finite State Machine) Protocol
 
 This project defines two custom Nostr event kinds to support decentralized Finite State Machine (FSM) structures, useful for interactive books, games, courses, or any branching narrative content.
@@ -42,9 +41,9 @@ Defines the metadata for a published Finite State Machine (FSM) instance.
   "description": "Optional description of the FSM",
   "author_pubkey": "npub1....",
   "start_state_id": "011c86f2-4be9-43e2-8dfc-c7401c70615d",
-  "lnurlp": "lnurl1....", 
+  "lnurlp": "lnurl1....",
   "min_cost": 1500,
-  "lifecycle": "published" 
+  "lifecycle": "published"
 }
 ```
 
@@ -54,17 +53,17 @@ Defines the metadata for a published Finite State Machine (FSM) instance.
 
 **Fields Explained:**
 
-| Field | Meaning |
-| :--- | :--- |
-| fsm_type | General classification (e.g., "book", "game", "workflow") |
-| fsm_id | Unique UUID for the FSM |
-| title | Title of the FSM |
-| author_pubkey | Nostr pubkey of the FSM creator |
-| start_state_id | ID of the starting node |
-| lifecycle | 'draft' or 'published' — current publishing status |
-| description | (Optional) Description or summary |
-| lnurlp | (Optional) Lightning address for handling paid transitions |
-| min_cost | (Optional) Minimum sats needed to complete FSM (from first step to first ending step) |
+| Field          | Meaning                                                                               |
+| :------------- | :------------------------------------------------------------------------------------ |
+| fsm_type       | General classification (e.g., "book", "game", "workflow")                             |
+| fsm_id         | Unique UUID for the FSM                                                               |
+| title          | Title of the FSM                                                                      |
+| author_pubkey  | Nostr pubkey of the FSM creator                                                       |
+| start_state_id | ID of the starting node                                                               |
+| lifecycle      | 'draft' or 'published' — current publishing status                                    |
+| description    | (Optional) Description or summary                                                     |
+| lnurlp         | (Optional) Lightning address for handling paid transitions                            |
+| min_cost       | (Optional) Minimum sats needed to complete FSM (from first step to first ending step) |
 
 ---
 
@@ -108,16 +107,16 @@ Defines a single node (state) inside an FSM, including text content and transiti
 
 **Fields Explained:**
 
-| Field | Meaning |
-| :--- | :--- |
-| state_id | Unique UUID for this state |
-| fsm_id | UUID linking to the parent FSM |
-| name | Title or label for the state |
-| content | Main body text of the chapter/node |
-| is_end_state | Boolean indicating if this is a terminal state |
+| Field             | Meaning                                                |
+| :---------------- | :----------------------------------------------------- |
+| state_id          | Unique UUID for this state                             |
+| fsm_id            | UUID linking to the parent FSM                         |
+| name              | Title or label for the state                           |
+| content           | Main body text of the chapter/node                     |
+| is_end_state      | Boolean indicating if this is a terminal state         |
 | previous_state_id | (Optional) ID of the previous state (for backtracking) |
-| price | Optional number of sats required to enter this state |
-| transitions | Array of available choices leading to other states |
+| price             | Optional number of sats required to enter this state   |
+| transitions       | Array of available choices leading to other states     |
 
 ---
 
@@ -134,10 +133,10 @@ Defines a single node (state) inside an FSM, including text content and transiti
 
 ## 📋 Reserved Tags Usage
 
-| Tag | Meaning |
-| :--- | :--- |
-| d | Document identifier (fsm_id or state_id) |
-| a | Standard addressable Nostr entity |
+| Tag | Meaning                                  |
+| :-- | :--------------------------------------- |
+| d   | Document identifier (fsm_id or state_id) |
+| a   | Standard addressable Nostr entity        |
 
 Tags allow easy querying, filtering, and linking across FSM data structures.
 
@@ -147,3 +146,8 @@ Tags allow easy querying, filtering, and linking across FSM data structures.
 
 - Zap Receipts (NIP-57): Payment receipts linked to FSM transitions.
 - NWC Preimage Unlocking: Cryptographic unlocking of states via preimage proofs.
+- Preview stories before publishing
+- Send Nostr badge to users who complete a story
+  - Allow authors to connect with users who have finished their story
+- Develop rating system to surface most popular stories
+- Improve filtering on /read so users can find stories by a certain author or genre
