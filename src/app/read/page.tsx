@@ -58,22 +58,26 @@ export default function ReadPage() {
                 <List
                   component="ul"
                   aria-label="Section navigation"
-                  className="flex flex-wrap gap-x-4 gap-y-2"
+                  className="flex flex-wrap md:flex-nowrap flex-row gap-2"
                 >
                   {SECTIONS.map(section => (
-                    <ListItem key={section.id} component="li" disablePadding className="w-auto">
+                    <ListItem key={section.id} component="li" disablePadding>
                       <Button
                         component={Link}
-                        href={`#${section.id}`}
                         variant="outlined"
-                        size="medium"
+                        size="small"
                         color="primary"
                         className="text-sm md:text-base"
                         aria-label={`Jump to ${section.title} section`}
+                        onClick={e => {
+                          e.preventDefault();
+                          const element = document.getElementById(String(section.id));
+                          element?.scrollIntoView({ behavior: 'smooth' });
+                        }}
                         sx={{
                           borderRadius: '20px',
                           padding: '4px 12px',
-                          minWidth: 'auto',
+                          minWidth: '100px',
                         }}
                       >
                         {section.title}
