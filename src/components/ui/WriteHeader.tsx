@@ -31,7 +31,13 @@ const AdventureHeader: React.FC<AdventureHeaderProps> = ({ onStartWriting }) => 
           gap={1}
           className="flex flex-col justify-center text-center md:text-left"
         >
-          <Typography color="primary" variant="h3" component="h1" className="mb-4 leading-tight">
+          <Typography
+            fontFamily="Georgia"
+            color="primary"
+            variant="h3"
+            component="h1"
+            className="mb-4"
+          >
             Create your own.
           </Typography>
 

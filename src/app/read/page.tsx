@@ -22,7 +22,14 @@ export default function ReadPage() {
 
   return (
     <LayoutWrapper>
-      <Typography variant="h3" component="h1" color="primary" className="text-center" gutterBottom>
+      <Typography
+        fontFamily="Georgia"
+        variant="h2"
+        component="h1"
+        color="primary"
+        className="text-center"
+        gutterBottom
+      >
         Find your own adventure
       </Typography>
       <Box component="header" className="bg-white py-6 md:px-8 w-full" sx={{ boxShadow: 1 }}>

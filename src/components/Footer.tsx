@@ -6,7 +6,7 @@ const Footer = () => {
     <Box component="footer" bgcolor="#FDF5E6" className="w-full py-6 text-black">
       <Container maxWidth="lg" className="px-4">
         <Box className="flex flex-col sm:flex-row sm:justify-between sm:items-start space-y-6 sm:space-y-0">
-          <Box className="w-full sm:w-1/3 flex items-center gap-4">
+          <Box bgcolor="secondary" className="bg-[#8A3FFC] w-full sm:w-1/3 flex items-center gap-4">
             <Image
               src="/logo.webp"
               alt="Open Path"

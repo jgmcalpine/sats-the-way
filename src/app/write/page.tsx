@@ -107,6 +107,7 @@ export default function WritePage() {
             variant="h3"
             component="h1"
             color="primary"
+            fontFamily="Georgia"
           >
             Please connect a Nostr signer
           </Typography>

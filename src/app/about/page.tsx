@@ -5,13 +5,14 @@ import LayoutWrapper from '@/components/LayoutWrapper';
 export default function AboutPage() {
   return (
     <LayoutWrapper>
-      <Box className="flex flex-col w-full p-4">
+      <Box className="flex flex-col w-full p-4 md:p-0">
         <Box className="flex flex-col gap-8">
           <Typography
             color="primary"
             className="grow flex justify-center items-center"
             variant="h3"
             component="h1"
+            fontFamily="Georgia"
           >
             SatsTheWay
           </Typography>
