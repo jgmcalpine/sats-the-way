@@ -5,6 +5,7 @@ import NavigationWrapper from '@/components/NavigationWrapper';
 import { NdkProvider } from '@/components/NdkProvider';
 import TopNavSkeleton from '@/components/TopNavSkeleton';
 
+import ThemeProvider from '@/app/ThemeProvider';
 import { Suspense } from 'react';
 import './globals.css';
 
@@ -17,16 +18,18 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       </head>
       <body>
         <AuthProvider>
-          <NdkProvider>
-            <Suspense fallback={<TopNavSkeleton />}>
-              <NavigationWrapper />
-            </Suspense>
-            <TopNavSkeleton />
-            <ClientNav />
-            <main className="bg-[#E8D9C3] text-[#8B6914] font-sans min-h-screen mx-auto">
-              {children}
-            </main>
-          </NdkProvider>
+          <ThemeProvider>
+            <NdkProvider>
+              <Suspense fallback={<TopNavSkeleton />}>
+                <NavigationWrapper />
+              </Suspense>
+              <TopNavSkeleton />
+              <ClientNav />
+              <main className="bg-[#E8D9C3] text-[#8B6914] font-sans min-h-screen mx-auto">
+                {children}
+              </main>
+            </NdkProvider>
+          </ThemeProvider>
         </AuthProvider>
         <Footer />
       </body>
