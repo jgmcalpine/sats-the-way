@@ -28,16 +28,17 @@ const AdventureHeader: React.FC<AdventureHeaderProps> = ({ onStartWriting }) => 
         {/* Left Column: Headline, Sub-headline, CTA */}
         <Grid
           size={{ xs: 12, md: 6 }}
+          gap={1}
           className="flex flex-col justify-center text-center md:text-left"
         >
           <AutoStories sx={{ fontSize: 40 }} className="mb-3 mx-auto md:mx-0" color="secondary" />
 
           <Typography
-            variant="h2" // Larger heading for impact
+            variant="h3"
             component="h1"
-            className="font-bold font-serif tracking-tight text-gray-800 mb-4 text-4xl sm:text-5xl leading-tight"
+            className=" tracking-tight text-gray-800 mb-4 text-4xl sm:text-5xl leading-tight"
           >
-            Unleash Your Story.
+            Create your own.
           </Typography>
 
           <Typography
@@ -45,8 +46,8 @@ const AdventureHeader: React.FC<AdventureHeaderProps> = ({ onStartWriting }) => 
             component="p"
             className="text-lg text-gray-600 mb-8 font-sans font-light max-w-lg mx-auto md:mx-0" // Limit width for readability
           >
-            Craft interactive adventures where choices truly matter. Build branching narratives,
-            design unique paths, and share your world with readers.
+            Craft interactive stories or educational works where choices truly matter. Build
+            branching narratives, design unique paths, and share your world with readers.
           </Typography>
 
           <Box className="mt-2 flex justify-center md:justify-start">
@@ -55,13 +56,9 @@ const AdventureHeader: React.FC<AdventureHeaderProps> = ({ onStartWriting }) => 
             <Button
               variant="contained"
               size="large"
-              // Use a different icon, maybe related to creation/writing
-              startIcon={<AutoStories />} // Or EditNote, Create
+              startIcon={<AutoStories />}
               onClick={onStartWriting}
               className="bg-indigo-600 hover:bg-indigo-700 text-white font-sans font-medium normal-case px-8 py-3 rounded-md shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all duration-200 ease-in-out"
-              // Optional: Add subtle animation on hover if desired
-              // sx={{ '&:hover .MuiButton-endIcon': { transform: 'translateX(3px)', transition: 'transform 0.2s ease-in-out' } }}
-              // endIcon={<ArrowForward sx={{ transition: 'transform 0.2s ease-in-out' }} />}
             >
               Start Your Adventure
             </Button>
@@ -104,7 +101,7 @@ const AdventureHeader: React.FC<AdventureHeaderProps> = ({ onStartWriting }) => 
                   <CheckCircleOutline fontSize="small" color="primary" />
                 </ListItemIcon>
                 <ListItemText
-                  primary="Link choices to target steps, building the flow."
+                  primary="Link choices to target steps."
                   primaryTypographyProps={{ variant: 'body1', className: 'text-gray-700' }}
                 />
               </ListItem>

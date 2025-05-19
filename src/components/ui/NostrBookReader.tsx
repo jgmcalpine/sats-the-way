@@ -4,7 +4,6 @@ import React, { useCallback, useEffect, useLayoutEffect, useRef, useState } from
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 import {
-  Alert,
   Box,
   Button,
   Card,
@@ -17,7 +16,6 @@ import {
   DialogTitle,
   Divider,
   Paper,
-  Snackbar,
   Typography,
 } from '@mui/material';
 import { styled } from '@mui/material/styles';
@@ -47,7 +45,6 @@ export interface NostrBookReaderProps {
 
 const BookContainer = styled(Container)(({ theme }) => ({
   display: 'flex',
-  margin: theme.spacing(4, 'auto'),
   height: '80vh',
   maxHeight: '800px',
   backgroundColor: theme.palette.background.default,
@@ -81,6 +78,7 @@ const RightPage = styled(BookPage)(({ theme }) => ({
   justifyContent: 'space-between',
   backgroundColor: '#FDF5E6',
   color: '#333333',
+  overflow: 'auto',
 }));
 
 const ChapterContent = styled(Box)(({ theme }) => ({
@@ -90,6 +88,7 @@ const ChapterContent = styled(Box)(({ theme }) => ({
   fontSize: '1.1rem',
   lineHeight: '1.6',
   maxHeight: '400px',
+  minHeight: '400px',
 }));
 
 const ChoiceButton = styled(Button)(({ theme }) => ({
@@ -111,11 +110,11 @@ const NostrBookReader: React.FC<NostrBookReaderProps> = ({
 
   const [invoice, setInvoice] = useState<string>('');
   const [isLoadingInvoice, setIsLoadingInvoice] = useState(false);
-  const [showNipWarning, setShowNipWarning] = useState(false);
   const [paymentModalOpen, setPaymentModalOpen] = useState(false);
   const [pendingTransition, setPendingTransition] = useState<Transition | null>(null);
   const pendingRef = useRef<{ bolt11: string; transition: Transition } | null>(null);
   const boxRef = useRef<HTMLDivElement>(null);
+  const pageRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (pendingTransition && pendingRef.current) {
@@ -124,10 +123,12 @@ const NostrBookReader: React.FC<NostrBookReaderProps> = ({
   }, [pendingTransition]);
 
   useLayoutEffect(() => {
-    const el = boxRef.current;
-    if (!el) return;
-    el.scrollTop = 0;
-  }, [currentChapter.id]);
+    const contentBox = boxRef.current;
+    const rightPage = pageRef.current;
+    if (!contentBox || !rightPage) return;
+    rightPage.scrollTo({ top: 0, behavior: 'smooth' });
+    contentBox.scrollTo({ top: 0, behavior: 'smooth' });
+  }, [currentChapter.id, currentChapter.content]);
 
   const handlePayment = useCallback(async () => {
     const pending = pendingRef.current!;
@@ -213,16 +214,7 @@ const NostrBookReader: React.FC<NostrBookReaderProps> = ({
 
   return (
     <>
-      <Snackbar
-        open={showNipWarning}
-        autoHideDuration={6000}
-        onClose={() => setShowNipWarning(false)}
-      >
-        <Alert severity="info" onClose={() => setShowNipWarning(false)}>
-          Progress won’t be saved until you connect your Nostr identity.
-        </Alert>
-      </Snackbar>
-      <BookContainer>
+      <BookContainer className="!p-0">
         <Box sx={{ display: 'flex', height: '100%', width: '100%', boxShadow: 4 }}>
           <Box sx={{ width: { xs: '0', md: '33.33%' }, height: '100%' }}>
             <LeftPage elevation={3}>
@@ -274,11 +266,11 @@ const NostrBookReader: React.FC<NostrBookReaderProps> = ({
           </Box>
 
           <Box sx={{ width: { xs: '100%', md: '66.67%' }, height: '100%' }}>
-            <RightPage elevation={3}>
+            <RightPage ref={pageRef} elevation={3}>
               <ChapterContent ref={boxRef}>
                 <Box
                   key={currentChapter.id}
-                  className="whitespace-pre-wrap text-base leading-relaxed"
+                  className="whitespace-pre-wrap text-base leading-relaxed min-h-[400px]"
                 >
                   {currentChapter.content}
                 </Box>
