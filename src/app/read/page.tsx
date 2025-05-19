@@ -47,8 +47,7 @@ export default function ReadPage() {
             {/* Section navigation with improved accessibility */}
             <Box className="w-full md:w-1/2">
               <Typography
-                variant="h6"
-                component="h2"
+                variant="body1"
                 id="section-nav-heading"
                 className="mb-2 font-medium text-lg"
               >

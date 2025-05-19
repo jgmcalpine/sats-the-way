@@ -99,7 +99,7 @@ export default function TopNav() {
               className="h-10 w-10"
               priority
             />
-            <Typography color="#B8860B">SatsTheWay</Typography>
+            <Typography color="#714F09">SatsTheWay</Typography>
           </Link>
 
           {/* desktop nav */}
@@ -109,15 +109,11 @@ export default function TopNav() {
                 key={href}
                 href={href}
                 className={`relative transition
-                  ${isActive(href) ? 'text-primary' : 'text-gray-600'}
+                  ${isActive(href) ? 'text-primary border-b-2 border-[#714F09]' : 'text-gray-600'}
                   hover:text-primary
                 `}
               >
                 {label}
-                {/* glow highlight */}
-                {isActive(href) && (
-                  <span className="absolute -inset-1 rounded-lg shadow-[0_0_8px_theme(colors.orange.500)] pointer-events-none" />
-                )}
               </Link>
             ))}
           </nav>
@@ -187,7 +183,7 @@ export default function TopNav() {
           {pubkey ? (
             <>
               <div className="flex items-center gap-2">
-                <Avatar src={profile?.picture} />
+                <Avatar alt="User profile" src={profile?.picture} />
                 <span className="truncate">{profile?.name ?? 'Anon'}</span>
               </div>
 

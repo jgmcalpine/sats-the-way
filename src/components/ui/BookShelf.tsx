@@ -109,7 +109,7 @@ const BookShelf: React.FC<BookShelfProps> = ({ filter, onSelectBook, sectionTitl
             <Typography
               color="#5c4934"
               variant="h3"
-              component="h3"
+              component="h1"
               sx={{
                 fontFamily: 'serif',
                 fontWeight: 'bold',

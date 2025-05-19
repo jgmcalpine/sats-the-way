@@ -107,7 +107,7 @@ const BookCard: React.FC<BookCardProps> = ({
             <Box className="flex-grow-0 text-center px-1 mt-2">
               <Typography
                 variant="h5"
-                component="h3"
+                component="h2"
                 sx={{
                   fontWeight: 700,
                   textShadow: coverArtUrl ? '1px 1px 3px rgba(0,0,0,0.8)' : 'none',
@@ -133,7 +133,7 @@ const BookCard: React.FC<BookCardProps> = ({
                 <Typography
                   variant="caption"
                   sx={{
-                    backgroundColor: 'rgba(0,0,0,0.4)',
+                    backgroundColor: 'rgba(0,0,0,0.7)',
                     backdropFilter: 'blur(2px)',
                     color: '#fff',
                     fontWeight: 500,
@@ -153,7 +153,7 @@ const BookCard: React.FC<BookCardProps> = ({
 
                 {/* Min cost */}
                 <Box
-                  className="flex items-center gap-1 px-1.5 py-0.5 bg-black/40 backdrop-blur-sm rounded-sm"
+                  className="flex items-center gap-1 px-1.5 py-0.5 bg-black rounded-sm"
                   sx={{
                     color: '#f7931a',
                     fontWeight: 600,

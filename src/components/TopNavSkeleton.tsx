@@ -13,7 +13,7 @@ export default function TopNavSkeleton() {
             priority
             className="w-10 h-10"
           />
-          <div className="text-lg text-[#B8860B]">SatsTheWay</div>
+          <div className="text-lg text-[#714F09]">SatsTheWay</div>
         </div>
         <nav className="hidden md:flex ml-6 space-x-6 text-gray-600">
           <span>Read</span>

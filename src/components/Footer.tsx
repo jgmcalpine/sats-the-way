@@ -15,7 +15,7 @@ const Footer = () => {
               className="h-10 w-10"
               priority
             />
-            <Typography variant="h6" className="ml-2 font-bold text-white">
+            <Typography variant="body1" className="ml-2 font-bold text-white">
               Bitcoin
             </Typography>
           </Box>
