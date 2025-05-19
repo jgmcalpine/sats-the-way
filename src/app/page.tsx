@@ -19,7 +19,7 @@ export default function Home() {
                 </Typography>
                 <Typography variant="body1" gutterBottom>
                   Craft stories with forking paths, or one single way through. Set paywalls anywhere
-                  throughout your work or let users read your tales for free.
+                  throughout your work or let users read your work for free.
                 </Typography>
                 <Typography variant="body1" gutterBottom>
                   The choice is yours.
@@ -61,7 +61,7 @@ export default function Home() {
                 Choose your own path
               </Typography>
               <Typography variant="body1" gutterBottom>
-                Find free stories on topics that interest you most. Or challenge yourself to find
+                Read free stories on topics that interest you most. Or challenge yourself to find
                 the best path through a forking story.
               </Typography>
               <Typography variant="body1" gutterBottom></Typography>
