@@ -1,7 +1,7 @@
 'use client';
 import { useRouter } from 'next/navigation';
 
-import { Box, Link, Typography } from '@mui/material';
+import { Box, Button, Container, Link, List, ListItem, Typography } from '@mui/material';
 
 import LayoutWrapper from '@/components/LayoutWrapper';
 import BookShelf from '@/components/ui/BookShelf';
@@ -22,36 +22,70 @@ export default function ReadPage() {
 
   return (
     <LayoutWrapper>
-      <Box className="flex justify-center items-center pt-16 md:pt-0">
-        <Typography variant="h4" component="h1" className="mb-2">
-          Find your own adventure
-        </Typography>
-      </Box>
-      <Box component="header" className="bg-white py-6 md:px-8 scroll-smooth">
-        <Box className="mx-auto flex flex-col md:flex-row md:items-center">
-          <Box className="md:w-1/2 mb-4 md:mb-0">
-            <Typography variant="body1" className="text-gray-700">
-              We (will one day) have lots of stories to choose from. For now, you can scroll down to
-              see all options or jump to your favorite section on the right.
-            </Typography>
-          </Box>
+      <Box component="header" className="bg-white py-6 px-4 md:px-8 w-full" sx={{ boxShadow: 1 }}>
+        <Container maxWidth="lg" className="mx-auto">
+          {/* Main heading with proper contrast and spacing */}
+          <Typography
+            variant="h4"
+            component="h1"
+            className="text-center font-bold text-2xl md:text-3xl lg:text-4xl"
+            gutterBottom
+            sx={{ color: 'primary.main' }}
+          >
+            Find your own adventure
+          </Typography>
 
-          {/* Section links */}
-          <Box className="md:w-1/2 flex flex-col md:justify-center md:items-center">
-            <Typography variant="h6">Sections:</Typography>
-            <nav aria-label="Jump to section">
-              <ul className="flex flex-wrap flex-col justify-start md:justify-end">
-                {SECTIONS.map(section => (
-                  <li key={section.id}>
-                    <Link href={`#${section.id}`} underline="hover">
-                      <Typography variant="h6">{section.title}</Typography>
-                    </Link>
-                  </li>
-                ))}
-              </ul>
-            </nav>
+          <Box className="flex flex-col md:flex-row md:items-start gap-6 md:gap-8">
+            {/* Descriptive text with improved readability */}
+            <Box className="w-full md:w-1/2">
+              <Typography variant="body1" className="text-gray-800 text-base md:text-lg" paragraph>
+                We (will one day) have lots of stories to choose from. For now, you can scroll down
+                to see all options or jump to your favorite section.
+              </Typography>
+            </Box>
+
+            {/* Section navigation with improved accessibility */}
+            <Box className="w-full md:w-1/2">
+              <Typography
+                variant="h6"
+                component="h2"
+                id="section-nav-heading"
+                className="mb-2 font-medium text-lg"
+              >
+                Sections:
+              </Typography>
+
+              <nav aria-labelledby="section-nav-heading" className="w-full">
+                <List
+                  component="ul"
+                  aria-label="Section navigation"
+                  className="flex flex-wrap gap-x-4 gap-y-2"
+                >
+                  {SECTIONS.map(section => (
+                    <ListItem key={section.id} component="li" disablePadding className="w-auto">
+                      <Button
+                        component={Link}
+                        href={`#${section.id}`}
+                        variant="outlined"
+                        size="medium"
+                        color="primary"
+                        className="text-sm md:text-base"
+                        aria-label={`Jump to ${section.title} section`}
+                        sx={{
+                          borderRadius: '20px',
+                          padding: '4px 12px',
+                          minWidth: 'auto',
+                        }}
+                      >
+                        {section.title}
+                      </Button>
+                    </ListItem>
+                  ))}
+                </List>
+              </nav>
+            </Box>
           </Box>
-        </Box>
+        </Container>
       </Box>
       <Box className="flex flex-col gap-8 md:gap-24 justify-center items-center h-full min-h-screen pb-48 w-full">
         <BookShelf
