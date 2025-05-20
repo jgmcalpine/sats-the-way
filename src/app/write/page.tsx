@@ -133,6 +133,7 @@ export default function WritePage() {
                   href="https://github.com/getAlby/lightning-browser-extension"
                   target="_blank"
                   rel="noopener noreferrer"
+                  color="secondary"
                 >
                   Alby
                 </Link>
@@ -142,11 +143,25 @@ export default function WritePage() {
                   href="https://github.com/fiatjaf/nos2x"
                   target="_blank"
                   rel="noopener noreferrer"
+                  color="secondary"
                 >
                   Nos2x
                 </Link>
               </ListItem>
             </List>
+          </Box>
+          <Box>
+            <Typography variant="body1">
+              As always do your own research. For very quick lightning setup we have used{' '}
+              <Link color="secondary" underline="hover" href="https://www.coinos.io">
+                coinos.io
+              </Link>{' '}
+              and found it very user friendly. If you are just testing the application or dipping
+              your toes into lightning with small amounts, this is a simple way to experience it.
+              Sign up (no email required), set your username and you have a lnurl-pay address (i.e.
+              username@coinos.io). Enter that when you create your story, and you can receive
+              bitcoin when users pass a paywall.
+            </Typography>
           </Box>
         </Box>
       </LayoutWrapper>
