@@ -335,6 +335,7 @@ const NostrBookReader: React.FC<NostrBookReaderProps> = ({
       <Box className="flex md:hidden">
         {currentChapter.previousStateId && onPreviousChapter && (
           <Button
+            color="secondary"
             variant="outlined"
             startIcon={<ArrowBackIcon />}
             onClick={() => onPreviousChapter(currentChapter?.previousStateId || '')}
@@ -372,10 +373,15 @@ const NostrBookReader: React.FC<NostrBookReaderProps> = ({
           )}
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => setPaymentModalOpen(false)} disabled={isLoadingInvoice}>
+          <Button
+            color="error"
+            onClick={() => setPaymentModalOpen(false)}
+            disabled={isLoadingInvoice}
+          >
             Cancel
           </Button>
           <Button
+            color="secondary"
             onClick={async () => {
               // 1) ask wallet to connect
               await connectWallet();

@@ -97,7 +97,7 @@ export default function ReadPage() {
         <BookShelf
           id="1"
           sectionTitle="Favorites"
-          filter={{ limit: 8, bookIds: ['0d17f746-ad70-42d2-8742-69c11d55cc38'] }}
+          filter={{ limit: 8, bookIds: ['b6737bc1-9632-463e-857d-ea4f4fde51e6'] }}
           onSelectBook={(bookId, authorPubkey) => handleReadBook(bookId, authorPubkey)}
         />
         <BookShelf

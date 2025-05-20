@@ -25,7 +25,9 @@ export default function Home() {
                   The choice is yours.
                 </Typography>
                 <Link underline="none" href="/write">
-                  <Button variant="outlined">Get Started</Button>
+                  <Button color="secondary" variant="outlined">
+                    Get Started Writing
+                  </Button>
                 </Link>
               </Box>
 
@@ -64,7 +66,9 @@ export default function Home() {
               </Typography>
               <Typography variant="body1" gutterBottom></Typography>
               <Link underline="none" href="/read">
-                <Button variant="outlined">Find a book</Button>
+                <Button color="secondary" variant="outlined">
+                  Find a book
+                </Button>
               </Link>
             </Box>
           </Box>
