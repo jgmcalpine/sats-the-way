@@ -118,13 +118,14 @@ export default function WritePage() {
               public relays (servers) and then get that data back when we need it.
             </Typography>
             <Typography variant="body1">
-              If you do not want to connect with Nostr, you can still read any of the free books in{' '}
-              {<Link href="/read">{` read.`}</Link>}
+              If you do not want to connect with Nostr, you can still{' '}
+              {<Link color="secondary" href="/read">{` read.`}</Link>}
             </Typography>
           </Box>
           <Box>
             <Typography variant="body1">
-              Do your own research, but we have used these at times and they are open source
+              Do your own research, but we have used these, they are open source, and they do not
+              share your private keys.
             </Typography>
             <List>
               <ListItem>
