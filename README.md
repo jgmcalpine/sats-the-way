@@ -2,14 +2,14 @@
 
 ## Overview
 
-This project aims to create an open standard for nostr, allowing for execution of finite state machines. It includes an example implementation, a platform for writing and reading choose-your-own-adventure stories. Authors can set paywalls for specific choices throughout the story which readers must pay (currently using QR codes generated from an lnurlp address, future upgrade will use NWC) in order to advance.
+This project aims to create an open standard for nostr, allowing for execution of finite state machines. It includes an example implementation, a platform for writing and reading choose-your-own-adventure stories. Authors can set paywalls for specific choices throughout the story which readers must pay by connecting a lightning wallet in order to advance.
 
 ## 🧰 Tech Stack
 
 This project is built with the following technologies:
 
 - **Framework**: Next.js (App Router, TypeScript)
-- **Styling**: Tailwind CSS
+- **Layout Styling**: Tailwind CSS
 - **State Management**: React Hooks
 - **Nostr Protocol**:
   - NDK (Nostr Development Kit)
@@ -128,6 +128,7 @@ Defines a single node (state) inside an FSM, including text content and transiti
 - \`lnurlp\` integration enables decentralized Lightning payments for unlocking content.
 - Readers start at \`start_state_id\` and proceed by selecting transitions.
 - Authors can gate certain transitions with Lightning payments.
+- Authors receive payment directly from readers, the platform takes no cut
 
 ---
 
