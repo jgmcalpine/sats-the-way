@@ -25,7 +25,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               </Suspense>
               <TopNavSkeleton />
               <ClientNav />
-              <main className="bg-[#E8D9C3] text-[#8B6914] font-sans min-h-screen mx-auto">
+              <main
+                id="main-container"
+                className="bg-[#E8D9C3] text-[#8B6914] font-sans min-h-screen mx-auto"
+              >
                 {children}
               </main>
             </NdkProvider>

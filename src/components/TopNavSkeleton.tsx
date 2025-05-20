@@ -2,7 +2,12 @@ import Image from 'next/image';
 
 export default function TopNavSkeleton() {
   return (
-    <header className="fixed top-0 left-0 right-0 h-16 bg-white shadow-sm z-50" aria-hidden="true">
+    <header
+      id="skeleton-app-bar"
+      className="fixed top-0 left-0 right-0 h-16 bg-white shadow-sm z-50"
+      aria-hidden="true"
+      role="presentation"
+    >
       <div className="mx-auto h-full flex items-center px-4 md:px-8">
         <div className="flex items-center gap-2 justify-center">
           <Image

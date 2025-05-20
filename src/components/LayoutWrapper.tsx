@@ -2,7 +2,7 @@ import { Box, Container, Paper } from '@mui/material';
 
 export default function NonRootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <main className="min-h-screen bg-[#f5f1e6] text-gray-800" id="layout-root-here">
+    <Box className="min-h-screen bg-[#f5f1e6] text-gray-800" id="layout-root-here">
       <Container>
         <Box className="py-24">
           <Paper
@@ -18,6 +18,6 @@ export default function NonRootLayout({ children }: { children: React.ReactNode 
           </Paper>
         </Box>
       </Container>
-    </main>
+    </Box>
   );
 }

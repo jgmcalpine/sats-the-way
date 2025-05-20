@@ -71,6 +71,7 @@ export default function TopNav() {
   return (
     <>
       <AppBar
+        id="app-bar"
         position="fixed"
         color="default"
         className="top-0 left-0 right-0 h-16 bg-white shadow-sm z-50"
@@ -104,7 +105,7 @@ export default function TopNav() {
           </Link>
 
           {/* desktop nav */}
-          <nav className="ml-6 gap-6 hidden md:flex">
+          <nav id="desktop-nav" className="ml-6 gap-6 hidden md:flex">
             {navItems.map(({ href, label }) => (
               <Link
                 key={href}
