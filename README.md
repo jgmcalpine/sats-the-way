@@ -122,13 +122,13 @@ Defines a single node (state) inside an FSM, including text content and transiti
 
 ## 📋 Notes on Usage
 
-- FSM Metadata (30077) must be published before related State Nodes (30078).
 - Transitions may include optional prices (sats) if using paid branching paths.
 - FSMs are extensible to many types of experiences: books, games, training paths, etc.
 - \`lnurlp\` integration enables decentralized Lightning payments for unlocking content.
 - Readers start at \`start_state_id\` and proceed by selecting transitions.
-- Authors can gate certain transitions with Lightning payments.
-- Authors receive payment directly from readers, the platform takes no cut
+- Authors receive payment directly from readers, the platform takes no cut.
+- Writers can track the paths of their story in the canvas below the Builder
+  ![Demo Screenshot](./public/example-forking-story.webp)
 
 ---
 
