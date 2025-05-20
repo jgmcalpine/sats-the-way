@@ -185,24 +185,28 @@ export default function WritePage() {
         {!showEditor || !fsmData ? (
           <Box className="w-full flex flex-col gap-8">
             <WriteHeader onStartWriting={handleStartAdventure} />
-            <BookShelf
-              sectionTitle="Drafts"
-              onSelectBook={(id, authorPubkey) => handleLoadBook(id, authorPubkey)}
-              filter={{
-                authors: currentUserPubkey ? [currentUserPubkey] : [],
-                lifecycle: 'draft',
-                limit: 8,
-              }}
-            />
-            <BookShelf
-              sectionTitle="Published"
-              onSelectBook={(id, authorPubkey) => handleLoadBook(id, authorPubkey)}
-              filter={{
-                authors: currentUserPubkey ? [currentUserPubkey] : [],
-                lifecycle: 'published',
-                limit: 8,
-              }}
-            />
+            {currentUserPubkey ? (
+              <Box className="flex flex-col gap-8">
+                <BookShelf
+                  sectionTitle="Drafts"
+                  onSelectBook={(id, authorPubkey) => handleLoadBook(id, authorPubkey)}
+                  filter={{
+                    authors: currentUserPubkey ? [currentUserPubkey] : [],
+                    lifecycle: 'draft',
+                    limit: 8,
+                  }}
+                />
+                <BookShelf
+                  sectionTitle="Published"
+                  onSelectBook={(id, authorPubkey) => handleLoadBook(id, authorPubkey)}
+                  filter={{
+                    authors: currentUserPubkey ? [currentUserPubkey] : [],
+                    lifecycle: 'published',
+                    limit: 8,
+                  }}
+                />
+              </Box>
+            ) : null}
           </Box>
         ) : (
           <>
