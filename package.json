@@ -20,7 +20,7 @@
     "bech32": "^2.0.0",
     "canvas-confetti": "^1.9.3",
     "dayjs": "^1.11.13",
-    "next": "15.2.5",
+    "next": "^15.2.6",
     "nostr-tools": "^2.12.0",
     "qrcode.react": "^4.2.0",
     "react": "18.2.0",
